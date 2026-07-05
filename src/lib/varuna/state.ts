@@ -129,7 +129,7 @@ export function generateBlockState(
         flood_risk: +flood_risk.toFixed(3),
         drought_risk: +drought_risk.toFixed(3),
         compound_risk: compound,
-        category: classify(flood_risk, drought_risk),
+        category: classify(flood_risk, drought_risk, heat, soil),
         kosi_basin: d.kosiBasin,
         population: Math.round((d.population * 1000) / BLOCKS_PER_DISTRICT),
       });
@@ -140,6 +140,8 @@ export function generateBlockState(
     const dBlocks = blocks.filter((b) => b.district_id === d.id);
     const flood = dBlocks.reduce((s, b) => s + b.flood_risk, 0) / dBlocks.length;
     const drought = dBlocks.reduce((s, b) => s + b.drought_risk, 0) / dBlocks.length;
+    const heat = dBlocks.reduce((s, b) => s + b.heat_retention_score, 0) / dBlocks.length;
+    const soil = dBlocks.reduce((s, b) => s + b.soil_moisture_index, 0) / dBlocks.length;
     const rain = dBlocks.reduce((s, b) => s + b.rainfall_mm, 0) / dBlocks.length;
     const temp = dBlocks.reduce((s, b) => s + b.temperature_c, 0) / dBlocks.length;
     const compound = flood >= 0.6 && drought >= 0.4;
@@ -148,7 +150,7 @@ export function generateBlockState(
     return {
       district: d,
       blocks: dBlocks,
-      category: classify(flood, drought),
+      category: classify(flood, drought, heat, soil),
       flood_risk: +flood.toFixed(3),
       drought_risk: +drought.toFixed(3),
       compound_risk: compound,
@@ -165,14 +167,16 @@ export const RISK_COLORS: Record<RiskCategory, string> = {
   flood: "var(--risk-flood)",
   compound: "var(--risk-compound)",
   heat: "var(--risk-heat)",
+  drought: "var(--risk-drought)",
   normal: "var(--risk-normal)",
   cold: "var(--risk-cold)",
 };
 
 export const RISK_LABELS: Record<RiskCategory, string> = {
-  flood: "Flood / heavy rainfall",
-  compound: "Compound (flood + heat)",
+  flood: "Rainfall / flood",
+  compound: "Compound (flood + heatwave)",
   heat: "Heatwave / drought",
+  drought: "Drought (low soil moisture)",
   normal: "Normal",
   cold: "Cool / dry",
 };
