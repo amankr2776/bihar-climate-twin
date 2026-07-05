@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { getAlerts, getCurrentState, type AlertItem } from "@/lib/varuna/api";
-import type { BlockState, CurrentState, DistrictState } from "@/lib/varuna/state" with { "resolution-mode": "import" };
+import { getAlerts, getCurrentState, type AlertItem, type CurrentState } from "@/lib/varuna/api";
+import type { BlockState, DistrictState } from "@/lib/varuna/state";
 import { BiharMap } from "@/components/varuna/BiharMap";
 import { KpiStrip } from "@/components/varuna/KpiStrip";
 import { KosiTrendChart } from "@/components/varuna/KosiTrendChart";
