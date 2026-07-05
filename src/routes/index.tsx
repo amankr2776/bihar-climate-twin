@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function VarunaDashboard() {
-  const [state, setState] = useState<import("@/lib/varuna/state").CurrentState | null>(null);
+  const [state, setState] = useState<CurrentState | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
