@@ -116,14 +116,48 @@
 
 /* Leaflet dark tweaks */
 .leaflet-container {
-  background: oklch(0.14 0.02 240);
+  background: oklch(0.14 0.02 260);
   font-family: var(--font-sans);
 }
 .leaflet-control-attribution {
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: oklch(0.7 0.02 230) !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  color: oklch(0.7 0.02 240) !important;
+  font-size: 10px !important;
 }
-.leaflet-control-attribution a { color: oklch(0.78 0.15 200) !important; }
+.leaflet-control-attribution a { color: oklch(0.82 0.17 200) !important; }
+.leaflet-control-zoom a {
+  background: var(--panel) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* District labels drawn as permanent tooltips */
+.v-map-label-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.v-map-label-wrap::before { display: none !important; }
+.v-map-label {
+  color: oklch(0.98 0.005 220);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  text-shadow:
+    0 0 3px oklch(0.12 0.02 260 / 90%),
+    0 0 6px oklch(0.12 0.02 260 / 80%);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.v-map-label-sub {
+  color: var(--risk-compound);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 
 /* Utility for observatory grid backdrop */
 @utility bg-grid {
@@ -134,5 +168,6 @@
 }
 
 @utility text-glow {
-  text-shadow: 0 0 24px oklch(0.78 0.15 200 / 40%);
+  text-shadow: 0 0 24px oklch(0.78 0.17 210 / 30%);
 }
+
