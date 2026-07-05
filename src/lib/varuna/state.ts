@@ -1,6 +1,6 @@
 import { DISTRICTS, type District } from "./districts";
 
-export type RiskCategory = "flood" | "compound" | "heat" | "normal" | "cold";
+export type RiskCategory = "flood" | "compound" | "heat" | "drought" | "normal" | "cold";
 
 export type BlockState = {
   block_id: string;
