@@ -1,5 +1,8 @@
-import { MapContainer, TileLayer, CircleMarker, Tooltip, Popup } from "react-leaflet";
-import type { DistrictState, BlockState } from "@/lib/varuna/state";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip, Popup, useMap } from "react-leaflet";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { PathOptions, Layer } from "leaflet";
+import { useEffect, useMemo, useState } from "react";
+import type { DistrictState, BlockState, RiskCategory } from "@/lib/varuna/state";
 import { RISK_COLORS } from "@/lib/varuna/state";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 
@@ -12,131 +15,190 @@ type Props = {
   onSelectBlock: (block: BlockState | null) => void;
 };
 
+// slug a name like "West Champaran" -> "west-champaran" for id matching
+function slug(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
+
+function FitOnChange({ bounds }: { bounds: [[number, number], [number, number]] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }, [map, bounds]);
+  return null;
+}
+
 export function BiharMap({ districts, blocks, view, selectedDistrict, onSelectDistrict, onSelectBlock }: Props) {
-  const activeBlocks = view === "district" && selectedDistrict
-    ? blocks.filter((b) => b.district_id === selectedDistrict)
-    : [];
+  const [geo, setGeo] = useState<FeatureCollection | null>(null);
+
+  useEffect(() => {
+    fetch("/bihar-districts.geojson")
+      .then((r) => r.json())
+      .then((g: FeatureCollection) => setGeo(g))
+      .catch(() => setGeo(null));
+  }, []);
+
+  const catByDistrict = useMemo(() => {
+    const m = new Map<string, DistrictState>();
+    for (const d of districts) m.set(d.district.id, d);
+    return m;
+  }, [districts]);
+
+  const activeDistrict = selectedDistrict ? catByDistrict.get(selectedDistrict) : null;
+  const activeBlocks =
+    view === "district" && selectedDistrict ? blocks.filter((b) => b.district_id === selectedDistrict) : [];
+
+  const styleFeature = (feature?: Feature<Geometry, { district: string }>): PathOptions => {
+    if (!feature) return {};
+    const id = slug(feature.properties.district);
+    const state = catByDistrict.get(id);
+    const cat: RiskCategory = state?.category ?? "normal";
+    const isSelected = selectedDistrict === id;
+    return {
+      fillColor: `var(--risk-${cat})`,
+      fillOpacity: isSelected ? 0.85 : 0.72,
+      color: isSelected ? "oklch(1 0 0)" : "oklch(0.16 0.02 260 / 55%)",
+      weight: isSelected ? 2.5 : 1,
+    };
+  };
+
+  const onEach = (feature: Feature<Geometry, { district: string }>, layer: Layer) => {
+    const id = slug(feature.properties.district);
+    const state = catByDistrict.get(id);
+    layer.on({
+      click: () => onSelectDistrict(id),
+      mouseover: (e) => {
+        const l = e.target as { setStyle: (s: PathOptions) => void };
+        l.setStyle({ fillOpacity: 0.95, weight: 2 });
+      },
+      mouseout: (e) => {
+        const l = e.target as { setStyle: (s: PathOptions) => void };
+        l.setStyle(styleFeature(feature));
+      },
+    });
+    // Permanent label with district name
+    layer.bindTooltip(
+      `<div class="v-map-label">${feature.properties.district}${
+        state?.compound_risk ? "<div class='v-map-label-sub'>compound</div>" : ""
+      }</div>`,
+      { permanent: true, direction: "center", className: "v-map-label-wrap", opacity: 1 },
+    );
+  };
+
+  // Rebuild GeoJSON layer when state or selection changes so styles refresh.
+  const geoKey = useMemo(() => `${districts.length}-${selectedDistrict ?? "all"}`, [districts, selectedDistrict]);
+
+  const bounds = activeDistrict
+    ? ([
+        [activeDistrict.district.lat - 0.4, activeDistrict.district.lng - 0.5],
+        [activeDistrict.district.lat + 0.4, activeDistrict.district.lng + 0.5],
+      ] as [[number, number], [number, number]])
+    : BIHAR_BOUNDS;
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-xl border border-border bg-panel">
-      <MapContainer
-        bounds={BIHAR_BOUNDS}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom
-        zoomControl
-      >
-        <TileLayer
-          attribution='&copy; OpenStreetMap · CARTO'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    <MapContainer
+      bounds={BIHAR_BOUNDS}
+      style={{ height: "100%", width: "100%", background: "oklch(0.14 0.02 260)" }}
+      scrollWheelZoom
+      zoomControl
+    >
+      <TileLayer
+        attribution='&copy; OpenStreetMap · CARTO'
+        url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+      />
+
+      {geo && (
+        <GeoJSON
+          key={geoKey}
+          data={geo}
+          style={styleFeature as never}
+          onEachFeature={onEach as never}
         />
+      )}
 
-        {view === "state" &&
-          districts.map((d) => {
-            const color = `var(--risk-${d.category})`;
-            const radius = 10 + d.flood_risk * 18 + d.drought_risk * 10;
-            return (
-              <CircleMarker
-                key={d.district.id}
-                center={[d.district.lat, d.district.lng]}
-                radius={radius}
-                pathOptions={{
-                  color: color,
-                  fillColor: color,
-                  fillOpacity: 0.55,
-                  weight: d.compound_risk ? 3 : 1.5,
-                }}
-                eventHandlers={{ click: () => onSelectDistrict(d.district.id) }}
-              >
-                <Tooltip direction="top" opacity={0.95} sticky>
-                  <div className="text-xs">
-                    <div className="font-semibold">{d.district.name}</div>
-                    <div>Flood risk: {(d.flood_risk * 100).toFixed(0)}%</div>
-                    <div>Drought risk: {(d.drought_risk * 100).toFixed(0)}%</div>
-                    {d.compound_risk && <div className="text-[color:var(--risk-compound)] font-semibold">Compound risk</div>}
-                  </div>
-                </Tooltip>
-              </CircleMarker>
-            );
-          })}
+      {view === "district" &&
+        activeBlocks.map((b) => (
+          <CircleMarker
+            key={b.block_id}
+            center={[b.lat, b.lng]}
+            radius={5 + b.flood_risk * 5 + b.drought_risk * 3}
+            pathOptions={{
+              color: "oklch(1 0 0 / 85%)",
+              fillColor: `var(--risk-${b.category})`,
+              fillOpacity: 0.9,
+              weight: 1,
+            }}
+            eventHandlers={{ click: () => onSelectBlock(b) }}
+          >
+            <Tooltip>{b.block_name}</Tooltip>
+            <Popup>
+              <div className="text-xs space-y-0.5">
+                <div className="font-semibold">{b.block_name}</div>
+                <div>Rainfall: {b.rainfall_mm} mm</div>
+                <div>Temp: {b.temperature_c} °C</div>
+                <div>Soil moisture: {(b.soil_moisture_index * 100).toFixed(0)}%</div>
+                <div>Flood risk: {(b.flood_risk * 100).toFixed(0)}%</div>
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
 
-        {view === "district" &&
-          activeBlocks.map((b) => (
-            <CircleMarker
-              key={b.block_id}
-              center={[b.lat, b.lng]}
-              radius={7 + b.flood_risk * 6 + b.drought_risk * 4}
-              pathOptions={{
-                color: `var(--risk-${b.category})`,
-                fillColor: `var(--risk-${b.category})`,
-                fillOpacity: 0.65,
-                weight: b.compound_risk ? 2.5 : 1,
-              }}
-              eventHandlers={{ click: () => onSelectBlock(b) }}
+      <FitOnChange bounds={bounds} />
+
+      {/* legend + drill overlay markup lives in parent for layering with callouts */}
+      <MapLegend
+        selectedDistrict={selectedDistrict}
+        onReset={() => onSelectDistrict(null)}
+        activeName={activeDistrict?.district.name ?? null}
+      />
+    </MapContainer>
+  );
+}
+
+function MapLegend({
+  selectedDistrict,
+  onReset,
+  activeName,
+}: {
+  selectedDistrict: string | null;
+  onReset: () => void;
+  activeName: string | null;
+}) {
+  const legend: Array<{ k: RiskCategory; label: string }> = [
+    { k: "flood", label: "Rainfall / Flood" },
+    { k: "compound", label: "Compound Risk" },
+    { k: "heat", label: "Heatwave / Drought" },
+    { k: "drought", label: "Drought (Low soil)" },
+    { k: "normal", label: "Normal" },
+  ];
+  return (
+    <div className="leaflet-top leaflet-right">
+      <div className="leaflet-control m-3 rounded-lg border border-border bg-panel/90 p-3 backdrop-blur-md">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Legend</div>
+          {selectedDistrict && (
+            <button
+              onClick={onReset}
+              className="rounded border border-border bg-background/60 px-2 py-0.5 text-[10px] text-primary hover:bg-accent"
             >
-              <Popup>
-                <div className="text-xs space-y-0.5">
-                  <div className="font-semibold">{b.block_name}</div>
-                  <div>Rainfall: {b.rainfall_mm} mm</div>
-                  <div>Temp: {b.temperature_c} °C</div>
-                  <div>Soil moisture: {(b.soil_moisture_index * 100).toFixed(0)}%</div>
-                  <div>Flood risk: {(b.flood_risk * 100).toFixed(0)}%</div>
-                  <div>Drought risk: {(b.drought_risk * 100).toFixed(0)}%</div>
-                </div>
-              </Popup>
-            </CircleMarker>
+              ← Bihar
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-1 text-[11px]">
+          {legend.map((l) => (
+            <div key={l.k} className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: RISK_COLORS[l.k] }} />
+              <span>{l.label}</span>
+            </div>
           ))}
-      </MapContainer>
-
-      {/* Overlays: legend + drill-down controls */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4">
-        <div className="pointer-events-auto flex items-start justify-between gap-2">
-          <div className="rounded-lg border border-border bg-panel/85 px-3 py-2 backdrop-blur-md">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Drill</div>
-            <div className="mt-1 flex items-center gap-1 text-xs">
-              <button
-                onClick={() => onSelectDistrict(null)}
-                className={`rounded px-2 py-1 ${view === "state" ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}
-              >
-                India → Bihar
-              </button>
-              <span className="text-muted-foreground">/</span>
-              <span className={`rounded px-2 py-1 ${view === "district" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-                {selectedDistrict
-                  ? districts.find((d) => d.district.id === selectedDistrict)?.district.name
-                  : "District"}
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-border bg-panel/85 px-3 py-2 backdrop-blur-md">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Risk legend</div>
-            <div className="mt-1 grid grid-cols-1 gap-1 text-[11px]">
-              {(["compound", "flood", "heat", "normal", "cold"] as const).map((k) => (
-                <div key={k} className="flex items-center gap-2">
-                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: RISK_COLORS[k] }} />
-                  <span className="capitalize">{k === "compound" ? "Compound flood+heat" : k}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
-
-        {/* Kosi callout */}
-        <div className="pointer-events-auto max-w-xs rounded-lg border border-[color:var(--risk-flood)]/40 bg-panel/85 p-3 backdrop-blur-md">
-          <div className="text-[10px] uppercase tracking-widest text-[color:var(--risk-flood)]">Kosi basin anomaly</div>
-          <div className="mt-1 text-sm">
-            +{(
-              (districts.filter((d) => d.district.kosiBasin).reduce((s, d) => s + Math.max(0, d.rainfall_mm - 45), 0) /
-                Math.max(1, districts.filter((d) => d.district.kosiBasin).length)) *
-              1.2
-            ).toFixed(0)}
-            % excess precipitation vs 30-day climatology
+        {activeName && (
+          <div className="mt-2 border-t border-border pt-2 text-[11px]">
+            <span className="text-muted-foreground">Drilled: </span>
+            <span className="font-semibold text-foreground">{activeName}</span>
           </div>
-          <div className="text-xs text-muted-foreground">
-            Compound severity multiplier: ×
-            {(1 + districts.filter((d) => d.compound_risk).length / 20).toFixed(2)}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
