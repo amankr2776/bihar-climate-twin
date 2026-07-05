@@ -50,10 +50,12 @@ function mulberry32(seed: number) {
 
 const BLOCKS_PER_DISTRICT = 14; // 38 * 14 = 532 ≈ 534
 
-function classify(flood: number, drought: number): RiskCategory {
+// Wireframe categories: flood (blue), compound (red), heat (orange), drought (green — low soil w/o heat), normal, cold.
+function classify(flood: number, drought: number, heat = 0, soil = 1): RiskCategory {
   if (flood >= 0.6 && drought >= 0.4) return "compound";
   if (flood >= 0.55) return "flood";
-  if (drought >= 0.55) return "heat";
+  if (drought >= 0.55 && heat >= 0.5) return "heat";
+  if (drought >= 0.45 || soil < 0.25) return "drought";
   if (flood < 0.15 && drought < 0.15) return "cold";
   return "normal";
 }
