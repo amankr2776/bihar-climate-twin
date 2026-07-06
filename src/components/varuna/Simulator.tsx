@@ -39,7 +39,7 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
     : [];
 
   return (
-    <div className="rounded-xl border border-border bg-panel p-4">
+    <div aria-busy={busy} className={`rounded-xl border border-border bg-panel p-4 ${busy ? "opacity-60" : ""}`}>
       <div className="flex items-baseline justify-between">
         <div>
           <h3 className="text-sm font-semibold">What-if simulator</h3>
