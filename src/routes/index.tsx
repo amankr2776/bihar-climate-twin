@@ -125,6 +125,10 @@ function VarunaDashboard() {
         <TopBar lastUpdate={lastUpdate} />
 
         <main className="flex-1 overflow-y-auto bg-grid px-4 py-4 lg:px-6">
+          {!state ? (
+            <DashboardSkeleton />
+          ) : (
+          <>
           <KpiRow
             districtsAtRisk={districtsAtRisk}
             populationAffected={popAffected}
