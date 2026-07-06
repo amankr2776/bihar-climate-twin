@@ -107,7 +107,8 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
               <li key={d.district.id}>
                 <button
                   onClick={() => onSelectDistrict(d.district.id)}
-                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent"
+                  disabled={busy}
+                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                 >
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded bg-background text-[10px] font-mono text-muted-foreground">
                     {i + 1}
