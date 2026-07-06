@@ -149,8 +149,8 @@ function VarunaDashboard() {
                     onSelectBlock={(b) => setSelectedBlock(b)}
                   />
 
-                  {/* Callouts — absolute over map */}
-                  <div className="pointer-events-none absolute left-4 top-4 z-[500] flex max-w-[240px] items-start gap-2 rounded-lg border border-[color:var(--risk-flood)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur">
+                  {/* Callouts — absolute over map, hidden on mobile to prevent overlap */}
+                  <div className="pointer-events-none absolute left-4 top-4 z-[500] hidden max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-flood)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
                     <CloudRain className="h-4 w-4 shrink-0 text-[color:var(--risk-flood)]" />
                     <div className="text-[11px] leading-tight">
                       <div className="text-muted-foreground">Excess precipitation — Kosi basin</div>
@@ -160,17 +160,17 @@ function VarunaDashboard() {
                     </div>
                   </div>
 
-                  <div className="pointer-events-none absolute right-24 top-4 z-[500] flex max-w-[240px] items-start gap-2 rounded-lg border border-[color:var(--risk-compound)]/60 bg-panel/95 p-2.5 shadow-lg backdrop-blur">
+                  <div className="pointer-events-none absolute bottom-4 left-4 z-[500] hidden max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-compound)]/60 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
                     <Zap className="h-4 w-4 shrink-0 text-[color:var(--risk-compound)]" />
                     <div className="text-[11px] leading-tight">
-                      <div className="text-muted-foreground">Compound Risk (Flood + Heatwave)</div>
+                      <div className="text-muted-foreground">Compound Risk (Flood + Heat)</div>
                       <div className="font-mono text-sm font-bold text-[color:var(--risk-compound)]">
                         ×{compoundMultiplier}
                       </div>
                     </div>
                   </div>
 
-                  <div className="pointer-events-none absolute bottom-14 right-4 z-[500] flex max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-drought)]/60 bg-panel/95 p-2.5 shadow-lg backdrop-blur">
+                  <div className="pointer-events-none absolute bottom-4 right-4 z-[500] hidden max-w-[210px] items-start gap-2 rounded-lg border border-[color:var(--risk-drought)]/60 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
                     <Droplets className="h-4 w-4 shrink-0 text-[color:var(--risk-drought)]" />
                     <div className="text-[11px] leading-tight">
                       <div className="text-muted-foreground">South Bihar soil moisture</div>
@@ -182,7 +182,7 @@ function VarunaDashboard() {
                   </div>
 
                   {/* India inset */}
-                  <div className="pointer-events-none absolute right-4 top-16 z-[500] rounded-lg border border-border bg-panel/95 p-2 backdrop-blur">
+                  <div className="pointer-events-none absolute left-4 top-24 z-[500] hidden rounded-lg border border-border bg-panel/95 p-2 backdrop-blur xl:block">
                     <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Bihar, India</div>
                     <IndiaInset />
                   </div>
