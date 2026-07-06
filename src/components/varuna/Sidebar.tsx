@@ -17,15 +17,19 @@ const NAV: NavItem[] = [
 type Props = {
   districts: DistrictState[];
   onSelectDistrict: (id: string) => void;
+  busy?: boolean;
 };
 
-export function Sidebar({ districts, onSelectDistrict }: Props) {
+export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
   const top = [...districts]
     .sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk))
     .slice(0, 8);
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex">
+    <aside
+      aria-busy={busy}
+      className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex"
+    >
       <div className="px-5 pt-5">
         <div className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
