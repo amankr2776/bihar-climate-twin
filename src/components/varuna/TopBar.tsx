@@ -6,8 +6,8 @@ export function TopBar({ lastUpdate }: Props) {
   const dateStr = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <header className="flex items-center gap-3 border-b border-border bg-panel/80 px-6 py-3 backdrop-blur-md">
-      <div className="relative max-w-md flex-1">
+    <header className="flex items-center gap-2 border-b border-border bg-panel/80 px-3 py-2.5 backdrop-blur-md sm:gap-3 sm:px-6 sm:py-3">
+      <div className="relative min-w-0 flex-1 sm:max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
@@ -16,21 +16,25 @@ export function TopBar({ lastUpdate }: Props) {
         />
       </div>
 
-      <StatusChip color="var(--risk-drought)" pulse label="LIVE" />
-      <StatusChip color="var(--brand-cyan)" icon={<Zap className="h-3.5 w-3.5" />} label="Digital Twin: SYNCHRONIZED" />
-      <StatusChip color="var(--muted-foreground)" icon={<Clock className="h-3.5 w-3.5" />}>
-        <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Twin Updated</div>
-        <div className="text-xs font-mono text-foreground">{lastUpdate}</div>
-      </StatusChip>
-      <StatusChip color="var(--brand-cyan)" icon={<Satellite className="h-3.5 w-3.5" />} label="IMD + INSAT" outline />
-      <StatusChip color="var(--brand-magenta)" icon={<CircuitBoard className="h-3.5 w-3.5" />} label="PI-GNN Active" outline />
+      <div className="hide-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto sm:gap-3">
+        <StatusChip color="var(--risk-drought)" pulse label="LIVE" />
+        <StatusChip color="var(--brand-cyan)" icon={<Zap className="h-3.5 w-3.5" />} label="Twin: SYNC" />
+        <StatusChip color="var(--muted-foreground)" icon={<Clock className="h-3.5 w-3.5" />}>
+          <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Updated</div>
+          <div className="text-xs font-mono text-foreground">{lastUpdate}</div>
+        </StatusChip>
+        <div className="hidden xl:contents">
+          <StatusChip color="var(--brand-cyan)" icon={<Satellite className="h-3.5 w-3.5" />} label="IMD + INSAT" outline />
+          <StatusChip color="var(--brand-magenta)" icon={<CircuitBoard className="h-3.5 w-3.5" />} label="PI-GNN" outline />
+        </div>
 
-      <div className="flex items-center gap-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-xs">
-        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="font-mono">{dateStr}</span>
+        <div className="hidden shrink-0 items-center gap-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-xs md:flex">
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="font-mono">{dateStr}</span>
+        </div>
       </div>
 
-      <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] text-xs font-bold text-background">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] text-xs font-bold text-background">
         AK
       </div>
     </header>
