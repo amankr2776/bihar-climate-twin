@@ -61,8 +61,9 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             max={50}
             step={1}
             value={rain}
+            disabled={disabled}
             onChange={(e) => setRain(Number(e.target.value))}
-            className="w-full accent-[color:var(--risk-flood)]"
+            className="w-full accent-[color:var(--risk-flood)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
         <label className="space-y-2 text-xs">
