@@ -250,6 +250,8 @@ function VarunaDashboard() {
               <span className="font-mono text-primary">v0.1 PoC</span>
             </div>
           </footer>
+          </>
+          )}
         </main>
       </div>
     </div>
