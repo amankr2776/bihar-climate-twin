@@ -220,7 +220,7 @@ function VarunaDashboard() {
               </div>
             </section>
             <section className="col-span-12 xl:col-span-6">
-              <Simulator />
+              <Simulator busy={transitioning} />
             </section>
 
             {/* Third row */}
