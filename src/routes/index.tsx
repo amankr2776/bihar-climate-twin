@@ -43,6 +43,16 @@ function VarunaDashboard() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [tick, setTick] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+
+  // Brief recalculation window when the user drills into a district so risk
+  // coloring and block markers can settle without visual overlap.
+  useEffect(() => {
+    if (selectedDistrict === null) return;
+    setTransitioning(true);
+    const id = setTimeout(() => setTransitioning(false), 380);
+    return () => clearTimeout(id);
+  }, [selectedDistrict]);
 
   useEffect(() => {
     let cancelled = false;
