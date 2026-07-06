@@ -202,12 +202,16 @@ function VarunaDashboard() {
                 <KosiTrendChart />
               </div>
             </section>
-            <section className="col-span-12 xl:col-span-3">
+            <section className="col-span-12 xl:col-span-6">
               <Simulator />
             </section>
-            <section className="col-span-12 xl:col-span-3 space-y-4">
+
+            {/* Third row */}
+            <section className="col-span-12 xl:col-span-6">
               <Recommendations districts={districts} />
-              <div className="h-[240px]">
+            </section>
+            <section className="col-span-12 xl:col-span-6">
+              <div className="h-[280px]">
                 <AlertFeed alerts={alerts} />
               </div>
             </section>
