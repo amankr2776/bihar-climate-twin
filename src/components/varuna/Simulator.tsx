@@ -7,12 +7,13 @@ const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string;
   { v: "saturated", label: "Saturated", hint: "Already at field capacity" },
 ];
 
-export function Simulator() {
+export function Simulator({ busy = false }: { busy?: boolean } = {}) {
   const [rain, setRain] = useState(15);
   const [temp, setTemp] = useState(2);
   const [soil, setSoil] = useState<SimulationInput["soil_condition"]>("drought-baked");
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [running, setRunning] = useState(false);
+  const disabled = busy || running;
 
   const run = async () => {
     setRunning(true);
