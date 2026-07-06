@@ -103,7 +103,7 @@ export function KpiRow({
       ))}
 
       {/* Accuracy + assimilation combined tile */}
-      <div className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-border bg-panel p-4">
+      <div className="relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-panel p-4">
         <div
           className="grid h-10 w-10 shrink-0 place-items-center rounded-lg"
           style={{
@@ -114,22 +114,22 @@ export function KpiRow({
           <Target className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-3xl font-bold leading-none tracking-tight text-foreground">
-            91<span className="text-2xl">%</span>
+          <div className="flex items-baseline gap-2">
+            <div className="font-display text-3xl font-bold leading-none tracking-tight text-foreground">
+              91<span className="text-xl">%</span>
+            </div>
+            <span className="text-[10px] font-mono text-primary">/ 98%</span>
           </div>
-          <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground truncate">
             Accuracy Goal<span className="align-top text-primary">*</span>
           </div>
-        </div>
-        <div className="border-l border-border pl-4">
-          <RingProgress value={98} />
-        </div>
-        <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Last Assimilation</div>
-          <div className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground">
-            <Activity className="h-3.5 w-3.5 text-primary" />
-            {lastAssimilation}
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
+            <Activity className="h-3 w-3 shrink-0 text-primary" />
+            <span className="truncate">Last: {lastAssimilation}</span>
           </div>
+        </div>
+        <div className="shrink-0">
+          <RingProgress value={98} />
         </div>
       </div>
     </div>
