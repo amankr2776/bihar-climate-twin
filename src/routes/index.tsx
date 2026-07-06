@@ -118,6 +118,7 @@ function VarunaDashboard() {
           setSelectedDistrict(id);
           setSelectedBlock(null);
         }}
+        busy={!state || transitioning}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
