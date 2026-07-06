@@ -69,10 +69,16 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
           <option>Bihar</option>
         </select>
         <div className="mt-3 flex gap-2">
-          <button className="flex-1 rounded-md border border-[color:var(--risk-heat)]/60 bg-[color:var(--risk-heat)]/10 px-2 py-1 text-xs text-[color:var(--risk-heat)]">
+          <button
+            disabled={busy}
+            className="flex-1 rounded-md border border-[color:var(--risk-heat)]/60 bg-[color:var(--risk-heat)]/10 px-2 py-1 text-xs text-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
             District View
           </button>
-          <button className="flex-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent">
+          <button
+            disabled={busy}
+            className="flex-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+          >
             Block View
           </button>
         </div>
