@@ -48,7 +48,7 @@ export function Simulator() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
         <label className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Rainfall anomaly</span>

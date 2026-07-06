@@ -25,7 +25,7 @@ export function Sidebar({ districts, onSelectDistrict }: Props) {
     .slice(0, 8);
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-border bg-panel">
+    <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex">
       <div className="px-5 pt-5">
         <div className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
