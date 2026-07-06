@@ -102,10 +102,10 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={run}
-          disabled={running}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          disabled={disabled}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {running ? "Running cascade…" : "Run scenario"}
+          {busy ? "Recalculating…" : running ? "Running cascade…" : "Run scenario"}
         </button>
         {result && (
           <div className="text-xs text-muted-foreground">
