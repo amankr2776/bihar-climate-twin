@@ -13,6 +13,7 @@ import { TimeEvolution } from "@/components/varuna/TimeEvolution";
 import { Recommendations } from "@/components/varuna/Recommendations";
 import { Sidebar } from "@/components/varuna/Sidebar";
 import { TopBar } from "@/components/varuna/TopBar";
+import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -42,6 +43,16 @@ function VarunaDashboard() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [tick, setTick] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+
+  // Brief recalculation window when the user drills into a district so risk
+  // coloring and block markers can settle without visual overlap.
+  useEffect(() => {
+    if (selectedDistrict === null) return;
+    setTransitioning(true);
+    const id = setTimeout(() => setTransitioning(false), 380);
+    return () => clearTimeout(id);
+  }, [selectedDistrict]);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,12 +118,17 @@ function VarunaDashboard() {
           setSelectedDistrict(id);
           setSelectedBlock(null);
         }}
+        busy={!state || transitioning}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar lastUpdate={lastUpdate} />
 
         <main className="flex-1 overflow-y-auto bg-grid px-4 py-4 lg:px-6">
+          {!state ? (
+            <DashboardSkeleton />
+          ) : (
+          <>
           <KpiRow
             districtsAtRisk={districtsAtRisk}
             populationAffected={popAffected}
@@ -186,6 +202,7 @@ function VarunaDashboard() {
                     <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Bihar, India</div>
                     <IndiaInset />
                   </div>
+                  <MapTransitionOverlay show={transitioning} />
                 </div>
               </div>
             </section>
@@ -203,7 +220,7 @@ function VarunaDashboard() {
               </div>
             </section>
             <section className="col-span-12 xl:col-span-6">
-              <Simulator />
+              <Simulator busy={transitioning} />
             </section>
 
             {/* Third row */}
@@ -234,6 +251,8 @@ function VarunaDashboard() {
               <span className="font-mono text-primary">v0.1 PoC</span>
             </div>
           </footer>
+          </>
+          )}
         </main>
       </div>
     </div>

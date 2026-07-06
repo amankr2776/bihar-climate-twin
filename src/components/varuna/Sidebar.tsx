@@ -17,15 +17,19 @@ const NAV: NavItem[] = [
 type Props = {
   districts: DistrictState[];
   onSelectDistrict: (id: string) => void;
+  busy?: boolean;
 };
 
-export function Sidebar({ districts, onSelectDistrict }: Props) {
+export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
   const top = [...districts]
     .sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk))
     .slice(0, 8);
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex">
+    <aside
+      aria-busy={busy}
+      className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex"
+    >
       <div className="px-5 pt-5">
         <div className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
@@ -65,10 +69,16 @@ export function Sidebar({ districts, onSelectDistrict }: Props) {
           <option>Bihar</option>
         </select>
         <div className="mt-3 flex gap-2">
-          <button className="flex-1 rounded-md border border-[color:var(--risk-heat)]/60 bg-[color:var(--risk-heat)]/10 px-2 py-1 text-xs text-[color:var(--risk-heat)]">
+          <button
+            disabled={busy}
+            className="flex-1 rounded-md border border-[color:var(--risk-heat)]/60 bg-[color:var(--risk-heat)]/10 px-2 py-1 text-xs text-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
             District View
           </button>
-          <button className="flex-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent">
+          <button
+            disabled={busy}
+            className="flex-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+          >
             Block View
           </button>
         </div>
@@ -97,7 +107,8 @@ export function Sidebar({ districts, onSelectDistrict }: Props) {
               <li key={d.district.id}>
                 <button
                   onClick={() => onSelectDistrict(d.district.id)}
-                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent"
+                  disabled={busy}
+                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                 >
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded bg-background text-[10px] font-mono text-muted-foreground">
                     {i + 1}

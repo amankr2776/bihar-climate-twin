@@ -7,12 +7,13 @@ const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string;
   { v: "saturated", label: "Saturated", hint: "Already at field capacity" },
 ];
 
-export function Simulator() {
+export function Simulator({ busy = false }: { busy?: boolean } = {}) {
   const [rain, setRain] = useState(15);
   const [temp, setTemp] = useState(2);
   const [soil, setSoil] = useState<SimulationInput["soil_condition"]>("drought-baked");
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [running, setRunning] = useState(false);
+  const disabled = busy || running;
 
   const run = async () => {
     setRunning(true);
@@ -38,7 +39,7 @@ export function Simulator() {
     : [];
 
   return (
-    <div className="rounded-xl border border-border bg-panel p-4">
+    <div aria-busy={busy} className={`rounded-xl border border-border bg-panel p-4 ${busy ? "opacity-60" : ""}`}>
       <div className="flex items-baseline justify-between">
         <div>
           <h3 className="text-sm font-semibold">What-if simulator</h3>
@@ -60,8 +61,9 @@ export function Simulator() {
             max={50}
             step={1}
             value={rain}
+            disabled={disabled}
             onChange={(e) => setRain(Number(e.target.value))}
-            className="w-full accent-[color:var(--risk-flood)]"
+            className="w-full accent-[color:var(--risk-flood)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
         <label className="space-y-2 text-xs">
@@ -75,16 +77,18 @@ export function Simulator() {
             max={5}
             step={0.5}
             value={temp}
+            disabled={disabled}
             onChange={(e) => setTemp(Number(e.target.value))}
-            className="w-full accent-[color:var(--risk-heat)]"
+            className="w-full accent-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
         <label className="space-y-2 text-xs">
           <span className="text-muted-foreground">Baseline soil condition</span>
           <select
             value={soil}
+            disabled={disabled}
             onChange={(e) => setSoil(e.target.value as SimulationInput["soil_condition"])}
-            className="w-full rounded-md border border-border bg-input px-2 py-1.5 text-foreground"
+            className="w-full rounded-md border border-border bg-input px-2 py-1.5 text-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
             {SOIL_OPTIONS.map((o) => (
               <option key={o.v} value={o.v}>
@@ -98,10 +102,10 @@ export function Simulator() {
       <div className="mt-4 flex items-center gap-3">
         <button
           onClick={run}
-          disabled={running}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          disabled={disabled}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {running ? "Running cascade…" : "Run scenario"}
+          {busy ? "Recalculating…" : running ? "Running cascade…" : "Run scenario"}
         </button>
         {result && (
           <div className="text-xs text-muted-foreground">
