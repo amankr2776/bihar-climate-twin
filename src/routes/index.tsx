@@ -13,6 +13,7 @@ import { TimeEvolution } from "@/components/varuna/TimeEvolution";
 import { Recommendations } from "@/components/varuna/Recommendations";
 import { Sidebar } from "@/components/varuna/Sidebar";
 import { TopBar } from "@/components/varuna/TopBar";
+import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 
 export const Route = createFileRoute("/")({
   ssr: false,
