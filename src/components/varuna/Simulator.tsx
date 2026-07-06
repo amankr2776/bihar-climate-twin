@@ -77,16 +77,18 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             max={5}
             step={0.5}
             value={temp}
+            disabled={disabled}
             onChange={(e) => setTemp(Number(e.target.value))}
-            className="w-full accent-[color:var(--risk-heat)]"
+            className="w-full accent-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
         <label className="space-y-2 text-xs">
           <span className="text-muted-foreground">Baseline soil condition</span>
           <select
             value={soil}
+            disabled={disabled}
             onChange={(e) => setSoil(e.target.value as SimulationInput["soil_condition"])}
-            className="w-full rounded-md border border-border bg-input px-2 py-1.5 text-foreground"
+            className="w-full rounded-md border border-border bg-input px-2 py-1.5 text-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
             {SOIL_OPTIONS.map((o) => (
               <option key={o.v} value={o.v}>
