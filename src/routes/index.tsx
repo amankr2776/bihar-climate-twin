@@ -202,6 +202,7 @@ function VarunaDashboard() {
                     <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Bihar, India</div>
                     <IndiaInset />
                   </div>
+                  <MapTransitionOverlay show={transitioning} />
                 </div>
               </div>
             </section>
