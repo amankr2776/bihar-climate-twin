@@ -58,7 +58,7 @@ function StatusChip({
 }) {
   return (
     <div
-      className="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs"
+      className="flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-xs whitespace-nowrap"
       style={{
         border: `1px solid ${outline ? color : "var(--border)"}`,
         backgroundColor: outline ? `color-mix(in oklch, ${color} 10%, transparent)` : "color-mix(in oklch, var(--panel) 60%, transparent)",
