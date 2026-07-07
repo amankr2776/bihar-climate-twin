@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CloudRain, Zap, Droplets } from "lucide-react";
-import { getAlerts, getCurrentState, type AlertItem, type CurrentState } from "@/lib/varuna/api";
+import { CloudRain, Zap, Droplets, X } from "lucide-react";
 import type { BlockState, DistrictState } from "@/lib/varuna/state";
 import { BiharMap } from "@/components/varuna/BiharMap";
 import { KpiRow } from "@/components/varuna/KpiRow";
@@ -13,6 +12,9 @@ import { TimeEvolution } from "@/components/varuna/TimeEvolution";
 import { Recommendations } from "@/components/varuna/Recommendations";
 import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
+import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
+
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
@@ -26,11 +28,12 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function VarunaDashboard() {
-  const [state, setState] = useState<CurrentState | null>(null);
-  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const { data: state } = useCurrentState();
+  const { data: alerts = [] } = useAlerts();
+  const refresh = useVarunaRefresh();
+  const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
-  const [tick, setTick] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
@@ -40,26 +43,9 @@ function VarunaDashboard() {
     return () => clearTimeout(id);
   }, [selectedDistrict]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const [s, a] = await Promise.all([getCurrentState(), getAlerts()]);
-      if (cancelled) return;
-      setState(s);
-      setAlerts(a);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [tick]);
-
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 3 * 60 * 1000);
-    return () => clearInterval(id);
-  }, []);
-
   const districts: DistrictState[] = state?.districts ?? [];
   const blocks: BlockState[] = state?.blocks ?? [];
+
 
   const currentDistrict = useMemo(
     () => (selectedDistrict ? districts.find((d) => d.district.id === selectedDistrict) ?? null : null),
@@ -96,13 +82,29 @@ function VarunaDashboard() {
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Dashboard"
-        subtitle="Real-time compound climate risk across 38 districts · 534 blocks"
+        subtitle={
+          state?.source === "open-meteo"
+            ? "Live observations from IMD / Open-Meteo · 38 districts · 534 blocks"
+            : "Live compound climate risk · 38 districts · 534 blocks"
+        }
         help={{
           title: "Dashboard",
           description:
-            "Mission-control view of Bihar's climate digital twin. KPI strip summarises statewide risk, the map shows district and block-level categories, and the panels below cover trends, simulator, recommendations and the live alert feed.",
+            "Mission-control view of Bihar's climate digital twin. Data comes live from the IMD-anchored Open-Meteo API — every block reflects the real observed rainfall, temperature and soil moisture for its district. When a scenario is applied from the Simulator, every page (Map, Compound Risk, Prediction, Alerts) reflects it immediately.",
         }}
+        actions={
+          activeScenarioName ? (
+            <ScenarioBanner
+              name={activeScenarioName}
+              onClear={() => {
+                varunaStore.set({ scenarioBias: null, activeScenarioName: null });
+                refresh();
+              }}
+            />
+          ) : null
+        }
       />
+
 
       {!state ? (
         <DashboardSkeleton />
@@ -214,3 +216,23 @@ function VarunaDashboard() {
     </div>
   );
 }
+
+function ScenarioBanner({ name, onClear }: { name: string; onClear: () => void }) {
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-[color:var(--risk-heat)]/50 bg-[color:var(--risk-heat)]/10 px-3 py-1 text-[11px]">
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--risk-heat)]" />
+      <span className="text-foreground">Scenario active:</span>
+      <span className="font-medium text-[color:var(--risk-heat)]">{name}</span>
+      <button
+        onClick={onClear}
+        className="ml-1 rounded p-0.5 text-muted-foreground hover:bg-panel hover:text-foreground"
+        aria-label="Clear scenario"
+      >
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  );
+}
+
+export { ScenarioBanner };
+

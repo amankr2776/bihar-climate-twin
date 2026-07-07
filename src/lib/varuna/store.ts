@@ -1,5 +1,7 @@
 // Simple cross-page store using useSyncExternalStore.
 import { useSyncExternalStore } from "react";
+import type { ScenarioBias } from "./state";
+
 
 export type SavedScenario = {
   id: string;
@@ -79,7 +81,11 @@ export type VarunaState = {
   dataSources: DataSource[];
   apiKey: string;
   systemStatus: SystemStatus;
+  /** Active scenario driving the live twin. null = observed baseline. */
+  scenarioBias: ScenarioBias | null;
+  activeScenarioName: string | null;
 };
+
 
 const seedReports = (): SavedReport[] =>
   [
@@ -134,6 +140,8 @@ const initial: VarunaState = {
     ingestionMin: 42,
     queueDepth: 3,
   },
+  scenarioBias: null,
+  activeScenarioName: null,
 };
 
 let state: VarunaState = initial;

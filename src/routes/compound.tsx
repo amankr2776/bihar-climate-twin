@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertTriangle, Flame, Users } from "lucide-react";
-import { getCurrentState, type CurrentState } from "@/lib/varuna/api";
+import { useCurrentState } from "@/lib/varuna/useCurrentState";
+
 import { historicalCompoundEvents } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/compound")({
 });
 
 function CompoundPage() {
-  const [state, setState] = useState<CurrentState | null>(null);
+  const { data: state } = useCurrentState();
   const [day, setDay] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<"date" | "peakSeverity" | "durationHours" | "blocksAffected">("date");
@@ -25,9 +26,6 @@ function CompoundPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    getCurrentState().then(setState);
-  }, []);
 
   const districts = state?.districts ?? [];
   const blocks = state?.blocks ?? [];

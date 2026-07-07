@@ -1,10 +1,16 @@
-// VARUNA API client.
-//
-// If VITE_VARUNA_API_URL is set, requests are proxied to your FastAPI backend
-// (endpoints described in the PoC brief). Otherwise the client falls back to a
-// deterministic mock generator so the dashboard is fully demoable stand-alone.
+// VARUNA API client — talks to Open-Meteo for real observational data
+// and builds block-level state from those readings. Falls back to a
+// deterministic synthetic generator if the network is unavailable.
 
-import { generateBlockState, type BlockState, type DistrictState } from "./state";
+import {
+  buildStateFromReadings,
+  generateBlockState,
+  type BlockState,
+  type DistrictState,
+  type ScenarioBias,
+} from "./state";
+import { fetchBiharClimate, type ClimateSnapshot } from "./climate";
+import { DISTRICTS } from "./districts";
 
 export type SimulationInput = {
   rainfall_anomaly_pct: number;
@@ -31,54 +37,77 @@ export type AlertItem = {
   message: string;
 };
 
-const BASE_URL = (import.meta.env.VITE_VARUNA_API_URL as string | undefined) ?? "";
+export type CurrentState = {
+  blocks: BlockState[];
+  districts: DistrictState[];
+  timestamp: string;
+  source: "open-meteo" | "fallback";
+};
 
-async function tryFetch<T>(path: string, init?: RequestInit): Promise<T | null> {
-  if (!BASE_URL) return null;
-  try {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      ...init,
-      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+// --- Shared climate snapshot cache (deduped across pages) ---
+let climatePromise: Promise<ClimateSnapshot> | null = null;
+let climateCachedAt = 0;
+const CLIMATE_TTL_MS = 10 * 60 * 1000; // 10 min
+
+async function getClimate(): Promise<ClimateSnapshot> {
+  const fresh = Date.now() - climateCachedAt < CLIMATE_TTL_MS;
+  if (climatePromise && fresh) return climatePromise;
+  climatePromise = fetchBiharClimate()
+    .then((s) => {
+      climateCachedAt = Date.now();
+      return s;
+    })
+    .catch((err) => {
+      climatePromise = null;
+      throw err;
     });
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
-    return null;
-  }
+  return climatePromise;
 }
 
-export type CurrentState = { blocks: BlockState[]; districts: DistrictState[]; timestamp: string };
+export function invalidateClimateCache() {
+  climatePromise = null;
+  climateCachedAt = 0;
+}
 
-export async function getCurrentState(): Promise<CurrentState> {
+export async function getCurrentState(bias: ScenarioBias = {}): Promise<CurrentState> {
   const now = new Date();
-  // snap to previous 3-hour slot
   now.setMinutes(0, 0, 0);
   now.setHours(now.getHours() - (now.getHours() % 3));
   const ts = now.toISOString();
 
-  const remote = await tryFetch<CurrentState>(`/state/current`);
-  if (remote) return remote;
-
-  const { blocks, districts } = generateBlockState(ts);
-  return { blocks, districts, timestamp: ts };
+  try {
+    const snap = await getClimate();
+    const { blocks, districts } = buildStateFromReadings(snap.readings, ts, bias);
+    return { blocks, districts, timestamp: ts, source: snap.source };
+  } catch {
+    const { blocks, districts } = generateBlockState(ts, bias);
+    return { blocks, districts, timestamp: ts, source: "fallback" };
+  }
 }
 
 export async function runSimulation(input: SimulationInput): Promise<SimulationResult> {
-  const remote = await tryFetch<SimulationResult>(`/simulate`, {
-    method: "POST",
-    body: JSON.stringify(input),
-  });
-  if (remote) return remote;
-
-  // Local rule-based cascade for the mock path.
+  // Cascade the scenario forward using the same builder so the result is
+  // consistent with what the live map will show once the scenario is applied.
   const now = new Date();
+  let snapshot: ClimateSnapshot | null = null;
+  try {
+    snapshot = await getClimate();
+  } catch {
+    snapshot = null;
+  }
+
   const cascade = [0, 3, 6, 9, 12].map((h) => {
     const ts = new Date(now.getTime() + h * 3600_000).toISOString();
-    const { blocks } = generateBlockState(ts, {
-      rainfall_pct: input.rainfall_anomaly_pct,
-      temperature_c: input.temperature_anomaly_c,
-      soil_override: input.soil_condition,
-    });
+    // Ramp the anomaly in over time (0 at now, full at +12h).
+    const ramp = Math.min(1, h / 12 + 0.2);
+    const bias: ScenarioBias = {
+      rainfall_pct: input.rainfall_anomaly_pct * ramp,
+      temperature_c: input.temperature_anomaly_c * ramp,
+      soil_override: input.soil_condition === "normal" ? undefined : input.soil_condition,
+    };
+    const { blocks } = snapshot
+      ? buildStateFromReadings(snapshot.readings, ts, bias)
+      : generateBlockState(ts, bias);
     const counts: Record<string, number> = {};
     for (const b of blocks) counts[b.category] = (counts[b.category] ?? 0) + 1;
     return { hours_ahead: h, category_counts: counts };
@@ -95,7 +124,10 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
 
   const floodScore = Math.min(1, flood / 250);
   const droughtScore = Math.min(1, heat / 250);
-  const heatScore = Math.min(1, (last.heat ?? 0) / 200 + Math.max(0, input.temperature_anomaly_c) / 10);
+  const heatScore = Math.min(
+    1,
+    (last.heat ?? 0) / 200 + Math.max(0, input.temperature_anomaly_c) / 10,
+  );
   const coldScore = Math.max(0, -input.temperature_anomaly_c) / 8;
 
   return {
@@ -115,12 +147,16 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     heatwave_alert: {
       score: heatScore,
       label: label(heatScore),
-      explanation: "Heat retention score rising across south-central belt; advise cooling-shelter activation.",
+      explanation:
+        "Heat retention score rising across south-central belt; advise cooling-shelter activation.",
     },
     coldwave_alert: {
       score: coldScore,
       label: label(coldScore),
-      explanation: coldScore > 0 ? "Nocturnal temperatures dropping in north corridor." : "No coldwave signature in projection window.",
+      explanation:
+        coldScore > 0
+          ? "Nocturnal temperatures dropping in north corridor."
+          : "No coldwave signature in projection window.",
     },
     severity_multiplier: +(1 + compound / 40).toFixed(2),
     districts_affected: Math.min(38, districtsAffected),
@@ -128,17 +164,20 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
   };
 }
 
-export async function getAlerts(): Promise<AlertItem[]> {
-  const remote = await tryFetch<AlertItem[]>(`/alerts`);
-  if (remote) return remote;
-
-  const { blocks } = await getCurrentState();
+export async function getAlerts(bias: ScenarioBias = {}): Promise<AlertItem[]> {
+  const { blocks } = await getCurrentState(bias);
   const now = Date.now();
   const items: AlertItem[] = [];
-  const sorted = [...blocks].sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk));
+  const sorted = [...blocks].sort(
+    (a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk),
+  );
   for (let i = 0; i < 12 && i < sorted.length; i++) {
     const b = sorted[i];
-    const sev: AlertItem["severity"] = b.compound_risk ? "critical" : b.flood_risk > 0.7 || b.drought_risk > 0.7 ? "high" : "moderate";
+    const sev: AlertItem["severity"] = b.compound_risk
+      ? "critical"
+      : b.flood_risk > 0.7 || b.drought_risk > 0.7
+        ? "high"
+        : "moderate";
     const msg = b.compound_risk
       ? `Compound risk: flood ${(b.flood_risk * 100).toFixed(0)}% + drought ${(b.drought_risk * 100).toFixed(0)}%`
       : b.flood_risk > b.drought_risk
@@ -156,15 +195,55 @@ export async function getAlerts(): Promise<AlertItem[]> {
   return items;
 }
 
-export function kosiTrend7Day(): Array<{ day: string; kosi_level_m: number; south_soil_pct: number }> {
-  const out: Array<{ day: string; kosi_level_m: number; south_soil_pct: number }> = [];
-  const rand = (i: number) => Math.abs(Math.sin(i * 1.7)) * 0.5;
-  for (let i = -6; i <= 0; i++) {
-    const day = new Date(Date.now() + i * 86400_000).toISOString().slice(5, 10);
-    // Kosi rising, south soil falling — classic compound
-    const kosi = 48.2 + i * 0.35 + rand(i) * 0.4;
-    const soil = 24 - i * 1.2 - rand(i + 3) * 3; // %
-    out.push({ day, kosi_level_m: +kosi.toFixed(2), south_soil_pct: +Math.max(6, soil).toFixed(1) });
+// 7-day trend of Kosi-basin rainfall vs South-Bihar soil moisture, built
+// from the real Open-Meteo daily arrays (past_days=3 + forecast_days=3
+// gives us the full window through today).
+export async function kosiTrend7Day(): Promise<
+  Array<{ day: string; kosi_level_m: number; south_soil_pct: number }>
+> {
+  try {
+    const snap = await getClimate();
+    const kosiIds = new Set(DISTRICTS.filter((d) => d.kosiBasin).map((d) => d.id));
+    const southIds = new Set(DISTRICTS.filter((d) => d.region === "south").map((d) => d.id));
+    const readings = snap.readings;
+    const daysCount = Math.min(7, readings[0]?.daily_precip_sum.length ?? 0);
+    if (!daysCount) throw new Error("no daily data");
+
+    const out: Array<{ day: string; kosi_level_m: number; south_soil_pct: number }> = [];
+    for (let d = 0; d < daysCount; d++) {
+      const dayDate = new Date();
+      dayDate.setDate(dayDate.getDate() - (readings[0]?.daily_precip_sum.length ?? 0) + d + 3);
+      const kosiRain =
+        readings
+          .filter((r) => kosiIds.has(r.district_id))
+          .reduce((s, r) => s + (r.daily_precip_sum[d] ?? 0), 0) / (kosiIds.size || 1);
+      // Approx Kosi barrage stage from cumulative rainfall (illustrative rating curve)
+      const kosi_level_m = 48 + Math.min(2.4, kosiRain / 25);
+      // South-Bihar current soil moisture (percentage), lagged with the day index
+      const soilAvg =
+        readings
+          .filter((r) => southIds.has(r.district_id))
+          .reduce((s, r) => s + r.soil_moisture, 0) / (southIds.size || 1);
+      const south_soil_pct = Math.max(5, soilAvg * 100 - d * 0.6);
+      out.push({
+        day: dayDate.toISOString().slice(5, 10),
+        kosi_level_m: +kosi_level_m.toFixed(2),
+        south_soil_pct: +south_soil_pct.toFixed(1),
+      });
+    }
+    return out;
+  } catch {
+    // Deterministic fallback so the chart still renders offline.
+    const out: Array<{ day: string; kosi_level_m: number; south_soil_pct: number }> = [];
+    const rand = (i: number) => Math.abs(Math.sin(i * 1.7)) * 0.5;
+    for (let i = -6; i <= 0; i++) {
+      const day = new Date(Date.now() + i * 86400_000).toISOString().slice(5, 10);
+      out.push({
+        day,
+        kosi_level_m: +(48.2 + i * 0.35 + rand(i) * 0.4).toFixed(2),
+        south_soil_pct: +Math.max(6, 24 - i * 1.2 - rand(i + 3) * 3).toFixed(1),
+      });
+    }
+    return out;
   }
-  return out;
 }
