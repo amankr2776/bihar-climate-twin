@@ -12,7 +12,16 @@ import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 
 export const Route = createFileRoute("/settings")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Settings · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "Settings · VARUNA" },
+      { name: "description", content: "Configure VARUNA data sources, alerts, display preferences and API settings." },
+      { property: "og:title", content: "Settings · VARUNA" },
+      { property: "og:description", content: "Configure VARUNA data sources, alerts, display preferences and API settings." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/settings" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/settings" }],
+  }),
   component: SettingsPage,
 });
 

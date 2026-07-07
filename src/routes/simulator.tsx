@@ -16,7 +16,16 @@ import { useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 
 export const Route = createFileRoute("/simulator")({
   ssr: false,
-  head: () => ({ meta: [{ title: "What-If Simulator · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "What-If Simulator · VARUNA" },
+      { name: "description", content: "What-if climate simulator for Bihar — test rainfall, temperature and soil scenarios across districts." },
+      { property: "og:title", content: "What-If Simulator · VARUNA" },
+      { property: "og:description", content: "What-if climate simulator for Bihar — test rainfall, temperature and soil scenarios across districts." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/simulator" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/simulator" }],
+  }),
   component: SimulatorPage,
 });
 

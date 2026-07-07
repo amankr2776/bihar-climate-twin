@@ -13,7 +13,16 @@ import {
 
 export const Route = createFileRoute("/compound")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Compound Risk · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "Compound Risk · VARUNA" },
+      { name: "description", content: "Compound flood and heat risk analysis for Bihar blocks, with historical event comparison." },
+      { property: "og:title", content: "Compound Risk · VARUNA" },
+      { property: "og:description", content: "Compound flood and heat risk analysis for Bihar blocks, with historical event comparison." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/compound" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/compound" }],
+  }),
   component: CompoundPage,
 });
 

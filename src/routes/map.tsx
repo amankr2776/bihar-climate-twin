@@ -22,7 +22,11 @@ export const Route = createFileRoute("/map")({
     meta: [
       { title: "Bihar Map · VARUNA" },
       { name: "description", content: "Full-screen Bihar map — layer toggles, risk filters, compare mode." },
+      { property: "og:title", content: "Bihar Map · VARUNA" },
+      { property: "og:description", content: "Full-screen Bihar map — layer toggles, risk filters, compare mode." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/map" },
     ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/map" }],
   }),
   component: MapPage,
 });

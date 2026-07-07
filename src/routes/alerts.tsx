@@ -19,7 +19,16 @@ import { DISTRICTS } from "@/lib/varuna/districts";
 
 export const Route = createFileRoute("/alerts")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Alerts · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "Alerts · VARUNA" },
+      { name: "description", content: "Real-time flood, heat and compound risk alerts for Bihar districts with escalation tracking." },
+      { property: "og:title", content: "Alerts · VARUNA" },
+      { property: "og:description", content: "Real-time flood, heat and compound risk alerts for Bihar districts with escalation tracking." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/alerts" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/alerts" }],
+  }),
   component: AlertsPage,
 });
 
