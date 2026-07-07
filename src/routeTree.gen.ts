@@ -14,9 +14,9 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PredictionRouteImport } from './routes/prediction'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AlertsRouteImport } from './routes/alerts'
-import { Route as IndexRouteImport } from './routes/index'
 
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
@@ -43,6 +43,11 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompoundRoute = CompoundRouteImport.update({
   id: '/compound',
   path: '/compound',
@@ -53,16 +58,11 @@ const AlertsRoute = AlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/compound': typeof CompoundRoute
+  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/prediction': typeof PredictionRoute
   '/reports': typeof ReportsRoute
@@ -70,9 +70,9 @@ export interface FileRoutesByFullPath {
   '/simulator': typeof SimulatorRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/compound': typeof CompoundRoute
+  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/prediction': typeof PredictionRoute
   '/reports': typeof ReportsRoute
@@ -81,9 +81,9 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/compound': typeof CompoundRoute
+  '/dashboard': typeof DashboardRoute
   '/map': typeof MapRoute
   '/prediction': typeof PredictionRoute
   '/reports': typeof ReportsRoute
@@ -93,9 +93,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/alerts'
     | '/compound'
+    | '/dashboard'
     | '/map'
     | '/prediction'
     | '/reports'
@@ -103,9 +103,9 @@ export interface FileRouteTypes {
     | '/simulator'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/alerts'
     | '/compound'
+    | '/dashboard'
     | '/map'
     | '/prediction'
     | '/reports'
@@ -113,9 +113,9 @@ export interface FileRouteTypes {
     | '/simulator'
   id:
     | '__root__'
-    | '/'
     | '/alerts'
     | '/compound'
+    | '/dashboard'
     | '/map'
     | '/prediction'
     | '/reports'
@@ -124,9 +124,9 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   CompoundRoute: typeof CompoundRoute
+  DashboardRoute: typeof DashboardRoute
   MapRoute: typeof MapRoute
   PredictionRoute: typeof PredictionRoute
   ReportsRoute: typeof ReportsRoute
@@ -171,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/compound': {
       id: '/compound'
       path: '/compound'
@@ -185,20 +192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   CompoundRoute: CompoundRoute,
+  DashboardRoute: DashboardRoute,
   MapRoute: MapRoute,
   PredictionRoute: PredictionRoute,
   ReportsRoute: ReportsRoute,

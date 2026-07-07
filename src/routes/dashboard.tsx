@@ -14,7 +14,7 @@ import { Recommendations } from "@/components/varuna/Recommendations";
 import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 import { PageHeader } from "@/components/varuna/HelpModal";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/dashboard")({
   ssr: false,
   head: () => ({
     meta: [
