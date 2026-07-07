@@ -108,16 +108,47 @@ function SettingsPage() {
             <>
               <SectionTitle>Data Sources</SectionTitle>
               <div className="space-y-2">
-                {SOURCES.map((s) => (
-                  <div key={s.name} className="flex items-center gap-3 rounded border border-border bg-background/40 px-3 py-2">
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold">{s.name}</div>
-                      <div className="text-[11px] text-muted-foreground">Last sync: {s.lastSync}</div>
+                {sources.map((s) => {
+                  const syncing = s.status === "syncing";
+                  return (
+                    <div key={s.name} className="flex items-center gap-3 rounded border border-border bg-background/40 px-3 py-2">
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold">{s.name}</div>
+                        <div className="text-[11px] text-muted-foreground">
+                          Last sync: {syncing ? "syncing…" : relTime(s.lastSync)}
+                        </div>
+                      </div>
+                      <span
+                        className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                          s.status === "connected"
+                            ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
+                            : syncing
+                              ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
+                              : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {s.status.toUpperCase()}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={syncing}
+                        onClick={() => sync(s.name)}
+                        className="gap-1 text-xs disabled:opacity-60"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
+                      </Button>
                     </div>
-                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${s.status === "connected" ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]" : "bg-muted text-muted-foreground"}`}>{s.status.toUpperCase()}</span>
-                    <Button size="sm" variant="outline" onClick={() => sync(s.name)} className="gap-1 text-xs"><RefreshCw className="h-3 w-3" /> Sync Now</Button>
-                  </div>
-                ))}
+                  );
+                })}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => sources.forEach((s) => sync(s.name))}
+                  className="mt-2 gap-1 text-xs"
+                >
+                  <RefreshCw className="h-3 w-3" /> Sync All Sources
+                </Button>
               </div>
             </>
           )}
@@ -162,7 +193,7 @@ function SettingsPage() {
                     <Slider value={[config[k]]} min={0.3} max={0.9} step={0.05} onValueChange={(v) => varunaStore.set((s) => ({ alertConfig: { ...s.alertConfig, [k]: v[0] } }))} />
                   </div>
                 ))}
-                <Button onClick={() => toast.success("Alert config saved")} className="bg-[color:var(--risk-heat)] text-background hover:bg-[color:var(--risk-heat)]/90">Save Alert Configuration</Button>
+                <Button onClick={saveAlertConfig} className="bg-[color:var(--risk-heat)] text-background hover:bg-[color:var(--risk-heat)]/90">Save Alert Configuration</Button>
               </div>
             </>
           )}
@@ -184,8 +215,8 @@ function SettingsPage() {
               <SectionTitle>API Configuration</SectionTitle>
               <div className="space-y-3 text-sm">
                 <Row label="API Base URL"><Input readOnly value="https://api.varuna.gov.in/v1" /></Row>
-                <Row label="API Key"><Input readOnly value="vk_****************a91f" /></Row>
-                <Button onClick={() => toast.success("New API key generated")} variant="outline">Regenerate Key</Button>
+                <Row label="API Key"><Input readOnly value={apiKey} /></Row>
+                <Button onClick={regenKey} variant="outline">Regenerate Key</Button>
               </div>
             </>
           )}
@@ -194,13 +225,30 @@ function SettingsPage() {
             <>
               <SectionTitle>System Status</SectionTitle>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <StatusItem label="Uptime" value="14d 6h 23m" />
-                <StatusItem label="Last inference" value="2m ago" />
-                <StatusItem label="Database" value="Healthy" color="var(--risk-drought)" />
-                <StatusItem label="Next model run" value="in 2h 14m" />
-                <StatusItem label="Ingestion job" value="in 42m" />
-                <StatusItem label="Queue depth" value="3 tasks" />
+                <StatusItem label="Uptime" value={systemStatus.uptime} />
+                <StatusItem label="Last inference" value={relTime(systemStatus.lastInference)} />
+                <StatusItem
+                  label="Database"
+                  value={systemStatus.dbHealthy ? "Healthy" : "Degraded"}
+                  color={systemStatus.dbHealthy ? "var(--risk-drought)" : "var(--risk-heat)"}
+                />
+                <StatusItem
+                  label="Next model run"
+                  value={`in ${Math.floor(systemStatus.nextModelRunMin / 60)}h ${systemStatus.nextModelRunMin % 60}m`}
+                />
+                <StatusItem label="Ingestion job" value={`in ${systemStatus.ingestionMin}m`} />
+                <StatusItem label="Queue depth" value={`${systemStatus.queueDepth} tasks`} />
               </div>
+              <Button
+                onClick={() => {
+                  varunaStore.set((s) => ({ systemStatus: { ...s.systemStatus, lastInference: Date.now(), queueDepth: 0 } }));
+                  toast.success("System status refreshed");
+                }}
+                variant="outline"
+                className="mt-4 gap-1 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" /> Refresh Status
+              </Button>
             </>
           )}
         </section>
