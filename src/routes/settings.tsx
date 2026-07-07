@@ -25,12 +25,6 @@ const CATEGORIES = [
   { id: "status", label: "System Status", icon: Activity },
 ];
 
-const SOURCES = [
-  { name: "IMD", status: "connected", lastSync: "3 min ago" },
-  { name: "MOSDAC", status: "connected", lastSync: "8 min ago" },
-  { name: "IMDAA", status: "connected", lastSync: "14 min ago" },
-  { name: "Bhuvan", status: "disconnected", lastSync: "2 hours ago" },
-];
 
 function relTime(ts: number): string {
   const s = Math.max(1, Math.round((Date.now() - ts) / 1000));
