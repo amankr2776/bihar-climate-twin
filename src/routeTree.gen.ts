@@ -18,6 +18,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
@@ -64,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
+  id: '/api/public/ingest/climate',
+  path: '/api/public/ingest/climate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
+  '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
+  '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
+  '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/api/public/ingest/climate'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/api/public/ingest/climate'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/api/public/ingest/climate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
+  ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ingest/climate': {
+      id: '/api/public/ingest/climate'
+      path: '/api/public/ingest/climate'
+      fullPath: '/api/public/ingest/climate'
+      preLoaderRoute: typeof ApiPublicIngestClimateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,17 +245,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
+  ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
