@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Database, Monitor, Bell, User, Key, Activity, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
