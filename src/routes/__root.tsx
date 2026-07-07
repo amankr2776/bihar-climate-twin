@@ -125,7 +125,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 const BREADCRUMBS: Record<string, string> = {
-  "/": "Dashboard",
+  "/": "Home",
+  "/dashboard": "Dashboard",
   "/map": "Bihar Map",
   "/compound": "Compound Risk",
   "/prediction": "Prediction Engine",
@@ -161,6 +162,19 @@ function RootComponent() {
     ? new Date(state.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " IST"
     : "—";
   const label = BREADCRUMBS[pathname] ?? "Dashboard";
+
+  const isLanding = pathname === "/";
+
+  if (isLanding) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="min-h-screen w-full bg-background text-foreground">
+          <Outlet />
+        </div>
+        <Toaster position="bottom-right" theme="dark" richColors />
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

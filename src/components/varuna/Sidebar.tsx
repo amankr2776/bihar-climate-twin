@@ -6,7 +6,7 @@ import { varunaStore } from "@/lib/varuna/store";
 type NavItem = { icon: React.ReactNode; label: string; to: string };
 
 const NAV: NavItem[] = [
-  { icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard", to: "/" },
+  { icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard", to: "/dashboard" },
   { icon: <Map className="h-4 w-4" />, label: "Bihar Map", to: "/map" },
   { icon: <Layers className="h-4 w-4" />, label: "Compound Risk", to: "/compound" },
   { icon: <Cpu className="h-4 w-4" />, label: "Prediction Engine", to: "/prediction" },
@@ -51,7 +51,7 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
 
       <nav className="mt-6 space-y-1 px-3">
         {NAV.map((n) => {
-          const active = n.to === "/" ? pathname === "/" : pathname.startsWith(n.to);
+          const active = pathname === n.to || (n.to !== "/dashboard" && pathname.startsWith(n.to));
           return (
             <Link
               key={n.label}
