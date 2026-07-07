@@ -13,7 +13,16 @@ import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/stor
 
 export const Route = createFileRoute("/reports")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Decision Reports · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "Decision Reports · VARUNA" },
+      { name: "description", content: "Generate and download decision reports for Bihar climate risk, including what-if scenarios." },
+      { property: "og:title", content: "Decision Reports · VARUNA" },
+      { property: "og:description", content: "Generate and download decision reports for Bihar climate risk, including what-if scenarios." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/reports" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/reports" }],
+  }),
   component: ReportsPage,
 });
 

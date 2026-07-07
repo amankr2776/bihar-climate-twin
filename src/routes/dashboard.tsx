@@ -22,8 +22,12 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard · VARUNA" },
-      { name: "description", content: "Live block-level climate digital twin for Bihar." },
+      { name: "description", content: "Live block-level climate digital twin for Bihar — flood, heat and drought risk in one view." },
+      { property: "og:title", content: "Dashboard · VARUNA" },
+      { property: "og:description", content: "Live block-level climate digital twin for Bihar — flood, heat and drought risk in one view." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/dashboard" },
     ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/dashboard" }],
   }),
   component: VarunaDashboard,
 });

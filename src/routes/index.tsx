@@ -16,15 +16,17 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "A physics-informed neural digital twin of Bihar's climate — live compound flood + heat risk at block level, 3-hour update cycle, and a what-if simulator for disaster response.",
+          "VARUNA — AI digital twin of Bihar's climate. Live block-level flood and heat risk, updated every three hours.",
       },
       { property: "og:title", content: "VARUNA · AI Digital Twin of Bihar's Climate" },
       {
         property: "og:description",
         content:
-          "Cinematic block-level climate intelligence: live risk, compound hazards, forecasting, simulation.",
+          "VARUNA — AI digital twin of Bihar's climate. Live block-level flood and heat risk, updated every three hours.",
       },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/" }],
   }),
   component: Landing,
 });

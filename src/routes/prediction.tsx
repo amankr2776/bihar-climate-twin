@@ -15,7 +15,16 @@ import type { BlockState } from "@/lib/varuna/state";
 
 export const Route = createFileRoute("/prediction")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Prediction Engine · VARUNA" }] }),
+  head: () => ({
+    meta: [
+      { title: "Prediction Engine · VARUNA" },
+      { name: "description", content: "PI-GNN rainfall and temperature forecasts for Bihar blocks, validated against 2022–2024 IMD monsoon data." },
+      { property: "og:title", content: "Prediction Engine · VARUNA" },
+      { property: "og:description", content: "PI-GNN rainfall and temperature forecasts for Bihar blocks, validated against 2022–2024 IMD monsoon data." },
+      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/prediction" },
+    ],
+    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/prediction" }],
+  }),
   component: PredictionPage,
 });
 
