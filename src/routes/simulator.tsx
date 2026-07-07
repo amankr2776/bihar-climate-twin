@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Play, Save, Trash2, RotateCcw, Download } from "lucide-react";
+import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { runSimulation, type SimulationResult } from "@/lib/varuna/api";
 import { varunaStore, useVarunaStore, type SavedScenario } from "@/lib/varuna/store";
+import { useVarunaRefresh } from "@/lib/varuna/useCurrentState";
+
 
 export const Route = createFileRoute("/simulator")({
   ssr: false,
@@ -33,6 +35,28 @@ function SimulatorPage() {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const saved = useVarunaStore((s) => s.savedScenarios);
+  const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
+  const refresh = useVarunaRefresh();
+
+  const applyToLiveTwin = () => {
+    varunaStore.set({
+      scenarioBias: {
+        rainfall_pct: rainfall,
+        temperature_c: temperature,
+        soil_override: soil === "normal" ? undefined : soil,
+      },
+      activeScenarioName: name,
+    });
+    refresh();
+    toast.success(`Scenario "${name}" applied to live twin — reflected across all pages`);
+  };
+
+  const clearLiveTwin = () => {
+    varunaStore.set({ scenarioBias: null, activeScenarioName: null });
+    refresh();
+    toast.success("Live twin restored to observed baseline");
+  };
+
 
   const runSim = async () => {
     setRunning(true);
@@ -160,7 +184,22 @@ function SimulatorPage() {
           <Button onClick={saveScenario} variant="outline" className="w-full gap-2 border-[color:var(--risk-heat)]/50 text-[color:var(--risk-heat)]">
             <Save className="h-4 w-4" /> Save Scenario
           </Button>
+          {activeScenarioName ? (
+            <Button onClick={clearLiveTwin} variant="outline" className="w-full gap-2 border-border">
+              <PowerOff className="h-4 w-4" /> Clear scenario · restore baseline
+            </Button>
+          ) : (
+            <Button
+              onClick={applyToLiveTwin}
+              disabled={!result}
+              variant="outline"
+              className="w-full gap-2 border-primary/60 text-primary hover:bg-primary/10"
+            >
+              <Zap className="h-4 w-4" /> Apply to Live Twin
+            </Button>
+          )}
         </section>
+
 
         {/* Results */}
         <section className="col-span-12 space-y-3 rounded-xl border border-border bg-panel p-4 xl:col-span-5">
