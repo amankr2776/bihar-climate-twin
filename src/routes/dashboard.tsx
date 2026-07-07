@@ -80,6 +80,17 @@ function VarunaDashboard() {
 
   const compoundMultiplier = (1 + compoundCount * 0.35).toFixed(1);
 
+  const imdBaseline = useMemo(() => stateWideNormal(imdNormals), [imdNormals]);
+  const observedMeanRain = useMemo(() => {
+    if (!districts.length) return null;
+    return districts.reduce((s, d) => s + d.rainfall_mm, 0) / districts.length;
+  }, [districts]);
+  const imdRainDeltaPct =
+    imdBaseline?.rain_mm != null && observedMeanRain != null && imdBaseline.rain_mm > 0.1
+      ? Math.round(((observedMeanRain - imdBaseline.rain_mm) / imdBaseline.rain_mm) * 100)
+      : null;
+
+
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
