@@ -4,13 +4,19 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Toaster } from "@/components/ui/sonner";
+import { ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Sidebar } from "@/components/varuna/Sidebar";
+import { TopBar } from "@/components/varuna/TopBar";
+import { getCurrentState, type CurrentState } from "@/lib/varuna/api";
 
 function NotFoundComponent() {
   return (
@@ -44,12 +50,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Something went wrong. Try again or go home.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -81,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Physics-informed GNN digital twin of Bihar's climate at block level — compound flood + heat risk, 3-hour update cycle, what-if simulator. Built on IMD, MOSDAC, Bhuvan, IMDAA.",
+          "Physics-informed GNN digital twin of Bihar's climate at block level — compound flood + heat risk, 3-hour update cycle, what-if simulator.",
       },
       { property: "og:title", content: "VARUNA · AI Digital Twin of Bihar's Climate" },
       {
@@ -92,10 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -125,13 +124,63 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const BREADCRUMBS: Record<string, string> = {
+  "/": "Dashboard",
+  "/map": "Bihar Map",
+  "/compound": "Compound Risk",
+  "/prediction": "Prediction Engine",
+  "/simulator": "What-If Simulator",
+  "/alerts": "Alerts",
+  "/reports": "Decision Reports",
+  "/settings": "Settings",
+};
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const [state, setState] = useState<CurrentState | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const s = await getCurrentState();
+      if (!cancelled) setState(s);
+    })();
+    const id = setInterval(async () => {
+      const s = await getCurrentState();
+      setState(s);
+    }, 3 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  const districts = state?.districts ?? [];
+  const lastUpdate = state
+    ? new Date(state.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " IST"
+    : "—";
+  const label = BREADCRUMBS[pathname] ?? "Dashboard";
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+        <Sidebar districts={districts} onSelectDistrict={() => {}} busy={!state} />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <TopBar lastUpdate={lastUpdate} />
+          <div className="flex items-center gap-1.5 border-b border-border bg-panel/50 px-4 py-1.5 text-[11px] text-muted-foreground lg:px-6">
+            <Link to="/" className="hover:text-foreground">
+              VARUNA
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground">{label}</span>
+          </div>
+          <main className="flex-1 overflow-y-auto bg-grid">
+            <Outlet />
+          </main>
+        </div>
+        <Toaster position="bottom-right" theme="dark" richColors />
+      </div>
     </QueryClientProvider>
   );
 }

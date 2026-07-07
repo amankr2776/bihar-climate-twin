@@ -1,17 +1,19 @@
+import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Map, Layers, Cpu, FlaskConical, Bell, FileText, Settings, ChevronRight } from "lucide-react";
 import type { DistrictState } from "@/lib/varuna/state";
+import { varunaStore } from "@/lib/varuna/store";
 
-type NavItem = { icon: React.ReactNode; label: string; active?: boolean };
+type NavItem = { icon: React.ReactNode; label: string; to: string };
 
 const NAV: NavItem[] = [
-  { icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard", active: true },
-  { icon: <Map className="h-4 w-4" />, label: "Bihar Map" },
-  { icon: <Layers className="h-4 w-4" />, label: "Compound Risk" },
-  { icon: <Cpu className="h-4 w-4" />, label: "Prediction Engine" },
-  { icon: <FlaskConical className="h-4 w-4" />, label: "What-If Simulator" },
-  { icon: <Bell className="h-4 w-4" />, label: "Alerts" },
-  { icon: <FileText className="h-4 w-4" />, label: "Decision Reports" },
-  { icon: <Settings className="h-4 w-4" />, label: "Settings" },
+  { icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard", to: "/" },
+  { icon: <Map className="h-4 w-4" />, label: "Bihar Map", to: "/map" },
+  { icon: <Layers className="h-4 w-4" />, label: "Compound Risk", to: "/compound" },
+  { icon: <Cpu className="h-4 w-4" />, label: "Prediction Engine", to: "/prediction" },
+  { icon: <FlaskConical className="h-4 w-4" />, label: "What-If Simulator", to: "/simulator" },
+  { icon: <Bell className="h-4 w-4" />, label: "Alerts", to: "/alerts" },
+  { icon: <FileText className="h-4 w-4" />, label: "Decision Reports", to: "/reports" },
+  { icon: <Settings className="h-4 w-4" />, label: "Settings", to: "/settings" },
 ];
 
 type Props = {
@@ -21,6 +23,7 @@ type Props = {
 };
 
 export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
   const top = [...districts]
     .sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk))
     .slice(0, 8);
@@ -31,7 +34,7 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
       className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex"
     >
       <div className="px-5 pt-5">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
             V
           </div>
@@ -43,52 +46,28 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
               AI Bihar Climate Digital Twin
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       <nav className="mt-6 space-y-1 px-3">
-        {NAV.map((n) => (
-          <button
-            key={n.label}
-            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-              n.active
-                ? "bg-primary/15 text-primary shadow-[inset_2px_0_0_0_var(--primary)]"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
-          >
-            {n.icon}
-            <span>{n.label}</span>
-          </button>
-        ))}
+        {NAV.map((n) => {
+          const active = n.to === "/" ? pathname === "/" : pathname.startsWith(n.to);
+          return (
+            <Link
+              key={n.label}
+              to={n.to}
+              className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                active
+                  ? "bg-[color:var(--risk-heat)]/15 text-[color:var(--risk-heat)] shadow-[inset_2px_0_0_0_var(--risk-heat)]"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              {n.icon}
+              <span>{n.label}</span>
+            </Link>
+          );
+        })}
       </nav>
-
-      <div className="mt-6 border-t border-border px-5 pt-4">
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Select Location</div>
-        <label className="mt-2 block text-[10px] text-muted-foreground">State</label>
-        <select className="mt-1 w-full rounded-md border border-border bg-input px-2 py-1.5 text-xs">
-          <option>Bihar</option>
-        </select>
-        <div className="mt-3 flex gap-2">
-          <button
-            disabled={busy}
-            className="flex-1 rounded-md border border-[color:var(--risk-heat)]/60 bg-[color:var(--risk-heat)]/10 px-2 py-1 text-xs text-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            District View
-          </button>
-          <button
-            disabled={busy}
-            className="flex-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Block View
-          </button>
-        </div>
-        <label className="mt-3 block text-[10px] text-muted-foreground">Date</label>
-        <input
-          type="text"
-          defaultValue={new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-          className="mt-1 w-full rounded-md border border-border bg-input px-2 py-1.5 text-xs"
-        />
-      </div>
 
       <div className="mt-5 flex-1 overflow-hidden border-t border-border px-3 pt-4">
         <div className="px-2 text-[10px] uppercase tracking-widest text-muted-foreground">Top District Alerts</div>
@@ -106,9 +85,12 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
             return (
               <li key={d.district.id}>
                 <button
-                  onClick={() => onSelectDistrict(d.district.id)}
+                  onClick={() => {
+                    varunaStore.set({ selectedDistrict: d.district.id });
+                    onSelectDistrict(d.district.id);
+                  }}
                   disabled={busy}
-                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+                  className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded bg-background text-[10px] font-mono text-muted-foreground">
                     {i + 1}
@@ -129,9 +111,12 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
             );
           })}
         </ul>
-        <button className="flex w-full items-center justify-center gap-1 rounded-md border border-border bg-background/40 px-2 py-1.5 text-xs text-primary hover:bg-accent">
+        <Link
+          to="/alerts"
+          className="flex w-full items-center justify-center gap-1 rounded-md border border-border bg-background/40 px-2 py-1.5 text-xs text-primary hover:bg-accent"
+        >
           View All <ChevronRight className="h-3 w-3" />
-        </button>
+        </Link>
       </div>
     </aside>
   );

@@ -9,8 +9,50 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SimulatorRouteImport } from './routes/simulator'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as PredictionRouteImport } from './routes/prediction'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SimulatorRoute = SimulatorRouteImport.update({
+  id: '/simulator',
+  path: '/simulator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionRoute = PredictionRouteImport.update({
+  id: '/prediction',
+  path: '/prediction',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompoundRoute = CompoundRouteImport.update({
+  id: '/compound',
+  path: '/compound',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +61,130 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/compound': typeof CompoundRoute
+  '/map': typeof MapRoute
+  '/prediction': typeof PredictionRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/simulator': typeof SimulatorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/compound': typeof CompoundRoute
+  '/map': typeof MapRoute
+  '/prediction': typeof PredictionRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/simulator': typeof SimulatorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/compound': typeof CompoundRoute
+  '/map': typeof MapRoute
+  '/prediction': typeof PredictionRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/simulator': typeof SimulatorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/compound'
+    | '/map'
+    | '/prediction'
+    | '/reports'
+    | '/settings'
+    | '/simulator'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/compound'
+    | '/map'
+    | '/prediction'
+    | '/reports'
+    | '/settings'
+    | '/simulator'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/compound'
+    | '/map'
+    | '/prediction'
+    | '/reports'
+    | '/settings'
+    | '/simulator'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  CompoundRoute: typeof CompoundRoute
+  MapRoute: typeof MapRoute
+  PredictionRoute: typeof PredictionRoute
+  ReportsRoute: typeof ReportsRoute
+  SettingsRoute: typeof SettingsRoute
+  SimulatorRoute: typeof SimulatorRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/simulator': {
+      id: '/simulator'
+      path: '/simulator'
+      fullPath: '/simulator'
+      preLoaderRoute: typeof SimulatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prediction': {
+      id: '/prediction'
+      path: '/prediction'
+      fullPath: '/prediction'
+      preLoaderRoute: typeof PredictionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compound': {
+      id: '/compound'
+      path: '/compound'
+      fullPath: '/compound'
+      preLoaderRoute: typeof CompoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +197,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  CompoundRoute: CompoundRoute,
+  MapRoute: MapRoute,
+  PredictionRoute: PredictionRoute,
+  ReportsRoute: ReportsRoute,
+  SettingsRoute: SettingsRoute,
+  SimulatorRoute: SimulatorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
