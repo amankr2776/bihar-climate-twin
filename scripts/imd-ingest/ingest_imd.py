@@ -82,11 +82,19 @@ def download_grid(variable: str, year: int, cache_dir: str):
 
 def sample_district(ds, lat: float, lng: float, day: date) -> Optional[float]:
     """Nearest-neighbour sample at (lat, lng) for the given calendar day."""
-    xr = ds.get_xarray()
+    xr_obj = ds.get_xarray()
+    # Newer imdlib returns an xarray.Dataset; older versions returned a DataArray.
+    if hasattr(xr_obj, "data_vars"):
+        data_vars = list(xr_obj.data_vars)
+        if not data_vars:
+            return None
+        da = xr_obj[data_vars[0]]
+    else:
+        da = xr_obj
     key = np.datetime64(day.isoformat())
-    if key not in xr["time"].values:
+    if key not in da["time"].values:
         return None
-    val = xr.sel(time=key, lat=lat, lon=lng, method="nearest").values.item()
+    val = da.sel(time=key, lat=lat, lon=lng, method="nearest").values.item()
     if val is None or np.isnan(val) or val <= -999:
         return None
     return float(val)
