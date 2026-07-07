@@ -62,7 +62,7 @@ function PredictionPage() {
   const filteredBlocks = blocks.filter((b) => b.block_name.toLowerCase().includes(blockSearch.toLowerCase())).slice(0, 8);
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Prediction Engine"
         help={{

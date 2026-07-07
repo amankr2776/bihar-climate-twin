@@ -85,7 +85,7 @@ function SettingsPage() {
   };
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader title="Settings" help={{ title: "Settings", description: "Configure data sources, display preferences, alert thresholds, user profile, API keys and view system status." }} />
 
       <div className="grid grid-cols-12 gap-4">
