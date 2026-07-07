@@ -119,6 +119,21 @@ const initial: VarunaState = {
   },
   displayPrefs: { units: "metric", refreshMinutes: 3, defaultMapLayer: "compound" },
   userProfile: { name: "A. Kumar", role: "Climate Operations Analyst", organization: "Bihar SDMA" },
+  dataSources: [
+    { name: "IMD", status: "connected", lastSync: Date.now() - 3 * 60 * 1000 },
+    { name: "MOSDAC", status: "connected", lastSync: Date.now() - 8 * 60 * 1000 },
+    { name: "IMDAA", status: "connected", lastSync: Date.now() - 14 * 60 * 1000 },
+    { name: "Bhuvan", status: "disconnected", lastSync: Date.now() - 2 * 60 * 60 * 1000 },
+  ],
+  apiKey: "vk_****************a91f",
+  systemStatus: {
+    uptime: "14d 6h 23m",
+    lastInference: Date.now() - 2 * 60 * 1000,
+    dbHealthy: true,
+    nextModelRunMin: 134,
+    ingestionMin: 42,
+    queueDepth: 3,
+  },
 };
 
 let state: VarunaState = initial;
