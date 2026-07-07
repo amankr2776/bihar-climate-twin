@@ -31,6 +31,7 @@ export const Route = createFileRoute("/dashboard")({
 function VarunaDashboard() {
   const { data: state } = useCurrentState();
   const { data: alerts = [] } = useAlerts();
+  const { data: imdNormals } = useImdNormals();
   const refresh = useVarunaRefresh();
   const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
