@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown, Database } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { useImdNormals } from "@/lib/varuna/imd-normals";
 
 import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/prediction")({
 
 function PredictionPage() {
   const { data: state } = useCurrentState();
+  const { data: imdNormals } = useImdNormals();
   const [mode, setMode] = useState<"current" | "forecast">("current");
   const [feature, setFeature] = useState<"rainfall" | "temp">("rainfall");
   const [step, setStep] = useState(1);
@@ -29,6 +31,13 @@ function PredictionPage() {
   useEffect(() => {
     if (state && !selectedBlock) setSelectedBlock(state.blocks[0]);
   }, [state, selectedBlock]);
+
+  const selectedDistrictId = selectedBlock?.district_id;
+  const selectedNormal = selectedDistrictId
+    ? imdNormals?.by_district[selectedDistrictId] ?? null
+    : null;
+  const imdTotalDistricts = imdNormals ? Object.keys(imdNormals.by_district).length : 0;
+
 
 
   const validation = useMemo(() => validationSeries(), []);
@@ -72,7 +81,7 @@ function PredictionPage() {
       />
 
       {/* Top row */}
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
         <StatusCard title="Model Status" badge="ACTIVE" badgeColor="var(--risk-drought)" icon={<Cpu />}>
           <div className="text-sm">PI-GNN v1.0</div>
           <div className="text-[11px] text-muted-foreground">Trained 2026-06-30</div>
@@ -98,7 +107,16 @@ function PredictionPage() {
           </div>
           <div className="text-xs font-semibold text-[color:var(--risk-drought)]">−{improvement}% RMSE</div>
         </StatusCard>
+        <StatusCard title="IMD Baseline" badge="LIVE" badgeColor="var(--brand-cyan)" icon={<Database />}>
+          <div className="text-sm">
+            {imdNormals ? imdNormals.total_rows.toLocaleString() : "…"} rows
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            2022–24 monsoon · {imdTotalDistricts}/38 districts · ±{imdNormals?.window_days ?? 3}d window
+          </div>
+        </StatusCard>
       </div>
+
 
       {/* Middle row */}
       <div className="grid grid-cols-12 gap-4">
@@ -211,12 +229,43 @@ function PredictionPage() {
                 </ResponsiveContainer>
               </div>
 
+              <div className="mt-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-2 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-[color:var(--brand-cyan)]">IMD 2022–24 Normal · this district</div>
+                  <div className="text-[9px] uppercase tracking-widest text-muted-foreground">±3d · 3 seasons</div>
+                </div>
+                {selectedNormal ? (
+                  <div className="mt-1 grid grid-cols-3 gap-2 font-mono text-[11px]">
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">Rain</div>
+                      <div>{selectedNormal.rain_mm_normal?.toFixed(1) ?? "—"} mm/d</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">T max</div>
+                      <div>{selectedNormal.tmax_c_normal?.toFixed(1) ?? "—"} °C</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">T min</div>
+                      <div>{selectedNormal.tmin_c_normal?.toFixed(1) ?? "—"} °C</div>
+                    </div>
+                    <div className="col-span-3 text-[9px] text-muted-foreground">
+                      {selectedNormal.sample_days} IMD sample-days · forecast anchored against real observed baseline
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-1 text-muted-foreground">
+                    No IMD rows for this day-of-year (data covers Jun–Sep 2022–24). Falling back to model climatology.
+                  </div>
+                )}
+              </div>
+
               <div className="mt-3 rounded border border-[color:var(--risk-drought)]/40 bg-[color:var(--risk-drought)]/10 p-2 text-[11px]">
                 <div className="font-semibold text-[color:var(--risk-drought)]">Physics Constraint Status</div>
                 <div className="mt-1 text-muted-foreground">
                   Prediction adjusted: negative rainfall corrected to zero. Mass balance check passed for this block.
                 </div>
               </div>
+
             </>
           )}
         </section>

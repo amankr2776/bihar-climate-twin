@@ -14,6 +14,7 @@ import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/Das
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
+import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/dashboard")({
 function VarunaDashboard() {
   const { data: state } = useCurrentState();
   const { data: alerts = [] } = useAlerts();
+  const { data: imdNormals } = useImdNormals();
   const refresh = useVarunaRefresh();
   const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -77,6 +79,17 @@ function VarunaDashboard() {
   }, [districts]);
 
   const compoundMultiplier = (1 + compoundCount * 0.35).toFixed(1);
+
+  const imdBaseline = useMemo(() => stateWideNormal(imdNormals), [imdNormals]);
+  const observedMeanRain = useMemo(() => {
+    if (!districts.length) return null;
+    return districts.reduce((s, d) => s + d.rainfall_mm, 0) / districts.length;
+  }, [districts]);
+  const imdRainDeltaPct =
+    imdBaseline?.rain_mm != null && observedMeanRain != null && imdBaseline.rain_mm > 0.1
+      ? Math.round(((observedMeanRain - imdBaseline.rain_mm) / imdBaseline.rain_mm) * 100)
+      : null;
+
 
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
@@ -171,7 +184,30 @@ function VarunaDashboard() {
                       </div>
                     </div>
                   </div>
+                  {imdBaseline?.rain_mm != null && (
+                    <div className="pointer-events-none absolute right-4 top-4 z-[500] hidden max-w-[240px] items-start gap-2 rounded-lg border border-[color:var(--brand-cyan)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
+                      <CloudRain className="h-4 w-4 shrink-0 text-[color:var(--brand-cyan)]" />
+                      <div className="text-[11px] leading-tight">
+                        <div className="text-muted-foreground">IMD 2022–24 normal (this week)</div>
+                        <div className="font-mono text-sm font-bold text-[color:var(--brand-cyan)]">
+                          {imdBaseline.rain_mm.toFixed(1)} mm/day
+                          {imdRainDeltaPct != null && (
+                            <span
+                              className={`ml-2 font-semibold ${imdRainDeltaPct >= 0 ? "text-[color:var(--risk-flood)]" : "text-[color:var(--risk-drought)]"}`}
+                            >
+                              {imdRainDeltaPct >= 0 ? "+" : ""}
+                              {imdRainDeltaPct}% now
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[9px] text-muted-foreground">
+                          {imdBaseline.total_rows} IMD rows · {imdBaseline.districts_covered}/38 districts
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <MapTransitionOverlay show={transitioning} />
+
                 </div>
               </div>
             </section>
