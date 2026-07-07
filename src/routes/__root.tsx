@@ -16,7 +16,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Sidebar } from "@/components/varuna/Sidebar";
 import { TopBar } from "@/components/varuna/TopBar";
-import { getCurrentState, type CurrentState } from "@/lib/varuna/api";
+import { useCurrentState } from "@/lib/varuna/useCurrentState";
 
 function NotFoundComponent() {
   return (
@@ -139,23 +139,8 @@ const BREADCRUMBS: Record<string, string> = {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const [state, setState] = useState<CurrentState | null>(null);
+  const { data: state } = useCurrentState();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const s = await getCurrentState();
-      if (!cancelled) setState(s);
-    })();
-    const id = setInterval(async () => {
-      const s = await getCurrentState();
-      setState(s);
-    }, 3 * 60 * 1000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, []);
 
   const districts = state?.districts ?? [];
   const lastUpdate = state
