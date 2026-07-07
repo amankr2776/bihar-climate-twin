@@ -81,7 +81,7 @@ function PredictionPage() {
       />
 
       {/* Top row */}
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
         <StatusCard title="Model Status" badge="ACTIVE" badgeColor="var(--risk-drought)" icon={<Cpu />}>
           <div className="text-sm">PI-GNN v1.0</div>
           <div className="text-[11px] text-muted-foreground">Trained 2026-06-30</div>
@@ -107,7 +107,16 @@ function PredictionPage() {
           </div>
           <div className="text-xs font-semibold text-[color:var(--risk-drought)]">−{improvement}% RMSE</div>
         </StatusCard>
+        <StatusCard title="IMD Baseline" badge="LIVE" badgeColor="var(--brand-cyan)" icon={<Database />}>
+          <div className="text-sm">
+            {imdNormals ? imdNormals.total_rows.toLocaleString() : "…"} rows
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            2022–24 monsoon · {imdTotalDistricts}/38 districts · ±{imdNormals?.window_days ?? 3}d window
+          </div>
+        </StatusCard>
       </div>
+
 
       {/* Middle row */}
       <div className="grid grid-cols-12 gap-4">
