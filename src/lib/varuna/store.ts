@@ -43,6 +43,21 @@ export type AlertConfig = {
   compoundThreshold: number;
 };
 
+export type DataSource = {
+  name: string;
+  status: "connected" | "disconnected" | "syncing";
+  lastSync: number; // epoch ms
+};
+
+export type SystemStatus = {
+  uptime: string;
+  lastInference: number;
+  dbHealthy: boolean;
+  nextModelRunMin: number;
+  ingestionMin: number;
+  queueDepth: number;
+};
+
 export type VarunaState = {
   selectedDistrict: string | null;
   selectedBlock: string | null;
@@ -61,6 +76,9 @@ export type VarunaState = {
     role: string;
     organization: string;
   };
+  dataSources: DataSource[];
+  apiKey: string;
+  systemStatus: SystemStatus;
 };
 
 const seedReports = (): SavedReport[] =>
