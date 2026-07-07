@@ -5,7 +5,7 @@ import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { PathOptions } from "leaflet";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass } from "lucide-react";
-import { getCurrentState, type CurrentState } from "@/lib/varuna/api";
+import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
 import { block30DayHistory } from "@/lib/varuna/extra-api";
@@ -57,7 +57,7 @@ function slug(name: string) {
 }
 
 function MapPage() {
-  const [state, setState] = useState<CurrentState | null>(null);
+  const { data: state } = useCurrentState();
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
     rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
@@ -74,9 +74,9 @@ function MapPage() {
   const mapWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getCurrentState().then(setState);
     fetch("/bihar-districts.geojson").then((r) => r.json()).then(setGeo).catch(() => setGeo(null));
   }, []);
+
 
   const districts = state?.districts ?? [];
   const blocks = state?.blocks ?? [];

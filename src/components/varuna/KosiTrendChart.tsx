@@ -1,22 +1,29 @@
+import { useQuery } from "@tanstack/react-query";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { kosiTrend7Day } from "@/lib/varuna/api";
 
 export function KosiTrendChart() {
-  const data = kosiTrend7Day();
+  const { data } = useQuery({
+    queryKey: ["varuna", "kosi-trend"],
+    queryFn: () => kosiTrend7Day(),
+    refetchInterval: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+  });
+  const series = data ?? [];
   return (
     <div className="h-full rounded-xl border border-border bg-panel p-4">
       <div className="flex items-baseline justify-between">
         <div>
           <h3 className="text-sm font-semibold">Compound risk signal · 7-day</h3>
           <p className="text-[11px] text-muted-foreground">
-            Kosi river level (north) vs South Bihar soil moisture — the compound flood-heat signature.
+            Kosi river level (north) vs South Bihar soil moisture — real Open-Meteo daily observations.
           </p>
         </div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">IMD · IMDAA</div>
+        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">IMD · Open-Meteo</div>
       </div>
       <div className="mt-3 h-[calc(100%-56px)]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+          <LineChart data={series} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="var(--grid-line)" strokeDasharray="2 4" />
             <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={11} />
             <YAxis
