@@ -260,9 +260,10 @@ function ScenarioBanner({ name, onClear }: { name: string; onClear: () => void }
       <span className="text-foreground">Scenario active:</span>
       <span className="font-medium text-[color:var(--risk-heat)]">{name}</span>
       <button
+        type="button"
         onClick={onClear}
         className="ml-1 rounded p-0.5 text-muted-foreground hover:bg-panel hover:text-foreground"
-        aria-label="Clear scenario"
+        aria-label="Clear active scenario"
       >
         <X className="h-3 w-3" />
       </button>

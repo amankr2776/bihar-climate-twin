@@ -113,6 +113,9 @@ function Landing() {
             <span className="bg-gradient-to-b from-[#ffb684] via-[#ff6b3d] to-[#ff2d75] bg-clip-text text-transparent">
               UNA
             </span>
+            <span className="mt-4 block font-display text-lg font-medium leading-normal tracking-normal text-white/80 sm:text-xl lg:text-2xl">
+              — AI Digital Twin of Bihar's Climate
+            </span>
           </motion.h1>
 
           <motion.p

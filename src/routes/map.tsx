@@ -286,6 +286,7 @@ function MapPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doSearch()}
                 placeholder="Search district or block…"
+                aria-label="Search district or block"
                 className="w-full bg-transparent text-xs focus:outline-none"
               />
             </div>
