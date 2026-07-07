@@ -184,7 +184,30 @@ function VarunaDashboard() {
                       </div>
                     </div>
                   </div>
+                  {imdBaseline?.rain_mm != null && (
+                    <div className="pointer-events-none absolute right-4 top-4 z-[500] hidden max-w-[240px] items-start gap-2 rounded-lg border border-[color:var(--brand-cyan)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
+                      <CloudRain className="h-4 w-4 shrink-0 text-[color:var(--brand-cyan)]" />
+                      <div className="text-[11px] leading-tight">
+                        <div className="text-muted-foreground">IMD 2022–24 normal (this week)</div>
+                        <div className="font-mono text-sm font-bold text-[color:var(--brand-cyan)]">
+                          {imdBaseline.rain_mm.toFixed(1)} mm/day
+                          {imdRainDeltaPct != null && (
+                            <span
+                              className={`ml-2 font-semibold ${imdRainDeltaPct >= 0 ? "text-[color:var(--risk-flood)]" : "text-[color:var(--risk-drought)]"}`}
+                            >
+                              {imdRainDeltaPct >= 0 ? "+" : ""}
+                              {imdRainDeltaPct}% now
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[9px] text-muted-foreground">
+                          {imdBaseline.total_rows} IMD rows · {imdBaseline.districts_covered}/38 districts
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <MapTransitionOverlay show={transitioning} />
+
                 </div>
               </div>
             </section>
