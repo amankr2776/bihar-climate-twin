@@ -138,9 +138,17 @@ const BREADCRUMBS: Record<string, string> = {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootInner />
+      <Toaster position="bottom-right" theme="dark" richColors />
+    </QueryClientProvider>
+  );
+}
+
+function RootInner() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { data: state } = useCurrentState();
-
 
   const districts = state?.districts ?? [];
   const lastUpdate = state
@@ -152,34 +160,29 @@ function RootComponent() {
 
   if (isLanding) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen w-full bg-background text-foreground">
-          <Outlet />
-        </div>
-        <Toaster position="bottom-right" theme="dark" richColors />
-      </QueryClientProvider>
+      <div className="min-h-screen w-full bg-background text-foreground">
+        <Outlet />
+      </div>
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
-        <Sidebar districts={districts} onSelectDistrict={() => {}} busy={!state} />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <TopBar lastUpdate={lastUpdate} />
-          <div className="flex items-center gap-1.5 border-b border-border bg-panel/50 px-4 py-1.5 text-[11px] text-muted-foreground lg:px-6">
-            <Link to="/" className="hover:text-foreground">
-              VARUNA
-            </Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-foreground">{label}</span>
-          </div>
-          <main className="flex-1 overflow-y-auto bg-grid">
-            <Outlet />
-          </main>
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+      <Sidebar districts={districts} onSelectDistrict={() => {}} busy={!state} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TopBar lastUpdate={lastUpdate} />
+        <div className="flex items-center gap-1.5 border-b border-border bg-panel/50 px-4 py-1.5 text-[11px] text-muted-foreground lg:px-6">
+          <Link to="/" className="hover:text-foreground">
+            VARUNA
+          </Link>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-foreground">{label}</span>
         </div>
-        <Toaster position="bottom-right" theme="dark" richColors />
+        <main className="flex-1 overflow-y-auto bg-grid">
+          <Outlet />
+        </main>
       </div>
-    </QueryClientProvider>
+    </div>
   );
 }
+
