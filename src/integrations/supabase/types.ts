@@ -14,7 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      climate_districts: {
+        Row: {
+          created_at: string
+          id: string
+          lat: number
+          lng: number
+          name: string
+          state: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          lat: number
+          lng: number
+          name: string
+          state?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          state?: string
+        }
+        Relationships: []
+      }
+      climate_observations: {
+        Row: {
+          dataset_version: string | null
+          district_id: string
+          id: string
+          ingested_at: string
+          observed_on: string
+          rainfall_mm: number | null
+          source: string
+          tmax_c: number | null
+          tmin_c: number | null
+        }
+        Insert: {
+          dataset_version?: string | null
+          district_id: string
+          id?: string
+          ingested_at?: string
+          observed_on: string
+          rainfall_mm?: number | null
+          source?: string
+          tmax_c?: number | null
+          tmin_c?: number | null
+        }
+        Update: {
+          dataset_version?: string | null
+          district_id?: string
+          id?: string
+          ingested_at?: string
+          observed_on?: string
+          rainfall_mm?: number | null
+          source?: string
+          tmax_c?: number | null
+          tmin_c?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "climate_observations_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "climate_districts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
