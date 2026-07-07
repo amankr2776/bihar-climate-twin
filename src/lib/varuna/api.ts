@@ -41,7 +41,7 @@ export type CurrentState = {
   blocks: BlockState[];
   districts: DistrictState[];
   timestamp: string;
-  source: "open-meteo" | "fallback";
+  source: "open-meteo" | "imd+open-meteo" | "fallback";
 };
 
 // --- Shared climate snapshot cache (deduped across pages) ---
