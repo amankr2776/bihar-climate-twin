@@ -32,13 +32,45 @@ const SOURCES = [
   { name: "Bhuvan", status: "disconnected", lastSync: "2 hours ago" },
 ];
 
+function relTime(ts: number): string {
+  const s = Math.max(1, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  return `${h}h ago`;
+}
+
 function SettingsPage() {
   const [cat, setCat] = useState("data");
   const [profile, setProfile] = useState(varunaStore.getState().userProfile);
   const [prefs, setPrefs] = useState(varunaStore.getState().displayPrefs);
   const config = useVarunaStore((s) => s.alertConfig);
+  const sources = useVarunaStore((s) => s.dataSources);
+  const apiKey = useVarunaStore((s) => s.apiKey);
+  const systemStatus = useVarunaStore((s) => s.systemStatus);
+  // tick every 15s so "3 min ago" refreshes
+  const [, force] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => force((n) => n + 1), 15_000);
+    return () => clearInterval(id);
+  }, []);
 
-  const sync = (name: string) => toast.success(`${name} sync started`);
+  const sync = (name: string) => {
+    varunaStore.set((s) => ({
+      dataSources: s.dataSources.map((d) => (d.name === name ? { ...d, status: "syncing" } : d)),
+    }));
+    toast.loading(`Syncing ${name}…`, { id: `sync-${name}` });
+    setTimeout(() => {
+      varunaStore.set((s) => ({
+        dataSources: s.dataSources.map((d) =>
+          d.name === name ? { ...d, status: "connected", lastSync: Date.now() } : d,
+        ),
+        systemStatus: { ...s.systemStatus, lastInference: Date.now() },
+      }));
+      toast.success(`${name} synced successfully`, { id: `sync-${name}` });
+    }, 1100 + Math.random() * 600);
+  };
   const saveProfile = () => {
     varunaStore.set({ userProfile: profile });
     toast.success("Profile saved");
@@ -46,6 +78,16 @@ function SettingsPage() {
   const savePrefs = () => {
     varunaStore.set({ displayPrefs: prefs });
     toast.success("Preferences saved");
+  };
+  const saveAlertConfig = () => {
+    // config already lives in store via onCheckedChange; just confirm
+    toast.success("Alert configuration saved");
+  };
+  const regenKey = () => {
+    const hex = () => Math.random().toString(16).slice(2, 6);
+    const newKey = `vk_${hex()}${hex()}${hex()}${hex()}`;
+    varunaStore.set({ apiKey: newKey });
+    toast.success("New API key generated");
   };
 
   return (
