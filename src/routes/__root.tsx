@@ -94,8 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "VARUNA · AI Digital Twin of Bihar's Climate" },
       { name: "twitter:description", content: "Live block-level climate digital twin for Bihar with compound-risk simulation." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd45a0ac-0f12-4db2-a16c-a24a38862ed5/id-preview-24e8cc34--956ecd9c-2720-44ba-b717-27184d8c99dd.lovable.app-1783425211613.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd45a0ac-0f12-4db2-a16c-a24a38862ed5/id-preview-24e8cc34--956ecd9c-2720-44ba-b717-27184d8c99dd.lovable.app-1783425211613.png" },
+      { property: "og:site_name", content: "VARUNA" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
