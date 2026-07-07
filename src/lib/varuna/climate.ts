@@ -19,6 +19,7 @@
 // citable, forecast-grade values (see https://open-meteo.com/en/docs).
 
 import { DISTRICTS, type District } from "./districts";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ClimateReading = {
   district_id: string;
@@ -31,13 +32,16 @@ export type ClimateReading = {
   daily_temp_max: number[];
   daily_temp_min: number[];
   observation_time: string;
+  imd_backed: boolean; // true if past-days values came from IMD grids
 };
 
 export type ClimateSnapshot = {
   readings: ClimateReading[];
   fetched_at: string;
-  source: "open-meteo" | "fallback";
+  source: "open-meteo" | "imd+open-meteo" | "fallback";
+  imd_days: number; // count of past days IMD-backed
 };
+
 
 const OPEN_METEO = "https://api.open-meteo.com/v1/forecast";
 
