@@ -110,7 +110,7 @@ function ReportsPage() {
   };
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Decision Reports"
         help={{

@@ -103,7 +103,7 @@ function AlertsPage() {
     s === "critical" ? "var(--risk-compound)" : s === "high" ? "var(--risk-heat)" : "oklch(0.85 0.15 90)";
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Alerts"
         help={{

@@ -63,7 +63,7 @@ function CompoundPage() {
   const totalPages = Math.max(1, Math.ceil(sortedHistory.length / 10));
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Compound Risk Analysis"
         help={{

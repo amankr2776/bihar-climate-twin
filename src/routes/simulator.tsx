@@ -98,7 +98,7 @@ function SimulatorPage() {
   const compareScenarios = useMemo(() => saved.filter((s) => compareIds.includes(s.id)), [saved, compareIds]);
 
   return (
-    <div className="p-4 lg:p-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="What-If Simulator"
         help={{
