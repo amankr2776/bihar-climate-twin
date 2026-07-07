@@ -229,12 +229,43 @@ function PredictionPage() {
                 </ResponsiveContainer>
               </div>
 
+              <div className="mt-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-2 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-[color:var(--brand-cyan)]">IMD 2022–24 Normal · this district</div>
+                  <div className="text-[9px] uppercase tracking-widest text-muted-foreground">±3d · 3 seasons</div>
+                </div>
+                {selectedNormal ? (
+                  <div className="mt-1 grid grid-cols-3 gap-2 font-mono text-[11px]">
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">Rain</div>
+                      <div>{selectedNormal.rain_mm_normal?.toFixed(1) ?? "—"} mm/d</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">T max</div>
+                      <div>{selectedNormal.tmax_c_normal?.toFixed(1) ?? "—"} °C</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-muted-foreground">T min</div>
+                      <div>{selectedNormal.tmin_c_normal?.toFixed(1) ?? "—"} °C</div>
+                    </div>
+                    <div className="col-span-3 text-[9px] text-muted-foreground">
+                      {selectedNormal.sample_days} IMD sample-days · forecast anchored against real observed baseline
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-1 text-muted-foreground">
+                    No IMD rows for this day-of-year (data covers Jun–Sep 2022–24). Falling back to model climatology.
+                  </div>
+                )}
+              </div>
+
               <div className="mt-3 rounded border border-[color:var(--risk-drought)]/40 bg-[color:var(--risk-drought)]/10 p-2 text-[11px]">
                 <div className="font-semibold text-[color:var(--risk-drought)]">Physics Constraint Status</div>
                 <div className="mt-1 text-muted-foreground">
                   Prediction adjusted: negative rainfall corrected to zero. Mass balance check passed for this block.
                 </div>
               </div>
+
             </>
           )}
         </section>
