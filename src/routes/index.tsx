@@ -87,7 +87,7 @@ function Landing() {
       {/* Hero */}
       <section className="relative">
         <div className="absolute inset-0 h-[92vh]">
-          <Scene />
+          <HeroBackdrop />
         </div>
 
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center px-6 text-center">
