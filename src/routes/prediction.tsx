@@ -21,6 +21,7 @@ export const Route = createFileRoute("/prediction")({
 
 function PredictionPage() {
   const { data: state } = useCurrentState();
+  const { data: imdNormals } = useImdNormals();
   const [mode, setMode] = useState<"current" | "forecast">("current");
   const [feature, setFeature] = useState<"rainfall" | "temp">("rainfall");
   const [step, setStep] = useState(1);
@@ -30,6 +31,13 @@ function PredictionPage() {
   useEffect(() => {
     if (state && !selectedBlock) setSelectedBlock(state.blocks[0]);
   }, [state, selectedBlock]);
+
+  const selectedDistrictId = selectedBlock?.district_id;
+  const selectedNormal = selectedDistrictId
+    ? imdNormals?.by_district[selectedDistrictId] ?? null
+    : null;
+  const imdTotalDistricts = imdNormals ? Object.keys(imdNormals.by_district).length : 0;
+
 
 
   const validation = useMemo(() => validationSeries(), []);
