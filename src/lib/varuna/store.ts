@@ -43,6 +43,21 @@ export type AlertConfig = {
   compoundThreshold: number;
 };
 
+export type DataSource = {
+  name: string;
+  status: "connected" | "disconnected" | "syncing";
+  lastSync: number; // epoch ms
+};
+
+export type SystemStatus = {
+  uptime: string;
+  lastInference: number;
+  dbHealthy: boolean;
+  nextModelRunMin: number;
+  ingestionMin: number;
+  queueDepth: number;
+};
+
 export type VarunaState = {
   selectedDistrict: string | null;
   selectedBlock: string | null;
@@ -61,6 +76,9 @@ export type VarunaState = {
     role: string;
     organization: string;
   };
+  dataSources: DataSource[];
+  apiKey: string;
+  systemStatus: SystemStatus;
 };
 
 const seedReports = (): SavedReport[] =>
@@ -101,6 +119,21 @@ const initial: VarunaState = {
   },
   displayPrefs: { units: "metric", refreshMinutes: 3, defaultMapLayer: "compound" },
   userProfile: { name: "A. Kumar", role: "Climate Operations Analyst", organization: "Bihar SDMA" },
+  dataSources: [
+    { name: "IMD", status: "connected", lastSync: Date.now() - 3 * 60 * 1000 },
+    { name: "MOSDAC", status: "connected", lastSync: Date.now() - 8 * 60 * 1000 },
+    { name: "IMDAA", status: "connected", lastSync: Date.now() - 14 * 60 * 1000 },
+    { name: "Bhuvan", status: "disconnected", lastSync: Date.now() - 2 * 60 * 60 * 1000 },
+  ],
+  apiKey: "vk_****************a91f",
+  systemStatus: {
+    uptime: "14d 6h 23m",
+    lastInference: Date.now() - 2 * 60 * 1000,
+    dbHealthy: true,
+    nextModelRunMin: 134,
+    ingestionMin: 42,
+    queueDepth: 3,
+  },
 };
 
 let state: VarunaState = initial;
