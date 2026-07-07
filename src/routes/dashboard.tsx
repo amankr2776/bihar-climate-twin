@@ -93,7 +93,7 @@ function VarunaDashboard() {
   const compoundMultiplier = (1 + compoundCount * 0.35).toFixed(1);
 
   return (
-    <div className="px-4 py-4 lg:px-6">
+    <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title="Dashboard"
         subtitle="Real-time compound climate risk across 38 districts · 534 blocks"
