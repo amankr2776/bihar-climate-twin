@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown } from "lucide-react";
-import { getCurrentState, type CurrentState } from "@/lib/varuna/api";
+import { useCurrentState } from "@/lib/varuna/useCurrentState";
+
 import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/prediction")({
 });
 
 function PredictionPage() {
-  const [state, setState] = useState<CurrentState | null>(null);
+  const { data: state } = useCurrentState();
   const [mode, setMode] = useState<"current" | "forecast">("current");
   const [feature, setFeature] = useState<"rainfall" | "temp">("rainfall");
   const [step, setStep] = useState(1);
@@ -26,11 +27,9 @@ function PredictionPage() {
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
 
   useEffect(() => {
-    getCurrentState().then((s) => {
-      setState(s);
-      setSelectedBlock(s.blocks[0]);
-    });
-  }, []);
+    if (state && !selectedBlock) setSelectedBlock(state.blocks[0]);
+  }, [state, selectedBlock]);
+
 
   const validation = useMemo(() => validationSeries(), []);
   const scatter = useMemo(() => predObsScatter(), []);

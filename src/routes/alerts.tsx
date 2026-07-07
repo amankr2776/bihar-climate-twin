@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { getAlerts, type AlertItem } from "@/lib/varuna/api";
+import { type AlertItem } from "@/lib/varuna/api";
+import { useAlerts } from "@/lib/varuna/useCurrentState";
+
 import { alertHistory } from "@/lib/varuna/extra-api";
 import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/alerts")({
 type LiveAlert = AlertItem & { flash?: boolean };
 
 function AlertsPage() {
+  const { data: base = [] } = useAlerts();
   const [alerts, setAlerts] = useState<LiveAlert[]>([]);
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -37,8 +40,15 @@ function AlertsPage() {
   const config = useVarunaStore((s) => s.alertConfig);
   const flashTimer = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
+  // Sync live alert list with the shared, real-data-backed feed.
   useEffect(() => {
-    getAlerts().then(setAlerts);
+    setAlerts((prev) => {
+      const localOnly = prev.filter((a) => a.id.startsWith("live-"));
+      return [...localOnly, ...base];
+    });
+  }, [base]);
+
+  useEffect(() => {
     const id = setInterval(() => {
       const d = DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)];
       const sev = (["critical", "high", "moderate"] as const)[Math.floor(Math.random() * 3)];
@@ -53,6 +63,7 @@ function AlertsPage() {
     }, 45000);
     return () => clearInterval(id);
   }, []);
+
 
   const acknowledge = (id: string) => {
     varunaStore.set((s) => ({ ackAlerts: { ...s.ackAlerts, [id]: { id, ackAt: new Date().toISOString(), status: "acknowledged" } } }));
