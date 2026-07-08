@@ -56,6 +56,41 @@ const EN: Dict = {
   "dash.southSoil": "South Bihar soil moisture",
   "dash.imdNormal": "IMD 2022–24 normal (this week)",
   "dash.scenarioActive": "Scenario active:",
+
+  // Page titles
+  "page.alerts.title": "Alerts",
+  "page.map.title": "Bihar Map",
+  "page.simulator.title": "What-If Simulator",
+  "page.reports.title": "Decision Reports",
+  "page.compound.title": "Compound Risk",
+  "page.prediction.title": "Prediction Engine",
+
+  // Alerts
+  "alerts.exportCap": "Export CAP",
+  "alerts.active": "Active",
+  "alerts.acknowledged": "Acknowledged",
+  "alerts.resolved": "Resolved",
+  "alerts.severity": "Severity",
+  "alerts.district": "District",
+  "alerts.time": "Time",
+  "alerts.actions": "Actions",
+
+  // Map
+  "map.layers": "Map Layers",
+  "map.filterRisk": "Filter by Risk",
+  "map.compare": "Compare Mode",
+  "map.export": "Export",
+
+  // Simulator
+  "sim.saved": "Saved Scenarios",
+  "sim.run": "Run",
+  "sim.reset": "Reset",
+
+  // Auth / gate
+  "gate.officialsOnly": "Officials only",
+  "gate.officialsOnlyDesc": "This page is restricted to state/district disaster management officials and administrators.",
+  "gate.checking": "Checking permissions…",
+  "gate.signIn": "Sign in",
 };
 
 const HI: Dict = {
