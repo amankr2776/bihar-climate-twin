@@ -14,6 +14,10 @@ VARUNA is a climate intelligence dashboard built for Bihar, India. It combines r
 - [Alerts](/alerts): Live climate risk alerts, notification settings, threshold configuration, and alert history.
 - [Decision Reports](/reports): Generate, preview, and download situation reports and decision briefs for NDRF, agriculture, health, and infrastructure stakeholders.
 
+## Guides
+
+- [Kosi Basin Hydrology](/guides/kosi-basin-hydrology): Block-level guide to Kosi River flood risk in Bihar, explaining why the basin accounts for 76% of the state's flood impact and how AI-based block-level forecasting provides earlier warnings than district-level alerts.
+
 ## Optional
 
 - [Home](/): Landing page introducing the VARUNA digital twin and its core capabilities.

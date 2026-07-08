@@ -167,6 +167,7 @@ const BREADCRUMBS: Record<string, string> = {
   "/alerts": "Alerts",
   "/reports": "Decision Reports",
   "/settings": "Settings",
+  "/guides/kosi-basin-hydrology": "Kosi Basin Hydrology",
 };
 
 function RootComponent() {

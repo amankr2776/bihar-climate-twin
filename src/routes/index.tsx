@@ -329,14 +329,16 @@ function FeatureCard({
   desc,
   accent,
   delay,
+  to,
 }: {
   icon: typeof Cpu;
   title: string;
   desc: string;
   accent: string;
   delay: number;
+  to?: string;
 }) {
-  return (
+  const card = (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -356,8 +358,23 @@ function FeatureCard({
       </div>
       <div className="mt-5 font-display text-lg font-bold text-white">{title}</div>
       <p className="mt-2 text-sm leading-relaxed text-white/60">{desc}</p>
+      {to && (
+        <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#ff8a3d] opacity-0 transition group-hover:opacity-100">
+          Read the guide <ArrowRight className="h-3 w-3" />
+        </div>
+      )}
     </motion.div>
   );
+
+  if (to) {
+    return (
+      <Link to={to} className="block">
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 }
 
 const CAPS = [
@@ -396,6 +413,7 @@ const CAPS = [
     title: "Kosi Basin Watch",
     desc: "Special-cased hydrology for the Kosi — where 76% of Bihar's flood-affected population lives.",
     accent: "rgba(79,139,255,0.55)",
+    to: "/guides/kosi-basin-hydrology",
   },
 ];
 
