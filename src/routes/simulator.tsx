@@ -37,6 +37,7 @@ export const Route = createFileRoute("/simulator")({
 });
 
 function SimulatorPage() {
+  const { t } = useI18n();
   const [name, setName] = useState("Scenario 1");
   const [rainfall, setRainfall] = useState(0);
   const [temperature, setTemperature] = useState(0);
