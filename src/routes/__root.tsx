@@ -74,6 +74,30 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://varuna-digital-twin.lovable.app";
+const ROOT_STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "VARUNA",
+      url: SITE_URL,
+      description:
+        "AI-powered digital twin of Bihar's climate — live block-level flood and heat risk, updated every three hours.",
+      publisher: { "@type": "Organization", name: "VARUNA" },
+    },
+    {
+      "@type": "Organization",
+      name: "VARUNA",
+      url: SITE_URL,
+      description:
+        "Physics-informed graph neural digital twin for climate risk monitoring, prediction, and decision support in Bihar.",
+      logo: `${SITE_URL}/og-varuna.jpg`,
+      sameAs: [],
+    },
+  ],
+};
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
