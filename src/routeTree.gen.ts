@@ -14,7 +14,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PredictionRouteImport } from './routes/prediction'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -55,11 +54,6 @@ const SimulatorRoute = SimulatorRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsRoute = ReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -156,7 +150,6 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -179,7 +172,6 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -204,7 +196,6 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -229,7 +220,6 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
@@ -252,7 +242,6 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
@@ -276,7 +265,6 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
@@ -301,7 +289,6 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   PredictionRoute: typeof PredictionRoute
   PrivacyRoute: typeof PrivacyRoute
-  ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -346,13 +333,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports': {
-      id: '/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -495,7 +475,6 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   PredictionRoute: PredictionRoute,
   PrivacyRoute: PrivacyRoute,
-  ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
