@@ -1,0 +1,27 @@
+{
+  "name": "VARUNA — Bihar Climate Digital Twin",
+  "short_name": "VARUNA",
+  "description": "Block-level flood, heat and drought risk for Bihar — indigenous climate digital twin.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "categories": ["utilities", "weather", "government"],
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 64x64 128x128",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/og-varuna.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

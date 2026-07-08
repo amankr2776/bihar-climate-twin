@@ -12,6 +12,7 @@ import { TimeEvolution } from "@/components/varuna/TimeEvolution";
 import { Recommendations } from "@/components/varuna/Recommendations";
 import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { SourceChip } from "@/components/varuna/SourceChip";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
@@ -139,6 +140,43 @@ function VarunaDashboard() {
             infraAtRisk={infraAtRisk}
             lastAssimilation={lastUpdate}
           />
+
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sources:</span>
+            <SourceChip
+              source="IMD"
+              dataset="Gridded rainfall 0.25° + Tmax/Tmin 1.0°"
+              resolution="0.25° / 1.0°"
+              cadence="Daily"
+              updated={lastUpdate}
+            />
+            <SourceChip
+              source="Open-Meteo"
+              dataset="Live IMD-anchored observations"
+              resolution="District"
+              cadence="Hourly"
+              updated={lastUpdate}
+            />
+            <SourceChip
+              source="MOSDAC / INSAT-3DR"
+              dataset="LST, SST, IMC rainfall"
+              resolution="4 km"
+              cadence="3-hourly"
+            />
+            <SourceChip
+              source="Bhuvan"
+              dataset="Admin boundaries (state/district/block)"
+              resolution="Block vector"
+              cadence="Versioned"
+            />
+            <SourceChip
+              source="IMDAA"
+              dataset="Regional reanalysis (NCMRWF)"
+              resolution="12 km"
+              cadence="Hourly (historical)"
+            />
+          </div>
+
 
           <div className="mt-4 grid grid-cols-12 gap-4">
             <section className="col-span-12 xl:col-span-9">
