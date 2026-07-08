@@ -141,7 +141,7 @@ function SimulatorPage() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="What-If Simulator"
+        title={t("page.simulator.title")}
         help={{
           title: "What-If Simulator",
           description:
