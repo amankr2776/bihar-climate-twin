@@ -107,6 +107,41 @@ const HI: Dict = {
   "dash.southSoil": "दक्षिण बिहार मृदा नमी",
   "dash.imdNormal": "IMD 2022–24 सामान्य (इस सप्ताह)",
   "dash.scenarioActive": "सक्रिय परिदृश्य:",
+
+  // Page titles
+  "page.alerts.title": "चेतावनियाँ",
+  "page.map.title": "बिहार मानचित्र",
+  "page.simulator.title": "क्या-होगा-अगर सिम्युलेटर",
+  "page.reports.title": "निर्णय रिपोर्ट",
+  "page.compound.title": "संयुक्त जोखिम",
+  "page.prediction.title": "पूर्वानुमान इंजन",
+
+  // Alerts
+  "alerts.exportCap": "CAP निर्यात",
+  "alerts.active": "सक्रिय",
+  "alerts.acknowledged": "स्वीकृत",
+  "alerts.resolved": "समाधानित",
+  "alerts.severity": "गंभीरता",
+  "alerts.district": "जिला",
+  "alerts.time": "समय",
+  "alerts.actions": "कार्रवाई",
+
+  // Map
+  "map.layers": "मानचित्र परतें",
+  "map.filterRisk": "जोखिम के अनुसार फ़िल्टर",
+  "map.compare": "तुलना मोड",
+  "map.export": "निर्यात",
+
+  // Simulator
+  "sim.saved": "सहेजे गए परिदृश्य",
+  "sim.run": "चलाएँ",
+  "sim.reset": "रीसेट",
+
+  // Auth / gate
+  "gate.officialsOnly": "केवल अधिकारी उपयोगकर्ताओं के लिए",
+  "gate.officialsOnlyDesc": "यह पृष्ठ केवल राज्य/जिला आपदा प्रबंधन अधिकारियों और प्रशासकों के लिए है।",
+  "gate.checking": "अनुमति जाँच रही है…",
+  "gate.signIn": "साइन इन करें",
 };
 
 const DICTS: Record<Lang, Dict> = { en: EN, hi: HI };
