@@ -14,6 +14,7 @@ import { type AlertItem } from "@/lib/varuna/api";
 import { useAlerts } from "@/lib/varuna/useCurrentState";
 
 import { alertHistory } from "@/lib/varuna/extra-api";
+import { downloadCapXml, downloadCapBundle } from "@/lib/varuna/cap-export";
 import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
 
@@ -150,6 +151,13 @@ function AlertsPage() {
         <section className="col-span-12 rounded-xl border border-border bg-panel xl:col-span-7">
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
             <h2 className="font-display text-sm font-semibold uppercase tracking-widest">Active Alerts</h2>
+            <button
+              onClick={() => { downloadCapBundle(active); toast.success(`Exported ${active.length} alerts as CAP-XML`); }}
+              className="flex items-center gap-1 rounded border border-[color:var(--brand-cyan)]/50 bg-[color:var(--brand-cyan)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/20"
+              title="Export active alerts as OASIS CAP v1.2 XML (NDMA-compatible)"
+            >
+              <Download className="h-3 w-3" /> CAP-XML
+            </button>
             <div className="ml-auto flex flex-wrap items-center gap-2">
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
                 <SelectTrigger className="h-7 w-32 text-xs"><SelectValue /></SelectTrigger>
@@ -191,6 +199,7 @@ function AlertsPage() {
                     <div className="flex flex-col gap-1">
                       <Button size="sm" variant="outline" onClick={() => acknowledge(a.id)} className="h-6 gap-1 text-[10px]"><Check className="h-3 w-3" /> Ack</Button>
                       <Button size="sm" variant="outline" onClick={() => setEscalate(a)} className="h-6 gap-1 text-[10px]"><ArrowUp className="h-3 w-3" /> Esc</Button>
+                      <Button size="sm" variant="outline" onClick={() => downloadCapXml(a)} className="h-6 gap-1 text-[10px]" title="Export as OASIS CAP-XML"><Download className="h-3 w-3" /> CAP</Button>
                     </div>
                   </div>
                   <button onClick={() => dismiss(a.id)} className="mt-1 text-[10px] text-muted-foreground hover:text-foreground">Dismiss →</button>

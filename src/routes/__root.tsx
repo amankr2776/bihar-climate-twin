@@ -170,6 +170,13 @@ const BREADCRUMBS: Record<string, string> = {
   "/alerts": "Alerts",
   "/reports": "Decision Reports",
   "/settings": "Settings",
+  "/methodology": "Methodology",
+  "/validation": "Validation",
+  "/data-sources": "Data Sources",
+  "/privacy": "Privacy",
+  "/terms": "Terms",
+  "/disclaimer": "Disclaimer",
+  "/attributions": "Attributions",
   "/guides/kosi-basin-hydrology": "Kosi Basin Hydrology",
 };
 
