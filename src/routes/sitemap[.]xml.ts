@@ -24,6 +24,13 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/reports", changefreq: "weekly", priority: "0.7" },
           { path: "/simulator", changefreq: "weekly", priority: "0.6" },
           { path: "/settings", changefreq: "monthly", priority: "0.5" },
+          { path: "/methodology", changefreq: "monthly", priority: "0.8" },
+          { path: "/validation", changefreq: "weekly", priority: "0.7" },
+          { path: "/data-sources", changefreq: "monthly", priority: "0.7" },
+          { path: "/attributions", changefreq: "monthly", priority: "0.4" },
+          { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+          { path: "/terms", changefreq: "yearly", priority: "0.3" },
+          { path: "/disclaimer", changefreq: "yearly", priority: "0.4" },
           { path: "/guides/kosi-basin-hydrology", changefreq: "monthly", priority: "0.7" },
           { path: "/api/public/ingest/climate", changefreq: "monthly", priority: "0.3" },
         ];

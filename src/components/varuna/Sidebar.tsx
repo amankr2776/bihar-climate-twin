@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Map, Layers, Cpu, FlaskConical, Bell, FileText, Settings, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Map, Layers, Cpu, FlaskConical, Bell, FileText, Settings, ChevronRight, BookOpen, LineChart, Database } from "lucide-react";
 import type { DistrictState } from "@/lib/varuna/state";
 import { varunaStore } from "@/lib/varuna/store";
 
@@ -13,6 +13,9 @@ const NAV: NavItem[] = [
   { icon: <FlaskConical className="h-4 w-4" />, label: "What-If Simulator", to: "/simulator" },
   { icon: <Bell className="h-4 w-4" />, label: "Alerts", to: "/alerts" },
   { icon: <FileText className="h-4 w-4" />, label: "Decision Reports", to: "/reports" },
+  { icon: <BookOpen className="h-4 w-4" />, label: "Methodology", to: "/methodology" },
+  { icon: <LineChart className="h-4 w-4" />, label: "Validation", to: "/validation" },
+  { icon: <Database className="h-4 w-4" />, label: "Data Sources", to: "/data-sources" },
   { icon: <Settings className="h-4 w-4" />, label: "Settings", to: "/settings" },
 ];
 

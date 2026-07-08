@@ -170,6 +170,13 @@ const BREADCRUMBS: Record<string, string> = {
   "/alerts": "Alerts",
   "/reports": "Decision Reports",
   "/settings": "Settings",
+  "/methodology": "Methodology",
+  "/validation": "Validation",
+  "/data-sources": "Data Sources",
+  "/privacy": "Privacy",
+  "/terms": "Terms",
+  "/disclaimer": "Disclaimer",
+  "/attributions": "Attributions",
   "/guides/kosi-basin-hydrology": "Kosi Basin Hydrology",
 };
 
@@ -217,6 +224,22 @@ function RootInner() {
         </div>
         <main className="flex-1 overflow-y-auto bg-grid">
           <Outlet />
+          <footer className="mt-8 border-t border-border bg-panel/40 px-4 py-3 text-[10px] text-muted-foreground lg:px-6">
+            <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2">
+              <div>
+                <span className="text-foreground">VARUNA</span> · Decision-support digital twin — not an official warning authority. Verify with IMD / CWC / SEOC.
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/methodology" className="hover:text-foreground">Methodology</Link>
+                <Link to="/validation" className="hover:text-foreground">Validation</Link>
+                <Link to="/data-sources" className="hover:text-foreground">Data Sources</Link>
+                <Link to="/attributions" className="hover:text-foreground">Attributions</Link>
+                <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+                <Link to="/terms" className="hover:text-foreground">Terms</Link>
+                <Link to="/disclaimer" className="hover:text-foreground">Disclaimer</Link>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
     </div>
