@@ -107,12 +107,8 @@ function VarunaDashboard() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="Dashboard"
-        subtitle={
-          state?.source === "open-meteo"
-            ? "Live observations from IMD / Open-Meteo · 38 districts · 534 blocks"
-            : "Live compound climate risk · 38 districts · 534 blocks"
-        }
+        title={t("dash.title")}
+        subtitle={state?.source === "open-meteo" ? t("dash.subtitleLive") : t("dash.subtitleDefault")}
         help={{
           title: "Dashboard",
           description:
