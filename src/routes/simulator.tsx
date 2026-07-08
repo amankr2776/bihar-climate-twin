@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { useI18n } from "@/lib/i18n";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
