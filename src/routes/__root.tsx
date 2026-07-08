@@ -74,6 +74,30 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const SITE_URL = "https://varuna-digital-twin.lovable.app";
+const ROOT_STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "VARUNA",
+      url: SITE_URL,
+      description:
+        "AI-powered digital twin of Bihar's climate — live block-level flood and heat risk, updated every three hours.",
+      publisher: { "@type": "Organization", name: "VARUNA" },
+    },
+    {
+      "@type": "Organization",
+      name: "VARUNA",
+      url: SITE_URL,
+      description:
+        "Physics-informed graph neural digital twin for climate risk monitoring, prediction, and decision support in Bihar.",
+      logo: `${SITE_URL}/og-varuna.jpg`,
+      sameAs: [],
+    },
+  ],
+};
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -105,6 +129,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(ROOT_STRUCTURED_DATA),
+      },
     ],
   }),
   shellComponent: RootShell,
