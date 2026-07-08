@@ -301,7 +301,7 @@ function MapPage() {
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between px-4 py-2">
           <PageHeader
-            title="Bihar Map"
+            title={t("page.map.title")}
             help={{
               title: "Bihar Map",
               description:
