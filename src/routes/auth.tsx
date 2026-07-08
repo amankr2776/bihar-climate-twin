@@ -184,32 +184,47 @@ function PhoneForm({
   const [otp, setOtp] = useState("");
   const [sent, setSent] = useState(false);
 
+  const normalizePhone = (raw: string) => {
+    const digits = raw.replace(/[^\d]/g, "");
+    if (raw.startsWith("+")) return `+${digits}`;
+    if (digits.length === 10) return `+91${digits}`;
+    return `+${digits}`;
+  };
+
   const sendOtp = async () => {
-    const p = phoneSchema.safeParse(phone);
+    const p = phoneSchema.safeParse(normalizePhone(phone));
     if (!p.success) return toast.error(p.error.issues[0].message);
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({ phone: p.data });
-      if (error) throw error;
+      const res = await fetch("/api/public/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: p.data }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Failed to send OTP");
+      setPhone(p.data);
       setSent(true);
-      toast.success("OTP sent");
+      toast.success("OTP sent — check your SMS");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to send OTP";
-      toast.error(
-        msg.toLowerCase().includes("sms")
-          ? "SMS provider not configured yet. Add one in Cloud → Auth settings."
-          : msg,
-      );
+      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
     } finally {
       setBusy(false);
     }
   };
 
   const verifyOtp = async () => {
-    if (!/^\d{4,8}$/.test(otp)) return toast.error("Enter the numeric OTP");
+    if (!/^\d{6}$/.test(otp)) return toast.error("Enter the 6-digit OTP");
     setBusy(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({ phone, token: otp, type: "sms" });
+      const res = await fetch("/api/public/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, code: otp }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "OTP verification failed");
+      const { error } = await supabase.auth.signInWithPassword({ email: body.email, password: body.password });
       if (error) throw error;
       toast.success("Signed in");
       onDone();
@@ -222,12 +237,9 @@ function PhoneForm({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-start gap-2 rounded-md border border-[color:var(--risk-heat)]/40 bg-[color:var(--risk-heat)]/10 p-2 text-[11px] text-[color:var(--risk-heat)]">
+      <div className="flex items-start gap-2 rounded-md border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-2 text-[11px] text-[color:var(--brand-cyan)]">
         <Info className="mt-0.5 h-3 w-3 shrink-0" />
-        <span>
-          Phone OTP requires an SMS provider (MSG91 / Gupshup / Twilio) configured under Cloud → Auth settings. Until then this
-          form will fail with a provider error.
-        </span>
+        <span>We&rsquo;ll SMS a 6-digit code to your phone. Standard carrier rates may apply.</span>
       </div>
       <div>
         <Label htmlFor="phone">Phone</Label>
@@ -238,6 +250,7 @@ function PhoneForm({
           onChange={(e) => setPhone(e.target.value)}
           placeholder="+91XXXXXXXXXX"
           autoComplete="tel"
+          disabled={sent}
         />
       </div>
       {!sent ? (
@@ -247,26 +260,28 @@ function PhoneForm({
       ) : (
         <>
           <div>
-            <Label htmlFor="otp">OTP</Label>
+            <Label htmlFor="otp">6-digit OTP</Label>
             <Input
               id="otp"
               inputMode="numeric"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-              placeholder="6-digit code"
-              maxLength={8}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="123456"
+              maxLength={6}
+              autoFocus
             />
           </div>
           <Button type="button" className="w-full" onClick={verifyOtp} disabled={busy}>
-            {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Verify OTP
+            {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Verify & sign in
           </Button>
-          <button
-            type="button"
-            onClick={() => setSent(false)}
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            Change number
-          </button>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <button type="button" onClick={() => { setSent(false); setOtp(""); }} className="hover:text-foreground">
+              Change number
+            </button>
+            <button type="button" onClick={sendOtp} disabled={busy} className="hover:text-foreground disabled:opacity-50">
+              Resend OTP
+            </button>
+          </div>
         </>
       )}
     </div>
