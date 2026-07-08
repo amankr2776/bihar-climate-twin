@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building } from "lucide-react";
+import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building, ShieldAlert } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,24 +11,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
+import { getMyRoles } from "@/lib/admin.functions";
+import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/reports")({
+export const Route = createFileRoute("/_authenticated/reports")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "Decision Reports & Situation Briefs · VARUNA" },
-      { name: "description", content: "Generate NDRF, agriculture, health and infrastructure decision briefs for Bihar climate risk, including what-if scenario reports ready to download." },
-      { property: "og:title", content: "Decision Reports & Situation Briefs for Bihar Climate Risk · VARUNA" },
-      { property: "og:description", content: "Build and download decision-ready reports — NDRF, agriculture, health, infrastructure and what-if scenarios — from VARUNA's Bihar climate twin." },
-      { property: "og:url", content: "https://varuna-digital-twin.lovable.app/reports" },
-      { property: "og:type", content: "article" },
-      { property: "og:image", content: "https://varuna-digital-twin.lovable.app/og-varuna.jpg" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "VARUNA decision reports and situation briefs preview." },
-      { name: "twitter:image", content: "https://varuna-digital-twin.lovable.app/og-varuna.jpg" },
+      { name: "description", content: "Officials-only decision reports: generate NDRF, agriculture, health, infrastructure and what-if scenario briefs for Bihar climate risk." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/reports" }],
   }),
   component: ReportsPage,
 });
@@ -50,6 +44,22 @@ const TEMPLATES = [
 ];
 
 function ReportsPage() {
+  const { t } = useI18n();
+  const fetchMyRoles = useServerFn(getMyRoles);
+  const [roleState, setRoleState] = useState<"loading" | "authorized" | "denied">("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMyRoles()
+      .then((roles) => {
+        if (cancelled) return;
+        const allowed = Array.isArray(roles) && (roles.includes("admin") || roles.includes("official"));
+        setRoleState(allowed ? "authorized" : "denied");
+      })
+      .catch(() => !cancelled && setRoleState("denied"));
+    return () => { cancelled = true; };
+  }, [fetchMyRoles]);
+
   const [type, setType] = useState(REPORT_TYPES[0]);
   const [from, setFrom] = useState("2026-07-01");
   const [to, setTo] = useState("2026-07-07");
@@ -76,9 +86,9 @@ function ReportsPage() {
     toast.success("Report generated successfully");
   };
 
-  const useTemplate = (t: typeof TEMPLATES[0]) => {
-    setType(t.type);
-    toast.success(`Template "${t.name}" loaded`);
+  const useTemplate = (tpl: typeof TEMPLATES[0]) => {
+    setType(tpl.type);
+    toast.success(`Template "${tpl.name}" loaded`);
   };
 
   const downloadPdf = async () => {
@@ -124,10 +134,27 @@ function ReportsPage() {
     toast.success("Selected reports deleted");
   };
 
+  if (roleState === "loading") {
+    return (
+      <div className="mx-auto max-w-[1600px] p-6 text-sm text-muted-foreground">{t("gate.checking")}</div>
+    );
+  }
+  if (roleState === "denied") {
+    return (
+      <div className="mx-auto max-w-xl p-6">
+        <div className="rounded-xl border border-border bg-panel p-6 text-center">
+          <ShieldAlert className="mx-auto mb-3 h-10 w-10 text-[color:var(--risk-compound)]" />
+          <div className="text-lg font-semibold">{t("gate.officialsOnly")}</div>
+          <p className="mt-2 text-sm text-muted-foreground">{t("gate.officialsOnlyDesc")}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="Decision Reports"
+        title={t("page.reports.title")}
         help={{
           title: "Decision Reports",
           description: "Generate, view, download and manage situation reports. Use pre-built templates (NDRF, Agriculture, Health, Infrastructure) for common decision briefs.",
@@ -141,7 +168,7 @@ function ReportsPage() {
             <div className="mb-1 text-[11px] text-muted-foreground">Report Type</div>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-              <SelectContent>{REPORT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              <SelectContent>{REPORT_TYPES.map((rt) => <SelectItem key={rt} value={rt}>{rt}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
@@ -182,15 +209,15 @@ function ReportsPage() {
 
           <div className="pt-3 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">Report Templates</div>
           <div className="grid grid-cols-1 gap-2">
-            {TEMPLATES.map((t) => (
-              <div key={t.name} className="rounded border border-border bg-background/40 p-2">
+            {TEMPLATES.map((tpl) => (
+              <div key={tpl.name} className="rounded border border-border bg-background/40 p-2">
                 <div className="flex items-center gap-2">
-                  <t.icon className="h-4 w-4 text-primary" />
+                  <tpl.icon className="h-4 w-4 text-primary" />
                   <div className="flex-1">
-                    <div className="text-xs font-semibold">{t.name}</div>
-                    <div className="text-[10px] text-muted-foreground">{t.desc}</div>
+                    <div className="text-xs font-semibold">{tpl.name}</div>
+                    <div className="text-[10px] text-muted-foreground">{tpl.desc}</div>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => useTemplate(t)} className="h-6 text-[10px]">Use</Button>
+                  <Button size="sm" variant="outline" onClick={() => useTemplate(tpl)} className="h-6 text-[10px]">Use</Button>
                 </div>
               </div>
             ))}
@@ -241,7 +268,7 @@ function ReportsPage() {
                 <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" aria-label="Search reports" className="h-7 w-32 text-xs" />
                 <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger className="h-7 w-40 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="all">All Types</SelectItem>{REPORT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                  <SelectContent><SelectItem value="all">All Types</SelectItem>{REPORT_TYPES.map((rt) => <SelectItem key={rt} value={rt}>{rt}</SelectItem>)}</SelectContent>
                 </Select>
                 {selectedIds.length > 0 && <Button size="sm" variant="destructive" onClick={deleteSelected} className="h-7 text-[11px]">Delete Selected ({selectedIds.length})</Button>}
               </div>

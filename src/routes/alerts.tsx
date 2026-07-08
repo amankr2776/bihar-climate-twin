@@ -17,6 +17,7 @@ import { alertHistory } from "@/lib/varuna/extra-api";
 import { downloadCapXml, downloadCapBundle } from "@/lib/varuna/cap-export";
 import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/alerts")({
   ssr: false,
@@ -42,6 +43,7 @@ export const Route = createFileRoute("/alerts")({
 type LiveAlert = AlertItem & { flash?: boolean };
 
 function AlertsPage() {
+  const { t } = useI18n();
   const { data: base = [] } = useAlerts();
   const [alerts, setAlerts] = useState<LiveAlert[]>([]);
   const [severityFilter, setSeverityFilter] = useState<string>("all");
@@ -132,7 +134,7 @@ function AlertsPage() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="Alerts"
+        title={t("page.alerts.title")}
         help={{
           title: "Alerts",
           description:

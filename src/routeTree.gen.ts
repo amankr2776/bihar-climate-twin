@@ -14,7 +14,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PredictionRouteImport } from './routes/prediction'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -29,6 +28,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuidesKosiBasinHydrologyRouteImport } from './routes/guides.kosi-basin-hydrology'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
@@ -55,11 +55,6 @@ const SimulatorRoute = SimulatorRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsRoute = ReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -132,6 +127,11 @@ const GuidesKosiBasinHydrologyRoute =
     path: '/guides/kosi-basin-hydrology',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -156,13 +156,13 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
@@ -179,13 +179,13 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
@@ -204,13 +204,13 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
   '/privacy': typeof PrivacyRoute
-  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
@@ -229,13 +229,13 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
     | '/admin'
+    | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesByTo: FileRoutesByTo
@@ -252,13 +252,13 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
     | '/admin'
+    | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   id:
@@ -276,13 +276,13 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/prediction'
     | '/privacy'
-    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
     | '/_authenticated/admin'
+    | '/_authenticated/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesById: FileRoutesById
@@ -301,7 +301,6 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   PredictionRoute: typeof PredictionRoute
   PrivacyRoute: typeof PrivacyRoute
-  ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -346,13 +345,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports': {
-      id: '/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -453,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesKosiBasinHydrologyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -472,10 +471,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -495,7 +496,6 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   PredictionRoute: PredictionRoute,
   PrivacyRoute: PrivacyRoute,
-  ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

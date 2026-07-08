@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RTooltip } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/map")({
   ssr: false,
@@ -67,6 +68,7 @@ function slug(name: string) {
 }
 
 function MapPage() {
+  const { t } = useI18n();
   const { data: state } = useCurrentState();
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
@@ -299,7 +301,7 @@ function MapPage() {
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between px-4 py-2">
           <PageHeader
-            title="Bihar Map"
+            title={t("page.map.title")}
             help={{
               title: "Bihar Map",
               description:

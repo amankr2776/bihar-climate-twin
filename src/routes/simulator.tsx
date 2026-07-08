@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { useI18n } from "@/lib/i18n";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/simulator")({
 });
 
 function SimulatorPage() {
+  const { t } = useI18n();
   const [name, setName] = useState("Scenario 1");
   const [rainfall, setRainfall] = useState(0);
   const [temperature, setTemperature] = useState(0);
@@ -139,7 +141,7 @@ function SimulatorPage() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="What-If Simulator"
+        title={t("page.simulator.title")}
         help={{
           title: "What-If Simulator",
           description:
