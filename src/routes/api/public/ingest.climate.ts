@@ -68,9 +68,27 @@ export const Route = createFileRoute("/api/public/ingest/climate")({
           dataset_version: r.dataset_version ?? null,
         }));
 
+        const startedAt = new Date().toISOString();
+        const datasetVersion = payload.rows.find((r) => r.dataset_version)?.dataset_version ?? null;
         const { error } = await supabaseAdmin
           .from("climate_observations")
           .upsert(rows, { onConflict: "district_id,observed_on,source" });
+
+        // Best-effort audit log (never fails the response)
+        try {
+          await supabaseAdmin.from("ingest_audit").insert({
+            source: "imd",
+            dataset_version: datasetVersion,
+            rows_received: rows.length,
+            rows_upserted: error ? 0 : rows.length,
+            status: error ? "error" : "ok",
+            detail: error ? error.message : null,
+            started_at: startedAt,
+            finished_at: new Date().toISOString(),
+          });
+        } catch (auditErr) {
+          console.error("[ingest.climate] audit log failed", auditErr);
+        }
 
         if (error) {
           console.error("[ingest.climate] upsert failed", error);
