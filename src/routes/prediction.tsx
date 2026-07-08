@@ -13,6 +13,31 @@ import {
 } from "recharts";
 import type { BlockState } from "@/lib/varuna/state";
 
+const SITE_URL = "https://varuna-digital-twin.lovable.app";
+const PREDICTION_DATASET = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "VARUNA PI-GNN Block-Level Climate Forecast Dataset",
+  description:
+    "Physics-informed graph neural network rainfall and temperature forecasts for 534 blocks in Bihar, validated against 2022–2024 IMD monsoon observations.",
+  url: `${SITE_URL}/prediction`,
+  creator: {
+    "@type": "Organization",
+    name: "VARUNA",
+    url: SITE_URL,
+  },
+  spatialCoverage: {
+    "@type": "Place",
+    name: "Bihar, India",
+    geo: { "@type": "GeoShape", box: "24.32 83.33 27.52 88.28" },
+  },
+  temporalCoverage: "2022-06-01/2024-09-30",
+  variableMeasured: ["rainfall", "temperature", "flood risk", "drought risk"],
+  measurementTechnique: "Physics-informed graph neural network",
+  license: "https://creativecommons.org/licenses/by-nc/4.0/",
+  isAccessibleForFree: true,
+};
+
 export const Route = createFileRoute("/prediction")({
   ssr: false,
   head: () => ({
@@ -30,6 +55,12 @@ export const Route = createFileRoute("/prediction")({
       { name: "twitter:image", content: "https://varuna-digital-twin.lovable.app/og-varuna.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/prediction" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(PREDICTION_DATASET),
+      },
+    ],
   }),
   component: PredictionPage,
 });
