@@ -37,7 +37,7 @@ export function PageHeader({
 }: {
   title: string;
   subtitle?: string;
-  help: { title: string; description: string };
+  help?: { title: string; description: string };
   actions?: React.ReactNode;
 }) {
   return (
@@ -48,7 +48,7 @@ export function PageHeader({
       </div>
       <div className="flex items-center gap-2">
         {actions}
-        <HelpButton title={help.title} description={help.description} />
+        {help && <HelpButton title={help.title} description={help.description} />}
       </div>
     </div>
   );
