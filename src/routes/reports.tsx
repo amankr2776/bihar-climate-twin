@@ -136,7 +136,7 @@ function ReportsPage() {
 
       <div className="grid grid-cols-12 gap-4">
         <section className="col-span-12 space-y-3 rounded-xl border border-border bg-panel p-4 xl:col-span-4">
-          <div className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">Generate New Report</div>
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">Generate New Report</h2>
           <div>
             <div className="mb-1 text-[11px] text-muted-foreground">Report Type</div>
             <Select value={type} onValueChange={setType}>
@@ -238,7 +238,7 @@ function ReportsPage() {
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div className="font-display text-sm font-semibold uppercase tracking-widest">Saved Reports</div>
               <div className="flex items-center gap-2">
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" className="h-7 w-32 text-xs" />
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" aria-label="Search reports" className="h-7 w-32 text-xs" />
                 <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger className="h-7 w-40 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="all">All Types</SelectItem>{REPORT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
