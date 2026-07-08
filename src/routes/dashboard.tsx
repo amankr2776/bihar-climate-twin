@@ -12,6 +12,7 @@ import { TimeEvolution } from "@/components/varuna/TimeEvolution";
 import { Recommendations } from "@/components/varuna/Recommendations";
 import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { SourceChip } from "@/components/varuna/SourceChip";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
