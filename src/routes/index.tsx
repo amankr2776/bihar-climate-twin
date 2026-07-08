@@ -396,6 +396,7 @@ const CAPS = [
     title: "Kosi Basin Watch",
     desc: "Special-cased hydrology for the Kosi — where 76% of Bihar's flood-affected population lives.",
     accent: "rgba(79,139,255,0.55)",
+    to: "/guides/kosi-basin-hydrology",
   },
 ];
 

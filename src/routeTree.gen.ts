@@ -19,6 +19,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuidesKosiBasinHydrologyRouteImport } from './routes/guides.kosi-basin-hydrology'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -71,6 +72,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesKosiBasinHydrologyRoute =
+  GuidesKosiBasinHydrologyRouteImport.update({
+    id: '/guides/kosi-basin-hydrology',
+    path: '/guides/kosi-basin-hydrology',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   id: '/api/public/ingest/climate',
   path: '/api/public/ingest/climate',
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +109,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesById {
@@ -115,6 +124,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
+    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
+    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   id:
     | '__root__'
@@ -156,6 +168,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
+    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +183,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuidesKosiBasinHydrologyRoute: typeof GuidesKosiBasinHydrologyRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
 }
 
@@ -245,6 +259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/kosi-basin-hydrology': {
+      id: '/guides/kosi-basin-hydrology'
+      path: '/guides/kosi-basin-hydrology'
+      fullPath: '/guides/kosi-basin-hydrology'
+      preLoaderRoute: typeof GuidesKosiBasinHydrologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ingest/climate': {
       id: '/api/public/ingest/climate'
       path: '/api/public/ingest/climate'
@@ -266,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuidesKosiBasinHydrologyRoute: GuidesKosiBasinHydrologyRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
 }
 export const routeTree = rootRouteImport
