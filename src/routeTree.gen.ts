@@ -23,6 +23,7 @@ import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AttributionsRouteImport } from './routes/attributions'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -99,6 +100,11 @@ const CompoundRoute = CompoundRouteImport.update({
   path: '/compound',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttributionsRoute = AttributionsRouteImport.update({
   id: '/attributions',
   path: '/attributions',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AttributionsRoute: typeof AttributionsRoute
+  AuthRoute: typeof AuthRoute
   CompoundRoute: typeof CompoundRoute
   DashboardRoute: typeof DashboardRoute
   DataSourcesRoute: typeof DataSourcesRoute
@@ -378,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompoundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attributions': {
       id: '/attributions'
       path: '/attributions'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AttributionsRoute: AttributionsRoute,
+  AuthRoute: AuthRoute,
   CompoundRoute: CompoundRoute,
   DashboardRoute: DashboardRoute,
   DataSourcesRoute: DataSourcesRoute,
