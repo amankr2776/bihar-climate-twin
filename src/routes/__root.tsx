@@ -119,6 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "VARUNA · AI Digital Twin of Bihar's Climate" },
       { name: "twitter:description", content: "Live block-level climate digital twin for Bihar with compound-risk simulation." },
       { property: "og:site_name", content: "VARUNA" },
+      { name: "google-site-verification", content: "5vjs6se9jbrdZ4k3zO84nw4Q3ABk7gcTA1_z8O3w8aE" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
