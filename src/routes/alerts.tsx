@@ -132,7 +132,7 @@ function AlertsPage() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="Alerts"
+        title={t("page.alerts.title")}
         help={{
           title: "Alerts",
           description:
