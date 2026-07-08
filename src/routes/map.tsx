@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RTooltip } from "recharts";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/map")({
   ssr: false,
