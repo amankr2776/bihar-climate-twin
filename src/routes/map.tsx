@@ -235,7 +235,7 @@ function MapPage() {
                   <span className="flex-1">{l.label}</span>
                   <Switch
                     checked={layers[l.key]}
-                    onCheckedChange={(v) => setLayers((s) => ({ ...s, [l.key]: v }))}
+                    onCheckedChange={(v) => setLayer(l.key, v)}
                   />
                 </li>
               ))}
