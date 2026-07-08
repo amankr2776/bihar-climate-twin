@@ -13,6 +13,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
+import spaceGrotesk700 from "@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Sidebar } from "@/components/varuna/Sidebar";
 import { TopBar } from "@/components/varuna/TopBar";
