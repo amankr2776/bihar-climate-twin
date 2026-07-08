@@ -16,6 +16,7 @@ import { SourceChip } from "@/components/varuna/SourceChip";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
+import { useI18n } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/dashboard")({
