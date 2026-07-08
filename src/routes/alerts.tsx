@@ -43,6 +43,7 @@ export const Route = createFileRoute("/alerts")({
 type LiveAlert = AlertItem & { flash?: boolean };
 
 function AlertsPage() {
+  const { t } = useI18n();
   const { data: base = [] } = useAlerts();
   const [alerts, setAlerts] = useState<LiveAlert[]>([]);
   const [severityFilter, setSeverityFilter] = useState<string>("all");
