@@ -68,6 +68,7 @@ function slug(name: string) {
 }
 
 function MapPage() {
+  const { t } = useI18n();
   const { data: state } = useCurrentState();
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
