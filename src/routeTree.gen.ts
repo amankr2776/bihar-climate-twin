@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
@@ -18,9 +19,13 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
@@ -66,11 +71,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   id: '/api/public/ingest/climate',
   path: '/api/public/ingest/climate',
@@ -87,7 +87,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesByTo {
@@ -100,7 +100,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesById {
@@ -114,7 +114,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRouteTypes {
@@ -129,7 +129,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
-    | '/sitemap/xml'
+    | '/sitemap.xml'
     | '/api/public/ingest/climate'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -142,7 +142,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
-    | '/sitemap/xml'
+    | '/sitemap.xml'
     | '/api/public/ingest/climate'
   id:
     | '__root__'
@@ -155,7 +155,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
-    | '/sitemap/xml'
+    | '/sitemap.xml'
     | '/api/public/ingest/climate'
   fileRoutesById: FileRoutesById
 }
@@ -169,12 +169,19 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simulator': {
       id: '/simulator'
       path: '/simulator'
@@ -238,13 +245,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/ingest/climate': {
       id: '/api/public/ingest/climate'
       path: '/api/public/ingest/climate'
@@ -265,7 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
 }
 export const routeTree = rootRouteImport
