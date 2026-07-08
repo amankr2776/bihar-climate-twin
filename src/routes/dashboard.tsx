@@ -49,6 +49,7 @@ function VarunaDashboard() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (selectedDistrict === null) return;
