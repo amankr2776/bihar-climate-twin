@@ -23,10 +23,13 @@ import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AttributionsRouteImport } from './routes/attributions'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuidesKosiBasinHydrologyRouteImport } from './routes/guides.kosi-basin-hydrology'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
 const ValidationRoute = ValidationRouteImport.update({
@@ -99,6 +102,11 @@ const CompoundRoute = CompoundRouteImport.update({
   path: '/compound',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AttributionsRoute = AttributionsRouteImport.update({
   id: '/attributions',
   path: '/attributions',
@@ -107,6 +115,10 @@ const AttributionsRoute = AttributionsRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -120,6 +132,11 @@ const GuidesKosiBasinHydrologyRoute =
     path: '/guides/kosi-basin-hydrology',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   id: '/api/public/ingest/climate',
   path: '/api/public/ingest/climate',
@@ -130,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -144,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
@@ -151,6 +170,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -165,14 +185,17 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alerts': typeof AlertsRoute
   '/attributions': typeof AttributionsRoute
+  '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
   '/data-sources': typeof DataSourcesRoute
@@ -187,6 +210,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/validation': typeof ValidationRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
 }
@@ -196,6 +220,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -210,6 +235,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
+    | '/admin'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesByTo: FileRoutesByTo
@@ -217,6 +243,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -231,13 +258,16 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
+    | '/admin'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/alerts'
     | '/attributions'
+    | '/auth'
     | '/compound'
     | '/dashboard'
     | '/data-sources'
@@ -252,14 +282,17 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/validation'
+    | '/_authenticated/admin'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlertsRoute: typeof AlertsRoute
   AttributionsRoute: typeof AttributionsRoute
+  AuthRoute: typeof AuthRoute
   CompoundRoute: typeof CompoundRoute
   DashboardRoute: typeof DashboardRoute
   DataSourcesRoute: typeof DataSourcesRoute
@@ -378,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompoundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/attributions': {
       id: '/attributions'
       path: '/attributions'
@@ -390,6 +430,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -406,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesKosiBasinHydrologyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/ingest/climate': {
       id: '/api/public/ingest/climate'
       path: '/api/public/ingest/climate'
@@ -416,10 +470,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlertsRoute: AlertsRoute,
   AttributionsRoute: AttributionsRoute,
+  AuthRoute: AuthRoute,
   CompoundRoute: CompoundRoute,
   DashboardRoute: DashboardRoute,
   DataSourcesRoute: DataSourcesRoute,

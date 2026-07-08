@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -18,6 +18,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Sidebar } from "@/components/varuna/Sidebar";
 import { TopBar } from "@/components/varuna/TopBar";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { I18nProvider } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -186,11 +188,29 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <RootInner />
-      <Toaster position="bottom-right" theme="dark" richColors />
+      <I18nProvider>
+        <AuthSync />
+        <RootInner />
+        <Toaster position="bottom-right" theme="dark" richColors />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
+
+function AuthSync() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      router.invalidate();
+      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [router, queryClient]);
+  return null;
+}
+
 
 function RootInner() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });

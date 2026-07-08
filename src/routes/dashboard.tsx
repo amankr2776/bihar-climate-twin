@@ -16,6 +16,7 @@ import { SourceChip } from "@/components/varuna/SourceChip";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
+import { useI18n } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -48,6 +49,7 @@ function VarunaDashboard() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (selectedDistrict === null) return;
@@ -105,12 +107,8 @@ function VarunaDashboard() {
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
-        title="Dashboard"
-        subtitle={
-          state?.source === "open-meteo"
-            ? "Live observations from IMD / Open-Meteo · 38 districts · 534 blocks"
-            : "Live compound climate risk · 38 districts · 534 blocks"
-        }
+        title={t("dash.title")}
+        subtitle={state?.source === "open-meteo" ? t("dash.subtitleLive") : t("dash.subtitleDefault")}
         help={{
           title: "Dashboard",
           description:
@@ -142,7 +140,7 @@ function VarunaDashboard() {
           />
 
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sources:</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("dash.sources")}</span>
             <SourceChip
               source="IMD"
               dataset="Gridded rainfall 0.25° + Tmax/Tmin 1.0°"
