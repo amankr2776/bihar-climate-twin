@@ -30,6 +30,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuidesKosiBasinHydrologyRouteImport } from './routes/guides.kosi-basin-hydrology'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
 const ValidationRoute = ValidationRouteImport.update({
@@ -137,6 +138,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicOtpSendRoute = ApiPublicOtpSendRouteImport.update({
+  id: '/api/public/otp/send',
+  path: '/api/public/otp/send',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   id: '/api/public/ingest/climate',
   path: '/api/public/ingest/climate',
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/otp/send': typeof ApiPublicOtpSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/otp/send': typeof ApiPublicOtpSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/otp/send': typeof ApiPublicOtpSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/otp/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/otp/send'
   id:
     | '__root__'
     | '/'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/otp/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   ValidationRoute: typeof ValidationRoute
   GuidesKosiBasinHydrologyRoute: typeof GuidesKosiBasinHydrologyRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
+  ApiPublicOtpSendRoute: typeof ApiPublicOtpSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/otp/send': {
+      id: '/api/public/otp/send'
+      path: '/api/public/otp/send'
+      fullPath: '/api/public/otp/send'
+      preLoaderRoute: typeof ApiPublicOtpSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ingest/climate': {
       id: '/api/public/ingest/climate'
       path: '/api/public/ingest/climate'
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   ValidationRoute: ValidationRoute,
   GuidesKosiBasinHydrologyRoute: GuidesKosiBasinHydrologyRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
+  ApiPublicOtpSendRoute: ApiPublicOtpSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
