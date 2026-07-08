@@ -211,9 +211,9 @@ function SettingsPage() {
             <>
               <SectionTitle>User Profile</SectionTitle>
               <div className="max-w-md space-y-3">
-                <Row label="Name"><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></Row>
-                <Row label="Role"><Input value={profile.role} onChange={(e) => setProfile((p) => ({ ...p, role: e.target.value }))} /></Row>
-                <Row label="Organization"><Input value={profile.organization} onChange={(e) => setProfile((p) => ({ ...p, organization: e.target.value }))} /></Row>
+                <Row label="Name"><Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} aria-label="Name" /></Row>
+                <Row label="Role"><Input value={profile.role} onChange={(e) => setProfile((p) => ({ ...p, role: e.target.value }))} aria-label="Role" /></Row>
+                <Row label="Organization"><Input value={profile.organization} onChange={(e) => setProfile((p) => ({ ...p, organization: e.target.value }))} aria-label="Organization" /></Row>
                 <Button onClick={saveProfile} className="bg-[color:var(--risk-heat)] text-background hover:bg-[color:var(--risk-heat)]/90">Save Profile</Button>
               </div>
             </>

@@ -149,7 +149,7 @@ function AlertsPage() {
       <div className="grid grid-cols-12 gap-4">
         <section className="col-span-12 rounded-xl border border-border bg-panel xl:col-span-7">
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-            <div className="font-display text-sm font-semibold uppercase tracking-widest">Active Alerts</div>
+            <h2 className="font-display text-sm font-semibold uppercase tracking-widest">Active Alerts</h2>
             <div className="ml-auto flex flex-wrap items-center gap-2">
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
                 <SelectTrigger className="h-7 w-32 text-xs"><SelectValue /></SelectTrigger>
@@ -160,7 +160,7 @@ function AlertsPage() {
                   <SelectItem value="moderate">Moderate</SelectItem>
                 </SelectContent>
               </Select>
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" className="h-7 w-32 text-xs" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" aria-label="Search alerts" className="h-7 w-32 text-xs" />
               <div className="flex gap-1 text-[10px]">
                 {(["severity", "time", "district"] as const).map((k) => (
                   <button key={k} onClick={() => setSortBy(k)} className={`rounded border px-1.5 py-0.5 ${sortBy === k ? "border-[color:var(--risk-heat)] text-[color:var(--risk-heat)]" : "border-border text-muted-foreground"}`}>{k}</button>

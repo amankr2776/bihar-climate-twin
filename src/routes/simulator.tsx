@@ -151,7 +151,7 @@ function SimulatorPage() {
         {/* Config */}
         <section className="col-span-12 space-y-3 rounded-xl border border-border bg-panel p-4 xl:col-span-4">
           <SectionLabel>Scenario Setup</SectionLabel>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Scenario name" className="h-8 text-xs" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Scenario name" aria-label="Scenario name" className="h-8 text-xs" />
 
           <SectionLabel>Climate Anomalies</SectionLabel>
           <SliderRow label="Rainfall Anomaly" value={rainfall} onChange={setRainfall} min={-50} max={50} unit="%" />
@@ -345,7 +345,7 @@ function SimulatorPage() {
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <div className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">{children}</div>;
+  return <h2 className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">{children}</h2>;
 }
 function Chip({ children }: { children: React.ReactNode }) {
   return <span className="rounded bg-background px-1.5 py-0.5 font-mono">{children}</span>;

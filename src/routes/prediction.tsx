@@ -222,7 +222,7 @@ function PredictionPage() {
         <section className="col-span-12 rounded-xl border border-border bg-panel p-4 xl:col-span-5">
           <div className="mb-3 font-display text-sm font-semibold uppercase tracking-widest">Block Prediction Explorer</div>
           <div className="relative mb-2">
-            <Input value={blockSearch} onChange={(e) => setBlockSearch(e.target.value)} placeholder="Search block…" className="h-8 text-xs" />
+            <Input value={blockSearch} onChange={(e) => setBlockSearch(e.target.value)} placeholder="Search block…" aria-label="Search blocks" className="h-8 text-xs" />
             {blockSearch && filteredBlocks.length > 0 && (
               <div className="absolute left-0 right-0 top-9 z-10 max-h-40 overflow-y-auto rounded border border-border bg-panel">
                 {filteredBlocks.map((b) => (
