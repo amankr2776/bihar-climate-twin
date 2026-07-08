@@ -73,6 +73,17 @@ function MapPage() {
     rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
     compound: true, districts: true, blocks: false, rivers: false, infra: false,
   });
+  // Data layers are mutually exclusive so the chosen metric drives the choropleth.
+  const DATA_LAYERS: LayerKey[] = ["rainfall", "flood", "temperature", "soil", "heatwave", "compound"];
+  const setLayer = (key: LayerKey, v: boolean) => {
+    setLayers((s) => {
+      if (!DATA_LAYERS.includes(key)) return { ...s, [key]: v };
+      if (!v) return { ...s, [key]: false };
+      const next = { ...s, [key]: true };
+      for (const other of DATA_LAYERS) if (other !== key) next[other] = false;
+      return next;
+    });
+  };
   const [riskFilter, setRiskFilter] = useState({ CRITICAL: true, HIGH: true, MEDIUM: true, NORMAL: true });
   const [compareMode, setCompareMode] = useState(false);
   const [compareDate, setCompareDate] = useState("2024-08-14");
@@ -118,15 +129,25 @@ function MapPage() {
         return { fillColor: "oklch(0.3 0.005 260)", fillOpacity: 0.4, color: "oklch(0.35 0.02 260)", weight: 1 };
       }
       if (activeLayerCategory === "compound") color = RISK_COLORS[d.category];
-      else if (activeLayerCategory === "flood") color = `oklch(0.7 ${0.05 + d.flood_risk * 0.2} 240)`;
-      else if (activeLayerCategory === "heatwave") color = `oklch(0.75 ${0.05 + d.drought_risk * 0.2} 55)`;
-      else if (activeLayerCategory === "soil") {
+      else if (activeLayerCategory === "flood") {
+        const t = Math.max(0, Math.min(1, d.flood_risk));
+        color = `oklch(${0.78 - t * 0.18} ${0.06 + t * 0.22} 240)`;
+      } else if (activeLayerCategory === "heatwave") {
+        const t = Math.max(0, Math.min(1, d.drought_risk));
+        color = `oklch(${0.82 - t * 0.15} ${0.06 + t * 0.22} 55)`;
+      } else if (activeLayerCategory === "soil") {
         const soil = d.blocks.reduce((s, b) => s + b.soil_moisture_index, 0) / d.blocks.length;
-        color = `oklch(${0.6 + soil * 0.2} ${0.05 + (1 - soil) * 0.18} ${145 - (1 - soil) * 90})`;
-      } else if (activeLayerCategory === "temperature") color = `oklch(0.7 ${0.05 + (d.temperature_c - 25) * 0.02} 25)`;
-      else if (activeLayerCategory === "rainfall") color = `oklch(0.75 ${0.05 + d.rainfall_mm / 100 * 0.2} 240)`;
-      else color = RISK_COLORS[d.category];
-      opacity = 0.8;
+        // Dry (low soil) → warm brown; wet (high soil) → green.
+        color = `oklch(${0.62 + soil * 0.18} ${0.08 + Math.abs(soil - 0.5) * 0.2} ${60 + soil * 90})`;
+      } else if (activeLayerCategory === "temperature") {
+        const t = Math.max(0, Math.min(1, (d.temperature_c - 22) / 18));
+        color = `oklch(${0.82 - t * 0.15} ${0.06 + t * 0.22} 25)`;
+      } else if (activeLayerCategory === "rainfall") {
+        // d.rainfall_mm is district-avg block rainfall (roughly 0–80mm). Scale for visibility.
+        const t = Math.max(0, Math.min(1, d.rainfall_mm / 50));
+        color = `oklch(${0.85 - t * 0.2} ${0.05 + t * 0.22} 240)`;
+      } else color = RISK_COLORS[d.category];
+      opacity = 0.85;
     }
     return {
       fillColor: color,
@@ -214,7 +235,7 @@ function MapPage() {
                   <span className="flex-1">{l.label}</span>
                   <Switch
                     checked={layers[l.key]}
-                    onCheckedChange={(v) => setLayers((s) => ({ ...s, [l.key]: v }))}
+                    onCheckedChange={(v) => setLayer(l.key, v)}
                   />
                 </li>
               ))}
