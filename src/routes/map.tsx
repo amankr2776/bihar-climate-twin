@@ -73,6 +73,17 @@ function MapPage() {
     rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
     compound: true, districts: true, blocks: false, rivers: false, infra: false,
   });
+  // Data layers are mutually exclusive so the chosen metric drives the choropleth.
+  const DATA_LAYERS: LayerKey[] = ["rainfall", "flood", "temperature", "soil", "heatwave", "compound"];
+  const setLayer = (key: LayerKey, v: boolean) => {
+    setLayers((s) => {
+      if (!DATA_LAYERS.includes(key)) return { ...s, [key]: v };
+      if (!v) return { ...s, [key]: false };
+      const next = { ...s, [key]: true };
+      for (const other of DATA_LAYERS) if (other !== key) next[other] = false;
+      return next;
+    });
+  };
   const [riskFilter, setRiskFilter] = useState({ CRITICAL: true, HIGH: true, MEDIUM: true, NORMAL: true });
   const [compareMode, setCompareMode] = useState(false);
   const [compareDate, setCompareDate] = useState("2024-08-14");
