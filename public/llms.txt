@@ -1,0 +1,19 @@
+# VARUNA
+
+> AI-powered digital twin for Bihar's climate risk monitoring, prediction, and decision support.
+
+VARUNA is a climate intelligence dashboard built for Bihar, India. It combines real-time and historical climate data with machine-learning forecasts and what-if simulation tools to help disaster-management, agriculture, health, and infrastructure teams anticipate floods, heatwaves, drought, and compound risks.
+
+## Pages
+
+- [Dashboard](/dashboard): Executive overview of current climate risk, key indicators, and AI-generated recommendations for Bihar.
+- [Bihar Risk Map](/map): Interactive block-level map with layered flood, heat, drought, and compound risk visualisations, plus search and export tools.
+- [Compound Risk](/compound): Multi-hazard analysis showing how overlapping climate stressors combine across districts and blocks over time.
+- [Prediction Engine](/prediction): PI-GNN-powered forecasts for rainfall, temperature, and risk indices with validation metrics and confidence bands.
+- [What-If Simulator](/simulator): Scenario-planning tool to test rainfall, temperature, and humidity anomalies and compare projected impacts.
+- [Alerts](/alerts): Live climate risk alerts, notification settings, threshold configuration, and alert history.
+- [Decision Reports](/reports): Generate, preview, and download situation reports and decision briefs for NDRF, agriculture, health, and infrastructure stakeholders.
+
+## Optional
+
+- [Home](/): Landing page introducing the VARUNA digital twin and its core capabilities.
