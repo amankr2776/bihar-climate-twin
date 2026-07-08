@@ -17,6 +17,7 @@ import { alertHistory } from "@/lib/varuna/extra-api";
 import { downloadCapXml, downloadCapBundle } from "@/lib/varuna/cap-export";
 import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/alerts")({
   ssr: false,
