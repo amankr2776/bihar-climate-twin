@@ -136,6 +136,88 @@ function DataSourcesPage() {
           </div>
         ))}
       </div>
+
+      <IngestionLog />
+    </div>
+  );
+}
+
+function IngestionLog() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["ingest_audit"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ingest_audit")
+        .select("id, source, dataset_version, rows_upserted, rows_received, status, detail, started_at, finished_at")
+        .order("started_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data ?? [];
+    },
+    refetchInterval: 60_000,
+  });
+
+  return (
+    <div className="mt-6 rounded-xl border border-border bg-panel p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-display text-sm font-semibold uppercase tracking-widest">
+          Ingestion Audit Log
+        </h3>
+        <span className="text-[10px] text-muted-foreground">
+          Live log of every IMD ingest run · public read-only for transparency
+        </span>
+      </div>
+      {isLoading ? (
+        <div className="py-4 text-sm text-muted-foreground">Loading…</div>
+      ) : !data || data.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+          No ingest runs recorded yet. The daily IMD ingest publishes here as soon as it runs.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground">
+                <th className="pb-2 pr-3">Started (IST)</th>
+                <th className="pb-2 pr-3">Source</th>
+                <th className="pb-2 pr-3">Version</th>
+                <th className="pb-2 pr-3 text-right">Rows</th>
+                <th className="pb-2 pr-3">Status</th>
+                <th className="pb-2">Detail</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {data.map((row) => (
+                <tr key={row.id} className="align-top">
+                  <td className="py-2 pr-3 font-mono text-[11px]">
+                    {new Date(row.started_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+                  </td>
+                  <td className="py-2 pr-3 uppercase">{row.source}</td>
+                  <td className="py-2 pr-3 font-mono text-[11px] text-muted-foreground">{row.dataset_version ?? "—"}</td>
+                  <td className="py-2 pr-3 text-right font-mono">
+                    {row.rows_upserted}
+                    <span className="text-muted-foreground">/{row.rows_received}</span>
+                  </td>
+                  <td className="py-2 pr-3">
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                        row.status === "ok"
+                          ? "bg-[color:var(--brand-cyan)]/15 text-[color:var(--brand-cyan)]"
+                          : row.status === "partial"
+                          ? "bg-[color:var(--risk-heat)]/15 text-[color:var(--risk-heat)]"
+                          : "bg-[color:var(--risk-flood)]/15 text-[color:var(--risk-flood)]"
+                      }`}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                  <td className="py-2 text-[11px] text-muted-foreground">{row.detail ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
