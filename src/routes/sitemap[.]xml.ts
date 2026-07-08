@@ -25,6 +25,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/simulator", changefreq: "weekly", priority: "0.6" },
           { path: "/settings", changefreq: "monthly", priority: "0.5" },
           { path: "/guides/kosi-basin-hydrology", changefreq: "monthly", priority: "0.7" },
+          { path: "/api/public/ingest/climate", changefreq: "monthly", priority: "0.3" },
         ];
 
         const urls = entries.map((e) =>
