@@ -140,7 +140,7 @@ function VarunaDashboard() {
           />
 
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sources:</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("dash.sources")}</span>
             <SourceChip
               source="IMD"
               dataset="Gridded rainfall 0.25° + Tmax/Tmin 1.0°"
