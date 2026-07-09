@@ -224,7 +224,7 @@ export function buildStateFromReadings(
   readings: ClimateReading[],
   timestampISO: string,
   bias: ScenarioBias = {},
-): { blocks: BlockState[]; districts: DistrictState[] } {
+): BuiltState {
   const seedBase = Math.floor(new Date(timestampISO).getTime() / (3 * 60 * 60 * 1000));
   const byId = new Map(readings.map((r) => [r.district_id, r]));
   const rainBias = (bias.rainfall_pct ?? 0) / 100;
