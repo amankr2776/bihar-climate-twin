@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown, Database } from "lucide-react";
+import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown, Database, CloudRain } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { useImdNormals } from "@/lib/varuna/imd-normals";
+import { useForecast, forecastForDistrict } from "@/lib/varuna/forecast";
 
 import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
@@ -69,6 +70,7 @@ export const Route = createFileRoute("/prediction")({
 function PredictionPage() {
   const { data: state } = useCurrentState();
   const { data: imdNormals } = useImdNormals();
+  const { data: forecast } = useForecast();
   const [mode, setMode] = useState<"current" | "forecast">("current");
   const [feature, setFeature] = useState<"rainfall" | "temp">("rainfall");
   const [step, setStep] = useState(1);
@@ -102,16 +104,39 @@ function PredictionPage() {
     return 1 - ssRes / ssTot;
   }, [scatter]);
 
+  const districtForecast = useMemo(
+    () => forecastForDistrict(forecast, selectedBlock?.district_id),
+    [forecast, selectedBlock?.district_id],
+  );
+
   const blockForecast = useMemo(() => {
-    if (!selectedBlock) return [] as { h: number; value: number; lo: number; hi: number }[];
+    if (!selectedBlock) return [] as { h: number; label: string; value: number; lo: number; hi: number }[];
+    if (districtForecast.length > 0) {
+      // Real GFS 7-day daily forecast for this district.
+      return districtForecast.map((r, i) => {
+        const raw =
+          feature === "rainfall"
+            ? r.rainfall_mm ?? 0
+            : ((r.tmax_c ?? 0) + (r.tmin_c ?? 0)) / 2;
+        const spread = (i + 1) * (feature === "rainfall" ? 2.2 : 0.35);
+        return {
+          h: i + 1,
+          label: r.forecast_for.slice(5),
+          value: +raw.toFixed(2),
+          lo: +Math.max(0, raw - spread).toFixed(2),
+          hi: +(raw + spread).toFixed(2),
+        };
+      });
+    }
+    // Fallback (no forecast rows yet) — deterministic synthetic curve.
     const base = feature === "rainfall" ? selectedBlock.rainfall_mm : selectedBlock.temperature_c;
     return Array.from({ length: 8 }, (_, i) => {
       const noise = Math.sin(i * 1.2 + selectedBlock.block_id.length) * (feature === "rainfall" ? 6 : 1.2);
       const v = Math.max(0, base + noise + i * (feature === "rainfall" ? 1.2 : 0.2));
       const spread = (i + 1) * (feature === "rainfall" ? 3 : 0.4);
-      return { h: (i + 1) * 3, value: +v.toFixed(2), lo: +(v - spread).toFixed(2), hi: +(v + spread).toFixed(2) };
+      return { h: i + 1, label: `T+${(i + 1) * 3}h`, value: +v.toFixed(2), lo: +(v - spread).toFixed(2), hi: +(v + spread).toFixed(2) };
     });
-  }, [selectedBlock, feature]);
+  }, [selectedBlock, feature, districtForecast]);
 
   const blocks = state?.blocks ?? [];
   const filteredBlocks = blocks.filter((b) => b.block_name.toLowerCase().includes(blockSearch.toLowerCase())).slice(0, 8);
@@ -129,14 +154,29 @@ function PredictionPage() {
       <ProvenanceStrip />
 
       {/* Top row */}
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
         <StatusCard title="Model Status" badge="ACTIVE" badgeColor="var(--risk-drought)" icon={<Cpu />}>
           <div className="text-sm">PI-GNN v1.0</div>
           <div className="text-[11px] text-muted-foreground">Trained 2026-06-30</div>
         </StatusCard>
-        <StatusCard title="Forecast Horizon" icon={<Activity />}>
-          <div className="text-sm">T+1 step · iterative rollout</div>
-          <div className="text-[11px] text-muted-foreground">3 hours per step · up to T+8</div>
+        <StatusCard
+          title="GFS Forecast Feed"
+          badge={forecast && forecast.days > 0 ? "LIVE" : "…"}
+          badgeColor="var(--risk-flood)"
+          icon={<CloudRain />}
+        >
+          <div className="text-sm">
+            {forecast ? `${forecast.days}-day · ${forecast.districts_covered}/38 dist.` : "loading…"}
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            {forecast?.latest_run_at
+              ? `Run ${new Date(forecast.latest_run_at).toISOString().slice(0, 16).replace("T", " ")}Z · Open-Meteo GFS`
+              : "Open-Meteo GFS · daily 04:15 UTC"}
+          </div>
+        </StatusCard>
+        <StatusCard title="Rollout" icon={<Activity />}>
+          <div className="text-sm">Daily rollout · T+1…T+7</div>
+          <div className="text-[11px] text-muted-foreground">24 h per step · anchored on GFS</div>
         </StatusCard>
         <StatusCard title="Validation Score" icon={<Target />}>
           <div className="flex items-center gap-3">
@@ -264,10 +304,12 @@ function PredictionPage() {
               </div>
 
               <div className="mt-3 h-32 rounded border border-border bg-background/40 p-2">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">24-h forecast · {feature}</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {districtForecast.length > 0 ? "7-day GFS forecast" : "24-h forecast"} · {feature}
+                </div>
                 <ResponsiveContainer width="100%" height="85%">
                   <AreaChart data={blockForecast}>
-                    <XAxis dataKey="h" tick={{ fontSize: 9 }} />
+                    <XAxis dataKey="label" tick={{ fontSize: 9 }} />
                     <YAxis tick={{ fontSize: 9 }} width={30} />
                     <Area dataKey="hi" fill="var(--risk-flood)" fillOpacity={0.15} stroke="none" />
                     <Area dataKey="lo" fill="var(--panel)" stroke="none" />

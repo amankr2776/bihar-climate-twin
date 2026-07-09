@@ -41,6 +41,53 @@ export type Database = {
         }
         Relationships: []
       }
+      climate_forecasts: {
+        Row: {
+          created_at: string
+          dataset_version: string | null
+          district_id: string
+          forecast_for: string
+          id: string
+          rainfall_mm: number | null
+          run_at: string
+          source: string
+          tmax_c: number | null
+          tmin_c: number | null
+        }
+        Insert: {
+          created_at?: string
+          dataset_version?: string | null
+          district_id: string
+          forecast_for: string
+          id?: string
+          rainfall_mm?: number | null
+          run_at?: string
+          source?: string
+          tmax_c?: number | null
+          tmin_c?: number | null
+        }
+        Update: {
+          created_at?: string
+          dataset_version?: string | null
+          district_id?: string
+          forecast_for?: string
+          id?: string
+          rainfall_mm?: number | null
+          run_at?: string
+          source?: string
+          tmax_c?: number | null
+          tmin_c?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "climate_forecasts_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "climate_districts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       climate_observations: {
         Row: {
           dataset_version: string | null

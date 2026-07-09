@@ -28,6 +28,7 @@ import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.se
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 import { Route as ApiPublicHooksIngestImdRouteImport } from './routes/api/public/hooks/ingest-imd'
+import { Route as ApiPublicHooksIngestForecastRouteImport } from './routes/api/public/hooks/ingest-forecast'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -123,6 +124,12 @@ const ApiPublicHooksIngestImdRoute = ApiPublicHooksIngestImdRouteImport.update({
   path: '/api/public/hooks/ingest-imd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksIngestForecastRoute =
+  ApiPublicHooksIngestForecastRouteImport.update({
+    id: '/api/public/hooks/ingest-forecast',
+    path: '/api/public/hooks/ingest-forecast',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
@@ -158,6 +166,7 @@ export interface FileRoutesByTo {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
@@ -180,6 +189,7 @@ export interface FileRoutesById {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/admin'
+    | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/admin'
+    | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
@@ -243,6 +255,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
@@ -264,6 +277,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicHooksIngestForecastRoute: typeof ApiPublicHooksIngestForecastRoute
   ApiPublicHooksIngestImdRoute: typeof ApiPublicHooksIngestImdRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
   ApiPublicIngestLatestRoute: typeof ApiPublicIngestLatestRoute
@@ -406,6 +420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIngestImdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ingest-forecast': {
+      id: '/api/public/hooks/ingest-forecast'
+      path: '/api/public/hooks/ingest-forecast'
+      fullPath: '/api/public/hooks/ingest-forecast'
+      preLoaderRoute: typeof ApiPublicHooksIngestForecastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -434,6 +455,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicHooksIngestForecastRoute: ApiPublicHooksIngestForecastRoute,
   ApiPublicHooksIngestImdRoute: ApiPublicHooksIngestImdRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
   ApiPublicIngestLatestRoute: ApiPublicIngestLatestRoute,
