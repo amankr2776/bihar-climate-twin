@@ -64,7 +64,7 @@ export const Route = createFileRoute("/api/public/ingest/climate")({
           rainfall_mm: r.rainfall_mm ?? null,
           tmax_c: r.tmax_c ?? null,
           tmin_c: r.tmin_c ?? null,
-          source: "imd" as const,
+          source: payload.source,
           dataset_version: r.dataset_version ?? null,
         }));
 
@@ -77,7 +77,7 @@ export const Route = createFileRoute("/api/public/ingest/climate")({
         // Best-effort audit log (never fails the response)
         try {
           await supabaseAdmin.from("ingest_audit").insert({
-            source: "imd",
+            source: payload.source,
             dataset_version: datasetVersion,
             rows_received: rows.length,
             rows_upserted: error ? 0 : rows.length,
