@@ -9,6 +9,7 @@ import {
   type DistrictState,
   type ScenarioBias,
 } from "./state";
+import type { RoutingTrace } from "./kosi-graph";
 import { fetchBiharClimate, type ClimateSnapshot } from "./climate";
 import { DISTRICTS } from "./districts";
 
