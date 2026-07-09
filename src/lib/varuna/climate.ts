@@ -21,6 +21,8 @@
 import { DISTRICTS, type District } from "./districts";
 import { supabase } from "@/integrations/supabase/client";
 
+export type CellProvenance = "mosdac" | "imd" | "open-meteo";
+
 export type ClimateReading = {
   district_id: string;
   district_name: string;
@@ -32,15 +34,22 @@ export type ClimateReading = {
   daily_temp_max: number[];
   daily_temp_min: number[];
   observation_time: string;
-  imd_backed: boolean; // true if past-days values came from IMD grids
+  imd_backed: boolean; // true if any past-day value came from IMD grids
+  mosdac_backed: boolean; // true if any past-day value came from MOSDAC INSAT
+  // Per-past-day provenance ledger; length == past_days used in buildUrl().
+  provenance_rain: CellProvenance[];
+  provenance_tmax: CellProvenance[];
+  provenance_tmin: CellProvenance[];
 };
 
 export type ClimateSnapshot = {
   readings: ClimateReading[];
   fetched_at: string;
-  source: "open-meteo" | "imd+open-meteo" | "fallback";
-  imd_days: number; // count of past days IMD-backed
+  source: "open-meteo" | "imd+open-meteo" | "mosdac+open-meteo" | "imd+mosdac+open-meteo" | "fallback";
+  imd_days: number; // count of past-day cells overlaid from IMD
+  mosdac_days: number; // count of past-day cells overlaid from MOSDAC
 };
+
 
 
 const OPEN_METEO = "https://api.open-meteo.com/v1/forecast";
