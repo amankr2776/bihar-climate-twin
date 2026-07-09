@@ -63,13 +63,15 @@ export const Route = createFileRoute("/api/public/hooks/ingest-imd")({
         // 2. Open-Meteo supports batched coords in a single request.
         const lat = districts.map((d) => d.lat).join(",");
         const lng = districts.map((d) => d.lng).join(",");
+        // Open-Meteo archive API: start_date/end_date only (no past_days).
+        // ERA5-T reanalysis has ~5-day latency, so we target T-6d → T-2d
+        // window for reliable coverage of every district.
         const url =
           `https://archive-api.open-meteo.com/v1/archive` +
           `?latitude=${lat}&longitude=${lng}` +
           `&daily=precipitation_sum,temperature_2m_max,temperature_2m_min` +
           `&timezone=Asia%2FKolkata` +
-          `&past_days=${PAST_DAYS}&forecast_days=0` +
-          `&start_date=${daysAgo(PAST_DAYS)}&end_date=${daysAgo(1)}`;
+          `&start_date=${daysAgo(PAST_DAYS + 5)}&end_date=${daysAgo(5)}`;
 
         let payload: OpenMeteoResp[] | OpenMeteoResp;
         try {
