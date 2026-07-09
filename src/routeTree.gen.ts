@@ -9,42 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ValidationRouteImport } from './routes/validation'
-import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PredictionRouteImport } from './routes/prediction'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MapRouteImport } from './routes/map'
-import { Route as DisclaimerRouteImport } from './routes/disclaimer'
-import { Route as DataSourcesRouteImport } from './routes/data-sources'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AttributionsRouteImport } from './routes/attributions'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as GuidesKosiBasinHydrologyRouteImport } from './routes/guides.kosi-basin-hydrology'
-import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
-const ValidationRoute = ValidationRouteImport.update({
-  id: '/validation',
-  path: '/validation',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -60,9 +43,9 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PredictionRoute = PredictionRouteImport.update({
@@ -80,16 +63,6 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DisclaimerRoute = DisclaimerRouteImport.update({
-  id: '/disclaimer',
-  path: '/disclaimer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DataSourcesRoute = DataSourcesRouteImport.update({
-  id: '/data-sources',
-  path: '/data-sources',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -105,11 +78,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AttributionsRoute = AttributionsRouteImport.update({
-  id: '/attributions',
-  path: '/attributions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
@@ -123,17 +91,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const GuidesKosiBasinHydrologyRoute =
-  GuidesKosiBasinHydrologyRouteImport.update({
-    id: '/guides/kosi-basin-hydrology',
-    path: '/guides/kosi-basin-hydrology',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -164,24 +121,17 @@ const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
-  '/attributions': typeof AttributionsRoute
   '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
-  '/data-sources': typeof DataSourcesRoute
-  '/disclaimer': typeof DisclaimerRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
-  '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/terms': typeof TermsRoute
-  '/validation': typeof ValidationRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/reports': typeof AuthenticatedReportsRoute
-  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -190,24 +140,17 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
-  '/attributions': typeof AttributionsRoute
   '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
-  '/data-sources': typeof DataSourcesRoute
-  '/disclaimer': typeof DisclaimerRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
-  '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/terms': typeof TermsRoute
-  '/validation': typeof ValidationRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/reports': typeof AuthenticatedReportsRoute
-  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -218,24 +161,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/alerts': typeof AlertsRoute
-  '/attributions': typeof AttributionsRoute
   '/auth': typeof AuthRoute
   '/compound': typeof CompoundRoute
   '/dashboard': typeof DashboardRoute
-  '/data-sources': typeof DataSourcesRoute
-  '/disclaimer': typeof DisclaimerRoute
   '/map': typeof MapRoute
   '/methodology': typeof MethodologyRoute
   '/prediction': typeof PredictionRoute
-  '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/terms': typeof TermsRoute
-  '/validation': typeof ValidationRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/reports': typeof AuthenticatedReportsRoute
-  '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -246,24 +182,17 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alerts'
-    | '/attributions'
     | '/auth'
     | '/compound'
     | '/dashboard'
-    | '/data-sources'
-    | '/disclaimer'
     | '/map'
     | '/methodology'
     | '/prediction'
-    | '/privacy'
+    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
-    | '/terms'
-    | '/validation'
     | '/admin'
-    | '/reports'
-    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -272,24 +201,17 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alerts'
-    | '/attributions'
     | '/auth'
     | '/compound'
     | '/dashboard'
-    | '/data-sources'
-    | '/disclaimer'
     | '/map'
     | '/methodology'
     | '/prediction'
-    | '/privacy'
+    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
-    | '/terms'
-    | '/validation'
     | '/admin'
-    | '/reports'
-    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -299,24 +221,17 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/alerts'
-    | '/attributions'
     | '/auth'
     | '/compound'
     | '/dashboard'
-    | '/data-sources'
-    | '/disclaimer'
     | '/map'
     | '/methodology'
     | '/prediction'
-    | '/privacy'
+    | '/reports'
     | '/settings'
     | '/simulator'
     | '/sitemap.xml'
-    | '/terms'
-    | '/validation'
     | '/_authenticated/admin'
-    | '/_authenticated/reports'
-    | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -327,22 +242,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AlertsRoute: typeof AlertsRoute
-  AttributionsRoute: typeof AttributionsRoute
   AuthRoute: typeof AuthRoute
   CompoundRoute: typeof CompoundRoute
   DashboardRoute: typeof DashboardRoute
-  DataSourcesRoute: typeof DataSourcesRoute
-  DisclaimerRoute: typeof DisclaimerRoute
   MapRoute: typeof MapRoute
   MethodologyRoute: typeof MethodologyRoute
   PredictionRoute: typeof PredictionRoute
-  PrivacyRoute: typeof PrivacyRoute
+  ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TermsRoute: typeof TermsRoute
-  ValidationRoute: typeof ValidationRoute
-  GuidesKosiBasinHydrologyRoute: typeof GuidesKosiBasinHydrologyRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
   ApiPublicIngestLatestRoute: typeof ApiPublicIngestLatestRoute
   ApiPublicOtpSendRoute: typeof ApiPublicOtpSendRoute
@@ -351,20 +260,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/validation': {
-      id: '/validation'
-      path: '/validation'
-      fullPath: '/validation'
-      preLoaderRoute: typeof ValidationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -386,11 +281,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prediction': {
@@ -414,20 +309,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/disclaimer': {
-      id: '/disclaimer'
-      path: '/disclaimer'
-      fullPath: '/disclaimer'
-      preLoaderRoute: typeof DisclaimerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/data-sources': {
-      id: '/data-sources'
-      path: '/data-sources'
-      fullPath: '/data-sources'
-      preLoaderRoute: typeof DataSourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -447,13 +328,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/attributions': {
-      id: '/attributions'
-      path: '/attributions'
-      fullPath: '/attributions'
-      preLoaderRoute: typeof AttributionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alerts': {
@@ -476,20 +350,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/guides/kosi-basin-hydrology': {
-      id: '/guides/kosi-basin-hydrology'
-      path: '/guides/kosi-basin-hydrology'
-      fullPath: '/guides/kosi-basin-hydrology'
-      preLoaderRoute: typeof GuidesKosiBasinHydrologyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/reports': {
-      id: '/_authenticated/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof AuthenticatedReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -531,12 +391,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -546,22 +404,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AlertsRoute: AlertsRoute,
-  AttributionsRoute: AttributionsRoute,
   AuthRoute: AuthRoute,
   CompoundRoute: CompoundRoute,
   DashboardRoute: DashboardRoute,
-  DataSourcesRoute: DataSourcesRoute,
-  DisclaimerRoute: DisclaimerRoute,
   MapRoute: MapRoute,
   MethodologyRoute: MethodologyRoute,
   PredictionRoute: PredictionRoute,
-  PrivacyRoute: PrivacyRoute,
+  ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  TermsRoute: TermsRoute,
-  ValidationRoute: ValidationRoute,
-  GuidesKosiBasinHydrologyRoute: GuidesKosiBasinHydrologyRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
   ApiPublicIngestLatestRoute: ApiPublicIngestLatestRoute,
   ApiPublicOtpSendRoute: ApiPublicOtpSendRoute,

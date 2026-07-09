@@ -14,7 +14,7 @@ import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/stor
 import { getMyRoles } from "@/lib/admin.functions";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/reports")({
+export const Route = createFileRoute("/reports")({
   ssr: false,
   head: () => ({
     meta: [
