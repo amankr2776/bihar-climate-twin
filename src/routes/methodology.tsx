@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/varuna/HelpModal";
-import { ArrowRight, Cpu, Layers, Network, Repeat, Database, Waves, Satellite, MapPin, History, ExternalLink } from "lucide-react";
+import { ArrowRight, Cpu, Layers, Network, Repeat, Database, Waves, Satellite, MapPin, History, ExternalLink, AlertTriangle, GitBranch } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getValidationBacktest } from "@/lib/varuna/validation.functions";
+import { RIVER_NETWORK } from "@/lib/varuna/kosi-graph";
+import { DISTRICTS } from "@/lib/varuna/districts";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export const Route = createFileRoute("/methodology")({
