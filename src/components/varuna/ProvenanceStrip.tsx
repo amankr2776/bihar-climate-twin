@@ -11,19 +11,20 @@ type IngestRow = {
   finished_at: string;
 };
 
-/**
- * Reads latest public ingest_audit row and renders a freshness pill.
- * "Last IMD ingest: 2h ago · 21,432 rows · ok" — required for ISRO-grade
- * provenance so any KPI can be traced back to the actual ingestion run.
- */
+type IngestLatest = {
+  latest: IngestRow | null;
+  imd: IngestRow | null;
+  mosdac: IngestRow | null;
+  retention: IngestRow | null;
+};
+
 function useLatestIngest() {
   return useQuery({
     queryKey: ["varuna", "latest-ingest"],
-    queryFn: async (): Promise<IngestRow | null> => {
+    queryFn: async (): Promise<IngestLatest> => {
       const res = await fetch("/api/public/ingest/latest", { headers: { accept: "application/json" } });
       if (!res.ok) throw new Error("ingest_latest_unavailable");
-      const json = (await res.json()) as { latest: IngestRow | null };
-      return json.latest;
+      return (await res.json()) as IngestLatest;
     },
     refetchInterval: 5 * 60 * 1000,
     staleTime: 60_000,
@@ -41,7 +42,37 @@ function relative(ts: string): string {
   return `${d}d ago`;
 }
 
-export function IngestFreshness({ compact = false }: { compact?: boolean }) {
+function FreshnessPill({ row, label }: { row: IngestRow | null; label: string }) {
+  if (!row) {
+    return (
+      <span
+        className="inline-flex items-center gap-1 rounded border border-[color:var(--risk-heat)]/50 bg-[color:var(--risk-heat)]/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--risk-heat)]"
+        title={`No ${label} ingest run recorded yet.`}
+      >
+        <AlertCircle className="h-2.5 w-2.5" />
+        No {label} yet
+      </span>
+    );
+  }
+  const ok = row.status === "ok";
+  const color = ok ? "var(--risk-drought)" : "var(--risk-heat)";
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
+      style={{
+        color,
+        borderColor: `color-mix(in oklch, ${color} 50%, transparent)`,
+        backgroundColor: `color-mix(in oklch, ${color} 10%, transparent)`,
+      }}
+      title={`Source: ${row.source}${row.dataset_version ? ` · ${row.dataset_version}` : ""} · ${row.rows_upserted.toLocaleString()} rows · ${row.status}`}
+    >
+      {ok ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
+      {label}: {relative(row.finished_at)}
+    </span>
+  );
+}
+
+export function IngestFreshness({ compact: _compact = false }: { compact?: boolean }) {
   const { data, isLoading } = useLatestIngest();
 
   if (isLoading) {
@@ -53,37 +84,14 @@ export function IngestFreshness({ compact = false }: { compact?: boolean }) {
     );
   }
 
-  if (!data) {
-    return (
-      <span
-        className="inline-flex items-center gap-1 rounded border border-[color:var(--risk-heat)]/50 bg-[color:var(--risk-heat)]/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[color:var(--risk-heat)]"
-        title="No IMD ingest run recorded yet — run scripts/imd-ingest/ingest_imd.py to backfill."
-      >
-        <AlertCircle className="h-2.5 w-2.5" />
-        No IMD ingest yet
-      </span>
-    );
-  }
-
-  const ok = data.status === "ok";
-  const color = ok ? "var(--risk-drought)" : "var(--risk-heat)";
-  const label = data.source === "retention" ? "DB heartbeat" : `IMD ingest`;
-
   return (
-    <span
-      className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
-      style={{
-        color,
-        borderColor: `color-mix(in oklch, ${color} 50%, transparent)`,
-        backgroundColor: `color-mix(in oklch, ${color} 10%, transparent)`,
-      }}
-      title={`Source: ${data.source}${data.dataset_version ? ` · ${data.dataset_version}` : ""} · ${data.rows_upserted.toLocaleString()} rows · ${data.status}`}
-    >
-      {ok ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-      {compact ? relative(data.finished_at) : `Last ${label}: ${relative(data.finished_at)}`}
-    </span>
+    <>
+      <FreshnessPill row={data?.imd ?? null} label="IMD" />
+      <FreshnessPill row={data?.mosdac ?? null} label="MOSDAC" />
+    </>
   );
 }
+
 
 /**
  * Reusable provenance strip pinned under every page header so every widget
