@@ -342,5 +342,9 @@ export function buildStateFromReadings(
     };
   });
 
-  return { blocks, districts };
+  const routing = applyRiverRouting(blocks, districts);
+  for (const b of blocks) b.category = classify(b.flood_risk, b.drought_risk, b.heat_retention_score, b.soil_moisture_index);
+  for (const ds of districts) ds.category = classify(ds.flood_risk, ds.drought_risk, 0, 1);
+
+  return { blocks, districts, routing };
 }
