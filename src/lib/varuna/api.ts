@@ -43,7 +43,7 @@ export type CurrentState = {
   districts: DistrictState[];
   routing: RoutingTrace[];
   timestamp: string;
-  source: "open-meteo" | "imd+open-meteo" | "fallback";
+  source: ClimateSnapshot["source"];
 };
 
 // --- Shared climate snapshot cache (deduped across pages) ---
