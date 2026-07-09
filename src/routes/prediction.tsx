@@ -70,6 +70,7 @@ export const Route = createFileRoute("/prediction")({
 function PredictionPage() {
   const { data: state } = useCurrentState();
   const { data: imdNormals } = useImdNormals();
+  const { data: forecast } = useForecast();
   const [mode, setMode] = useState<"current" | "forecast">("current");
   const [feature, setFeature] = useState<"rainfall" | "temp">("rainfall");
   const [step, setStep] = useState(1);
