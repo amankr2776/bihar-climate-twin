@@ -14,6 +14,8 @@ export function TopBar({ lastUpdate }: Props) {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
+  const [dateStr, setDateStr] = useState<string>("");
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user?.email ?? null));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -22,11 +24,17 @@ export function TopBar({ lastUpdate }: Props) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const dateStr = new Date().toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  // Render date only on client to avoid SSR/CSR hydration mismatch across the IST midnight boundary.
+  useEffect(() => {
+    setDateStr(
+      new Date().toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata",
+      }),
+    );
+  }, [lang]);
 
   const initials = email ? email.slice(0, 2).toUpperCase() : "VA";
 
@@ -68,7 +76,7 @@ export function TopBar({ lastUpdate }: Props) {
 
         <div className="hidden shrink-0 items-center gap-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-xs md:flex">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="font-mono">{dateStr}</span>
+          <span className="font-mono" suppressHydrationWarning>{dateStr || "\u2014"}</span>
         </div>
       </div>
 

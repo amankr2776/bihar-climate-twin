@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/varuna/HelpModal";
-import { ArrowRight, Cpu, Layers, Network, Repeat, Database, Waves, Satellite, MapPin, History, ExternalLink } from "lucide-react";
+import { ArrowRight, Cpu, Layers, Network, Repeat, Database, Waves, Satellite, MapPin, History, ExternalLink, AlertTriangle, GitBranch } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getValidationBacktest } from "@/lib/varuna/validation.functions";
+import { RIVER_NETWORK } from "@/lib/varuna/kosi-graph";
+import { DISTRICTS } from "@/lib/varuna/districts";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export const Route = createFileRoute("/methodology")({
@@ -32,7 +36,30 @@ function MethodologyPage() {
         }}
       />
 
-      <section className="rounded-xl border border-border bg-panel p-5">
+      <section className="rounded-xl border border-[color:var(--risk-heat)]/40 bg-[color:var(--risk-heat)]/5 p-5">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--risk-heat)]" />
+          <div>
+            <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">
+              Honest model labeling
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The current production ensemble is a <strong className="text-foreground">rule-based
+              digital twin</strong> anchored on live IMD and Open-Meteo GFS observations, with a
+              PI-GNN-ready spatial graph (534 CD-blocks · Kosi/Bagmati/Gandak/Ganga DAG) already wired
+              end-to-end. A trained Physics-Informed Graph Neural Network is <em>not yet</em> serving
+              inference — that requires paired discharge data (CWC) and GPU training against the
+              2022–24 monsoon holdout. Every metric on the <a href="#validation" className="text-[color:var(--brand-cyan)] hover:underline">Validation</a>{" "}
+              card below is computed live from the last 30 days of real observations, not synthetic
+              data. Confidence bands and risk indices are auditable functions of observed rainfall vs
+              IMD normal, T<sub>max</sub> vs normal, 3-day forecast rainfall, and upstream routed
+              contribution — no hidden constants.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-5 rounded-xl border border-border bg-panel p-5">
         <h2 className="font-display text-lg font-semibold text-foreground">Overview</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           VARUNA is a Physics-Informed Graph Neural Network (PI-GNN) coupled with a Spatio-Temporal
@@ -226,6 +253,8 @@ function MethodologyPage() {
           {" "}section below for current numbers and the persistence-forecast baseline comparison.
         </p>
       </section>
+
+      <GraphTopologySection />
 
       <DataSourcesSection />
 
@@ -463,84 +492,207 @@ function IngestionLog() {
 }
 
 // ============================================================================
-// Validation & Backtest — PI-GNN vs IMD ground truth, persistence baseline.
-// Merged from the deleted /validation route.
+// Validation & Backtest — REAL persistence-baseline metrics computed live from
+// the last 30 days of `climate_observations` (IMD + Open-Meteo). PI-GNN
+// inference row is intentionally absent until a trained checkpoint is
+// promoted; see `src/lib/varuna/validation.functions.ts`.
 // ============================================================================
 
-const BACKTEST = [
-  { week: "Jun-W1", pignn_csi: 0.72, baseline_csi: 0.48, rmse: 14.2 },
-  { week: "Jun-W2", pignn_csi: 0.78, baseline_csi: 0.51, rmse: 13.1 },
-  { week: "Jun-W3", pignn_csi: 0.81, baseline_csi: 0.53, rmse: 12.6 },
-  { week: "Jun-W4", pignn_csi: 0.84, baseline_csi: 0.55, rmse: 11.9 },
-  { week: "Jul-W1", pignn_csi: 0.86, baseline_csi: 0.57, rmse: 11.4 },
-  { week: "Jul-W2", pignn_csi: 0.85, baseline_csi: 0.56, rmse: 11.6 },
-  { week: "Jul-W3", pignn_csi: 0.87, baseline_csi: 0.58, rmse: 10.9 },
-  { week: "Jul-W4", pignn_csi: 0.88, baseline_csi: 0.59, rmse: 10.5 },
-  { week: "Aug-W1", pignn_csi: 0.86, baseline_csi: 0.57, rmse: 11.1 },
-  { week: "Aug-W2", pignn_csi: 0.87, baseline_csi: 0.58, rmse: 10.7 },
-];
-
-const CONFUSION = { hits: 412, misses: 47, false_alarms: 61, correct_negatives: 1854 };
-const csi = CONFUSION.hits / (CONFUSION.hits + CONFUSION.misses + CONFUSION.false_alarms);
-const pod = CONFUSION.hits / (CONFUSION.hits + CONFUSION.misses);
-const far = CONFUSION.false_alarms / (CONFUSION.hits + CONFUSION.false_alarms);
-
 function ValidationSection() {
+  const backtestFn = useServerFn(getValidationBacktest);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["varuna", "validation-backtest"],
+    queryFn: () => backtestFn(),
+    staleTime: 5 * 60_000,
+    refetchInterval: 15 * 60_000,
+  });
+
   return (
     <section id="validation" className="mt-6 rounded-xl border border-border bg-panel p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-lg font-semibold text-foreground">Validation · PI-GNN vs IMD ground truth</h2>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">2022–24 monsoon holdout</span>
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Validation · live backtest on IMD + Open-Meteo observations
+        </h2>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          persistence-24h baseline · PI-GNN pending
+        </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Kpi label="CSI" value={csi.toFixed(2)} target=">= 0.85" color="var(--risk-heat)" />
-        <Kpi label="POD" value={pod.toFixed(2)} target=">= 0.90" color="var(--brand-cyan)" />
-        <Kpi label="FAR" value={far.toFixed(2)} target="<= 0.15" color="var(--risk-compound)" />
-        <Kpi label="RMSE mm/day" value="10.7" target="<= 12" color="var(--brand-magenta)" />
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-background/40 p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">CSI · PI-GNN vs Persistence baseline</div>
-          <div className="mt-2 h-56 w-full">
-            <ResponsiveContainer>
-              <LineChart data={BACKTEST}>
-                <CartesianGrid stroke="oklch(0.25 0 0)" strokeDasharray="3 3" />
-                <XAxis dataKey="week" stroke="oklch(0.6 0 0)" fontSize={10} />
-                <YAxis stroke="oklch(0.6 0 0)" fontSize={10} domain={[0.4, 1]} />
-                <Tooltip contentStyle={{ background: "oklch(0.15 0 0)", border: "1px solid oklch(0.25 0 0)", fontSize: 10 }} />
-                <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="pignn_csi" name="PI-GNN" stroke="oklch(0.75 0.2 200)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="baseline_csi" name="Persistence" stroke="oklch(0.6 0.15 25)" strokeWidth={2} strokeDasharray="4 4" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+      {isLoading && (
+        <div className="mt-4 rounded-lg border border-dashed border-border p-4 text-xs text-muted-foreground">
+          Computing metrics from climate_observations…
         </div>
-        <div className="rounded-lg border border-border bg-background/40 p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">RMSE · rainfall (mm/day)</div>
-          <div className="mt-2 h-56 w-full">
-            <ResponsiveContainer>
-              <LineChart data={BACKTEST}>
-                <CartesianGrid stroke="oklch(0.25 0 0)" strokeDasharray="3 3" />
-                <XAxis dataKey="week" stroke="oklch(0.6 0 0)" fontSize={10} />
-                <YAxis stroke="oklch(0.6 0 0)" fontSize={10} domain={[8, 16]} />
-                <Tooltip contentStyle={{ background: "oklch(0.15 0 0)", border: "1px solid oklch(0.25 0 0)", fontSize: 10 }} />
-                <Line type="monotone" dataKey="rmse" name="RMSE" stroke="oklch(0.75 0.2 320)" strokeWidth={2} dot={{ r: 2 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+      )}
 
-      <p className="mt-3 text-[11px] text-muted-foreground">
-        PI-GNN sustains a ~0.28 absolute CSI lift over the IMD persistence-forecast baseline across every
-        holdout week. Only checkpoints that beat baseline are promoted to production. Ground truth: IMD
-        0.25° gridded rainfall + 1.0° gridded temperature. Retraining runs weekly on preemptible GPUs.
-      </p>
+      {error && (
+        <div className="mt-4 rounded-lg border border-[color:var(--risk-flood)]/40 bg-[color:var(--risk-flood)]/5 p-3 text-xs text-[color:var(--risk-flood)]">
+          Validation could not be computed: {(error as Error).message}
+        </div>
+      )}
+
+      {data && (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+            <Kpi label="CSI (flood≥50mm)" value={data.csi.toFixed(2)} target=">= 0.85" color="var(--risk-heat)" />
+            <Kpi label="POD" value={data.pod.toFixed(2)} target=">= 0.90" color="var(--brand-cyan)" />
+            <Kpi label="FAR" value={data.far.toFixed(2)} target="<= 0.15" color="var(--risk-compound)" />
+            <Kpi label="RMSE mm/day" value={data.rmse_mm.toFixed(1)} target="<= 12" color="var(--brand-magenta)" />
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 text-[11px]">
+            <MiniStat label="Window" value={`${data.window_days} d`} />
+            <MiniStat label="Samples" value={`${data.rows.toLocaleString()} obs`} />
+            <MiniStat label="Districts" value={`${data.districts}`} />
+            <MiniStat label="Bias (mm/d)" value={data.bias_mm.toFixed(2)} />
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-border bg-background/40 p-3">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                CSI · persistence vs 3-day climatology (weekly)
+              </div>
+              <div className="mt-2 h-56 w-full">
+                <ResponsiveContainer>
+                  <LineChart data={data.weekly}>
+                    <CartesianGrid stroke="oklch(0.25 0 0)" strokeDasharray="3 3" />
+                    <XAxis dataKey="week" stroke="oklch(0.6 0 0)" fontSize={10} />
+                    <YAxis stroke="oklch(0.6 0 0)" fontSize={10} domain={[0, 1]} />
+                    <Tooltip contentStyle={{ background: "oklch(0.15 0 0)", border: "1px solid oklch(0.25 0 0)", fontSize: 10 }} />
+                    <Legend wrapperStyle={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="persistence_csi" name="Persistence-24h" stroke="oklch(0.75 0.2 200)" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="climatology_csi" name="3-day climatology" stroke="oklch(0.6 0.15 25)" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-background/40 p-3">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">RMSE · rainfall (mm/day)</div>
+              <div className="mt-2 h-56 w-full">
+                <ResponsiveContainer>
+                  <LineChart data={data.weekly}>
+                    <CartesianGrid stroke="oklch(0.25 0 0)" strokeDasharray="3 3" />
+                    <XAxis dataKey="week" stroke="oklch(0.6 0 0)" fontSize={10} />
+                    <YAxis stroke="oklch(0.6 0 0)" fontSize={10} />
+                    <Tooltip contentStyle={{ background: "oklch(0.15 0 0)", border: "1px solid oklch(0.25 0 0)", fontSize: 10 }} />
+                    <Line type="monotone" dataKey="rmse" name="RMSE" stroke="oklch(0.75 0.2 320)" strokeWidth={2} dot={{ r: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 text-[11px]">
+            <MiniStat label="Hits" value={String(data.confusion.hits)} />
+            <MiniStat label="Misses" value={String(data.confusion.misses)} />
+            <MiniStat label="False alarms" value={String(data.confusion.false_alarms)} />
+            <MiniStat label="Correct negs" value={data.confusion.correct_negatives.toLocaleString()} />
+          </div>
+
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            {data.note} Metrics recomputed every 15 min from the last {data.window_days} days of
+            observations. When a PI-GNN checkpoint beats persistence on a stratified holdout the model
+            row will appear alongside — targets on the panel above are the promotion thresholds, not
+            claimed model performance.
+          </p>
+        </>
+      )}
     </section>
   );
 }
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded border border-border bg-background/40 px-2 py-1.5">
+      <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="font-mono text-xs text-foreground">{value}</div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Graph topology — the 534-block PI-GNN-ready spatial graph + district-level
+// river DAG. Rendered directly from `kosi-graph.ts` so it stays in sync with
+// the routing engine.
+// ============================================================================
+
+function GraphTopologySection() {
+  const edges = RIVER_NETWORK.edges;
+  const topo = RIVER_NETWORK.topo;
+  const districtNameById = new Map(DISTRICTS.map((d) => [d.id, d.name]));
+  const kosiBasin = DISTRICTS.filter((d) => d.kosiBasin);
+  const nodesInGraph = topo.length;
+  const blockCount = DISTRICTS.length * 14; // matches BLOCKS_PER_DISTRICT in state.ts
+
+  return (
+    <section id="graph-topology" className="mt-6 rounded-xl border border-border bg-panel p-5">
+      <div className="flex items-center gap-2">
+        <GitBranch className="h-5 w-5 text-[color:var(--brand-cyan)]" />
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Spatial graph · designed PI-GNN architecture
+        </h2>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        This is the graph the PI-GNN will train on. It is already wired end-to-end into the current
+        rule-based ensemble as the routing substrate, so swapping the routing kernel for a trained
+        message-passing layer is a checkpoint-load, not an app rewrite. GPU training and CWC discharge
+        validation are pending.
+      </p>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 text-[11px]">
+        <MiniStat label="Block nodes" value={`${blockCount}`} />
+        <MiniStat label="District nodes" value={`${DISTRICTS.length}`} />
+        <MiniStat label="River DAG nodes" value={`${nodesInGraph}`} />
+        <MiniStat label="River DAG edges" value={`${edges.length}`} />
+        <MiniStat label="Kosi-basin districts" value={`${kosiBasin.length}`} />
+        <MiniStat label="Routing α" value={`${RIVER_NETWORK.alpha}`} />
+        <MiniStat label="Wave lag" value={`${RIVER_NETWORK.lag_hours} h`} />
+        <MiniStat label="Node features" value={`6`} />
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="rounded-lg border border-border bg-background/40 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            Kosi / Bagmati / Gandak / Ganga DAG edges
+          </div>
+          <div className="mt-2 max-h-64 overflow-y-auto pr-1">
+            <ul className="space-y-1 font-mono text-[10px]">
+              {edges.map(([u, v]) => (
+                <li key={`${u}->${v}`} className="flex items-center gap-1.5">
+                  <span className="text-foreground">{districtNameById.get(u) ?? u}</span>
+                  <ArrowRight className="h-3 w-3 text-[color:var(--brand-cyan)]" />
+                  <span className="text-foreground">{districtNameById.get(v) ?? v}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-background/40 p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            Topological order (Kahn) — upstream → downstream
+          </div>
+          <div className="mt-2 max-h-64 overflow-y-auto pr-1">
+            <ol className="space-y-0.5 pl-4 font-mono text-[10px] text-foreground list-decimal">
+              {topo.map((id) => (
+                <li key={id}>{districtNameById.get(id) ?? id}</li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/5 p-3 text-[11px] text-muted-foreground">
+        <strong className="text-[color:var(--brand-cyan)]">Designed architecture (pending training):</strong>{" "}
+        block-level node embedding <span className="font-mono">h⁰ᵢ ∈ ℝ⁶</span> → 3× GNN message-passing
+        layers over the adjacency + river-DAG edges → temporal transformer over 72 h of node history →
+        MLP heads for rainfall / T<sub>max</sub> / flood-risk. Physics loss: mass-conservation on
+        upstream inflow − downstream outflow (needs CWC discharge series to weight). Until that
+        training finishes the routing kernel above is the deterministic surrogate.
+      </div>
+    </section>
+  );
+}
+
 
 function Kpi({ label, value, target, color }: { label: string; value: string; target: string; color: string }) {
   return (
