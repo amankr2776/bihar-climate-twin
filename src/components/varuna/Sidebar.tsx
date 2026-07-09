@@ -38,22 +38,6 @@ type Props = {
 export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { t } = useI18n();
-  const [authed, setAuthed] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setAuthed(Boolean(data.session)));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setAuthed(Boolean(session)));
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  const rolesFn = useServerFn(getMyRoles);
-  const rolesQuery = useQuery({
-    queryKey: ["myRoles"],
-    queryFn: () => rolesFn(),
-    enabled: authed,
-    staleTime: 60_000,
-  });
-  const isAdmin = (rolesQuery.data ?? []).includes("admin");
 
   const top = [...districts]
     .sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk))
@@ -65,7 +49,7 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
       className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-panel lg:flex"
     >
       <div className="px-5 pt-5">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/dashboard" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
             V
           </div>
@@ -98,20 +82,19 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
             </Link>
           );
         })}
-        {isAdmin && (
-          <Link
-            to="/admin"
-            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-              pathname.startsWith("/admin")
-                ? "bg-[color:var(--brand-magenta)]/15 text-[color:var(--brand-magenta)] shadow-[inset_2px_0_0_0_var(--brand-magenta)]"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
-          >
-            <ShieldCheck className="h-4 w-4" />
-            <span>{t("nav.admin")}</span>
-          </Link>
-        )}
+        <Link
+          to="/methodology"
+          className={`mt-2 flex w-full items-center gap-3 rounded-md border-t border-border/40 px-3 pt-3 pb-2 text-xs transition-colors ${
+            pathname.startsWith("/methodology")
+              ? "text-[color:var(--brand-cyan)]"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <BookOpen className="h-3.5 w-3.5" />
+          <span>Methodology &amp; Data</span>
+        </Link>
       </nav>
+
 
       <div className="mt-5 flex-1 overflow-hidden border-t border-border px-3 pt-4">
         <div className="px-2 text-[10px] uppercase tracking-widest text-muted-foreground">
