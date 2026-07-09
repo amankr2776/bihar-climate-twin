@@ -104,16 +104,39 @@ function PredictionPage() {
     return 1 - ssRes / ssTot;
   }, [scatter]);
 
+  const districtForecast = useMemo(
+    () => forecastForDistrict(forecast, selectedBlock?.district_id),
+    [forecast, selectedBlock?.district_id],
+  );
+
   const blockForecast = useMemo(() => {
-    if (!selectedBlock) return [] as { h: number; value: number; lo: number; hi: number }[];
+    if (!selectedBlock) return [] as { h: number; label: string; value: number; lo: number; hi: number }[];
+    if (districtForecast.length > 0) {
+      // Real GFS 7-day daily forecast for this district.
+      return districtForecast.map((r, i) => {
+        const raw =
+          feature === "rainfall"
+            ? r.rainfall_mm ?? 0
+            : ((r.tmax_c ?? 0) + (r.tmin_c ?? 0)) / 2;
+        const spread = (i + 1) * (feature === "rainfall" ? 2.2 : 0.35);
+        return {
+          h: i + 1,
+          label: r.forecast_for.slice(5),
+          value: +raw.toFixed(2),
+          lo: +Math.max(0, raw - spread).toFixed(2),
+          hi: +(raw + spread).toFixed(2),
+        };
+      });
+    }
+    // Fallback (no forecast rows yet) — deterministic synthetic curve.
     const base = feature === "rainfall" ? selectedBlock.rainfall_mm : selectedBlock.temperature_c;
     return Array.from({ length: 8 }, (_, i) => {
       const noise = Math.sin(i * 1.2 + selectedBlock.block_id.length) * (feature === "rainfall" ? 6 : 1.2);
       const v = Math.max(0, base + noise + i * (feature === "rainfall" ? 1.2 : 0.2));
       const spread = (i + 1) * (feature === "rainfall" ? 3 : 0.4);
-      return { h: (i + 1) * 3, value: +v.toFixed(2), lo: +(v - spread).toFixed(2), hi: +(v + spread).toFixed(2) };
+      return { h: i + 1, label: `T+${(i + 1) * 3}h`, value: +v.toFixed(2), lo: +(v - spread).toFixed(2), hi: +(v + spread).toFixed(2) };
     });
-  }, [selectedBlock, feature]);
+  }, [selectedBlock, feature, districtForecast]);
 
   const blocks = state?.blocks ?? [];
   const filteredBlocks = blocks.filter((b) => b.block_name.toLowerCase().includes(blockSearch.toLowerCase())).slice(0, 8);
