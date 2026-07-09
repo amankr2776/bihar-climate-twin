@@ -181,7 +181,16 @@ export function generateBlockState(
     };
   });
 
-  return { blocks, districts };
+  // River-network routing: propagate upstream flood signal downstream on the
+  // Kosi/Bagmati/Gandak/Ganga DAG. Mutates flood_risk on both blocks and districts.
+  const routing = applyRiverRouting(blocks, districts);
+  // Re-classify after routing so newly-flooded downstream cells adopt the right colour.
+  for (const b of blocks) b.category = classify(b.flood_risk, b.drought_risk, b.heat_retention_score, b.soil_moisture_index);
+  for (const ds of districts) {
+    ds.category = classify(ds.flood_risk, ds.drought_risk, 0, 1);
+  }
+
+  return { blocks, districts, routing };
 }
 
 export const RISK_COLORS: Record<RiskCategory, string> = {
