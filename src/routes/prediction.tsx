@@ -304,10 +304,12 @@ function PredictionPage() {
               </div>
 
               <div className="mt-3 h-32 rounded border border-border bg-background/40 p-2">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">24-h forecast · {feature}</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {districtForecast.length > 0 ? "7-day GFS forecast" : "24-h forecast"} · {feature}
+                </div>
                 <ResponsiveContainer width="100%" height="85%">
                   <AreaChart data={blockForecast}>
-                    <XAxis dataKey="h" tick={{ fontSize: 9 }} />
+                    <XAxis dataKey="label" tick={{ fontSize: 9 }} />
                     <YAxis tick={{ fontSize: 9 }} width={30} />
                     <Area dataKey="hi" fill="var(--risk-flood)" fillOpacity={0.15} stroke="none" />
                     <Area dataKey="lo" fill="var(--panel)" stroke="none" />
