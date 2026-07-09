@@ -43,20 +43,8 @@ const TEMPLATES = [
 
 function ReportsPage() {
   const { t } = useI18n();
-  const fetchMyRoles = useServerFn(getMyRoles);
-  const [roleState, setRoleState] = useState<"loading" | "authorized" | "denied">("loading");
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchMyRoles()
-      .then((roles) => {
-        if (cancelled) return;
-        const allowed = Array.isArray(roles) && (roles.includes("admin") || roles.includes("official"));
-        setRoleState(allowed ? "authorized" : "denied");
-      })
-      .catch(() => !cancelled && setRoleState("denied"));
-    return () => { cancelled = true; };
-  }, [fetchMyRoles]);
+
 
   const [type, setType] = useState(REPORT_TYPES[0]);
   const [from, setFrom] = useState("2026-07-01");
