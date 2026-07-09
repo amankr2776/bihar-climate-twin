@@ -5,6 +5,7 @@ import {
   inferCover,
   AVG_BLOCK_AREA_KM2,
 } from "./hydrology";
+import { applyRiverRouting, type RoutingTrace } from "./kosi-graph";
 
 export type ScenarioBias = {
   rainfall_pct?: number;
@@ -77,10 +78,12 @@ function classify(flood: number, drought: number, heat = 0, soil = 1): RiskCateg
   return "normal";
 }
 
+export type BuiltState = { blocks: BlockState[]; districts: DistrictState[]; routing: RoutingTrace[] };
+
 export function generateBlockState(
   timestampISO: string,
   anomalyBias: { rainfall_pct?: number; temperature_c?: number; soil_override?: "normal" | "drought-baked" | "saturated" } = {},
-): { blocks: BlockState[]; districts: DistrictState[] } {
+): BuiltState {
   const seedBase = Math.floor(new Date(timestampISO).getTime() / (3 * 60 * 60 * 1000));
   const blocks: BlockState[] = [];
 
@@ -180,7 +183,16 @@ export function generateBlockState(
     };
   });
 
-  return { blocks, districts };
+  // River-network routing: propagate upstream flood signal downstream on the
+  // Kosi/Bagmati/Gandak/Ganga DAG. Mutates flood_risk on both blocks and districts.
+  const routing = applyRiverRouting(blocks, districts);
+  // Re-classify after routing so newly-flooded downstream cells adopt the right colour.
+  for (const b of blocks) b.category = classify(b.flood_risk, b.drought_risk, b.heat_retention_score, b.soil_moisture_index);
+  for (const ds of districts) {
+    ds.category = classify(ds.flood_risk, ds.drought_risk, 0, 1);
+  }
+
+  return { blocks, districts, routing };
 }
 
 export const RISK_COLORS: Record<RiskCategory, string> = {
@@ -212,7 +224,7 @@ export function buildStateFromReadings(
   readings: ClimateReading[],
   timestampISO: string,
   bias: ScenarioBias = {},
-): { blocks: BlockState[]; districts: DistrictState[] } {
+): BuiltState {
   const seedBase = Math.floor(new Date(timestampISO).getTime() / (3 * 60 * 60 * 1000));
   const byId = new Map(readings.map((r) => [r.district_id, r]));
   const rainBias = (bias.rainfall_pct ?? 0) / 100;
@@ -330,5 +342,9 @@ export function buildStateFromReadings(
     };
   });
 
-  return { blocks, districts };
+  const routing = applyRiverRouting(blocks, districts);
+  for (const b of blocks) b.category = classify(b.flood_risk, b.drought_risk, b.heat_retention_score, b.soil_moisture_index);
+  for (const ds of districts) ds.category = classify(ds.flood_risk, ds.drought_risk, 0, 1);
+
+  return { blocks, districts, routing };
 }

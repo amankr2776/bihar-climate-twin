@@ -9,6 +9,7 @@ import {
   type DistrictState,
   type ScenarioBias,
 } from "./state";
+import type { RoutingTrace } from "./kosi-graph";
 import { fetchBiharClimate, type ClimateSnapshot } from "./climate";
 import { DISTRICTS } from "./districts";
 
@@ -40,6 +41,7 @@ export type AlertItem = {
 export type CurrentState = {
   blocks: BlockState[];
   districts: DistrictState[];
+  routing: RoutingTrace[];
   timestamp: string;
   source: "open-meteo" | "imd+open-meteo" | "fallback";
 };
@@ -77,11 +79,11 @@ export async function getCurrentState(bias: ScenarioBias = {}): Promise<CurrentS
 
   try {
     const snap = await getClimate();
-    const { blocks, districts } = buildStateFromReadings(snap.readings, ts, bias);
-    return { blocks, districts, timestamp: ts, source: snap.source };
+    const { blocks, districts, routing } = buildStateFromReadings(snap.readings, ts, bias);
+    return { blocks, districts, routing, timestamp: ts, source: snap.source };
   } catch {
-    const { blocks, districts } = generateBlockState(ts, bias);
-    return { blocks, districts, timestamp: ts, source: "fallback" };
+    const { blocks, districts, routing } = generateBlockState(ts, bias);
+    return { blocks, districts, routing, timestamp: ts, source: "fallback" };
   }
 }
 
