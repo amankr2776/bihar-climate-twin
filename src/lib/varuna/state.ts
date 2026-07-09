@@ -116,14 +116,19 @@ export function generateBlockState(
 
       const rainfall_anomaly_pct = (rainfall_mm - (isNorth ? 45 : 12)) / (isNorth ? 45 : 12) * 100;
 
-      // Flood risk: rain × antecedent moisture × Kosi weighting
-      const flood_risk = Math.min(
-        1,
-        Math.max(
-          0,
-          0.35 * (rainfall_mm / 90) + 0.35 * soil + (d.kosiBasin ? 0.25 : 0.05) + (rand() - 0.5) * 0.1,
-        ),
-      );
+      // Physically-based flood risk: SCS-CN runoff → SCS UH peak discharge.
+      const hyd = floodRiskFromHydrology({
+        rainfallMm: rainfall_mm,
+        soilMoisture: soil,
+        cover: inferCover({ kosiBasin: d.kosiBasin, region: d.region, districtId: d.id }),
+        areaKm2: AVG_BLOCK_AREA_KM2,
+        kosiBasin: d.kosiBasin,
+      });
+      const flood_risk = hyd.flood_risk;
+      // Drought risk: heat × soil deficit
+      const drought_risk = Math.min(1, Math.max(0, 0.5 * heat + 0.4 * (1 - soil) + (rand() - 0.5) * 0.1));
+
+      const compound = flood_risk >= 0.6 && drought_risk >= 0.4;
       // Drought risk: heat × soil deficit
       const drought_risk = Math.min(1, Math.max(0, 0.5 * heat + 0.4 * (1 - soil) + (rand() - 0.5) * 0.1));
 
