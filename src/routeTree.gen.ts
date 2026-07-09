@@ -27,6 +27,7 @@ import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
+import { Route as ApiPublicHooksIngestImdRouteImport } from './routes/api/public/hooks/ingest-imd'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -117,6 +118,11 @@ const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   path: '/api/public/ingest/climate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksIngestImdRoute = ApiPublicHooksIngestImdRouteImport.update({
+  id: '/api/public/hooks/ingest-imd',
+  path: '/api/public/hooks/ingest-imd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/admin'
+    | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/admin'
+    | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicHooksIngestImdRoute: typeof ApiPublicHooksIngestImdRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
   ApiPublicIngestLatestRoute: typeof ApiPublicIngestLatestRoute
   ApiPublicOtpSendRoute: typeof ApiPublicOtpSendRoute
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIngestClimateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ingest-imd': {
+      id: '/api/public/hooks/ingest-imd'
+      path: '/api/public/hooks/ingest-imd'
+      fullPath: '/api/public/hooks/ingest-imd'
+      preLoaderRoute: typeof ApiPublicHooksIngestImdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -414,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicHooksIngestImdRoute: ApiPublicHooksIngestImdRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
   ApiPublicIngestLatestRoute: ApiPublicIngestLatestRoute,
   ApiPublicOtpSendRoute: ApiPublicOtpSendRoute,
