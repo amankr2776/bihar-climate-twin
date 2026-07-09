@@ -221,19 +221,22 @@ function MethodologyPage() {
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground">
           Targets are informed by published India-region GNN/transformer rainfall-forecast studies and will
-          be validated against the 2022–24 monsoon holdout before v1.0 release. See{" "}
-          <Link to="/validation" className="text-[color:var(--brand-cyan)] hover:underline">/validation</Link>
-          {" "}for current numbers and the persistence-forecast baseline comparison.
+          be validated against the 2022–24 monsoon holdout before v1.0 release. See the{" "}
+          <a href="#validation" className="text-[color:var(--brand-cyan)] hover:underline">Validation &amp; Backtest</a>
+          {" "}section below for current numbers and the persistence-forecast baseline comparison.
         </p>
       </section>
+
+      <DataSourcesSection />
+
+      <ValidationSection />
 
       <section className="mt-6 rounded-xl border border-border bg-panel p-5">
         <h2 className="font-display text-lg font-semibold text-foreground">Not a warning authority</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           VARUNA is a decision-support tool. It does not replace India Meteorological Department (IMD),
-          Central Water Commission (CWC), or State Emergency Operation Centre (SEOC) advisories. Authoritative
-          warnings must be sourced from those agencies. See our{" "}
-          <Link to="/disclaimer" className="text-[color:var(--brand-cyan)] hover:underline">disclaimer</Link>.
+          Central Water Commission (CWC), or State Emergency Operation Centre (SEOC) advisories.
+          Authoritative warnings must be sourced from those agencies.
         </p>
       </section>
     </div>
