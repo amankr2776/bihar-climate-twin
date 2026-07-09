@@ -12,10 +12,9 @@ export const Route = createFileRoute("/api/public/ingest/latest")({
         const { data, error } = await supabaseAdmin
           .from("ingest_audit")
           .select("source, dataset_version, rows_upserted, status, finished_at")
-          .in("source", ["imd", "retention"])
+          .in("source", ["imd", "mosdac", "retention"])
           .order("finished_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .limit(50);
 
         if (error) {
           return new Response(JSON.stringify({ error: "unavailable" }), {
@@ -24,13 +23,17 @@ export const Route = createFileRoute("/api/public/ingest/latest")({
           });
         }
 
-        return new Response(JSON.stringify({ latest: data ?? null }), {
-          status: 200,
-          headers: {
-            "content-type": "application/json",
-            "cache-control": "public, max-age=60",
+        const rows = data ?? [];
+        const pick = (s: string) => rows.find((r) => r.source === s) ?? null;
+        const latest = rows[0] ?? null;
+        return new Response(
+          JSON.stringify({ latest, imd: pick("imd"), mosdac: pick("mosdac"), retention: pick("retention") }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json", "cache-control": "public, max-age=60" },
           },
-        });
+        );
+
       },
     },
   },
