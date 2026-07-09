@@ -336,6 +336,19 @@ export function buildStateFromReadings(
     const compound = flood >= 0.6 && drought >= 0.4;
     const highRiskBlocks = dBlocks.filter((b) => b.flood_risk >= 0.6 || b.drought_risk >= 0.6);
     const pop = highRiskBlocks.reduce((s, b) => s + b.population, 0);
+    const r = byId.get(d.id);
+    // Use most-recent past-day provenance cell (last index) as the surfaced label.
+    const lastIdx = r && r.provenance_rain.length ? r.provenance_rain.length - 1 : -1;
+    const provenance =
+      lastIdx >= 0 && r
+        ? {
+            rainfall: r.provenance_rain[lastIdx],
+            tmax: r.provenance_tmax[lastIdx],
+            tmin: (r.provenance_tmin[lastIdx] === "mosdac" ? "imd" : r.provenance_tmin[lastIdx]) as
+              | "imd"
+              | "open-meteo",
+          }
+        : undefined;
     return {
       district: d,
       blocks: dBlocks,
@@ -346,8 +359,10 @@ export function buildStateFromReadings(
       rainfall_mm: +rain.toFixed(1),
       temperature_c: +temp.toFixed(1),
       population_at_risk: pop,
+      provenance,
     };
   });
+
 
   const routing = applyRiverRouting(blocks, districts);
   for (const b of blocks) b.category = classify(b.flood_risk, b.drought_risk, b.heat_retention_score, b.soil_moisture_index);
