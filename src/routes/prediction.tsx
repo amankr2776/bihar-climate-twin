@@ -415,6 +415,89 @@ function PredictionPage() {
   );
 }
 
+function RiverRoutingPanel() {
+  const { data: state } = useCurrentState();
+  const routing = state?.routing ?? [];
+  const districts = state?.districts ?? [];
+  const nameById = new Map(districts.map((d) => [d.district.id, d.district.name]));
+
+  const withContribution = routing
+    .filter((r) => r.upstream_districts.length > 0)
+    .map((r) => ({
+      ...r,
+      name: nameById.get(r.district_id) ?? r.district_id,
+      upstreamNames: r.upstream_districts.map((u) => nameById.get(u) ?? u),
+    }))
+    .sort((a, b) => b.upstream_contribution - a.upstream_contribution)
+    .slice(0, 8);
+
+  return (
+    <section className="mt-4 rounded-xl border border-border bg-panel p-4">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <div className="font-display text-sm font-semibold uppercase tracking-widest">
+          River-network routing · Kosi / Bagmati / Gandak / Ganga
+        </div>
+        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          Muskingum-style · K ≈ 8h · α = 0.35
+        </div>
+      </div>
+      <p className="mb-3 text-[11px] text-muted-foreground">
+        Each downstream district's flood risk is boosted by the routed upstream signal. Traversal follows the CWC river DAG in topological order so a Supaul wave lands at Madhepura, then Saharsa, then Khagaria as it propagates.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-[11px]">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground">
+              <th className="py-1 pr-4">Downstream</th>
+              <th className="py-1 pr-4">Upstream feed</th>
+              <th className="py-1 pr-4">Local</th>
+              <th className="py-1 pr-4">+Routed</th>
+              <th className="py-1 pr-4">Final</th>
+              <th className="py-1 pr-2">Wave</th>
+            </tr>
+          </thead>
+          <tbody>
+            {withContribution.map((r) => {
+              const pctFinal = Math.round(r.routed_flood * 100);
+              const pctLocal = Math.round(r.local_flood * 100);
+              return (
+                <tr key={r.district_id} className="border-t border-border/40">
+                  <td className="py-1 pr-4 font-semibold">{r.name}</td>
+                  <td className="py-1 pr-4 text-muted-foreground">{r.upstreamNames.join(", ")}</td>
+                  <td className="py-1 pr-4 font-mono">{pctLocal}%</td>
+                  <td className="py-1 pr-4 font-mono text-[color:var(--risk-flood)]">
+                    +{(r.upstream_contribution * 100).toFixed(0)}%
+                  </td>
+                  <td className="py-1 pr-4 font-mono font-bold">{pctFinal}%</td>
+                  <td className="py-1 pr-2">
+                    <div className="h-1.5 w-28 rounded bg-background/60">
+                      <div
+                        className="h-full rounded"
+                        style={{
+                          width: `${pctFinal}%`,
+                          background: "var(--risk-flood)",
+                        }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {withContribution.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-2 text-center text-muted-foreground">
+                  No routed contribution in the current window — upstream basins are dry.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+
 function StatusCard({ title, icon, badge, badgeColor, children }: { title: string; icon: React.ReactNode; badge?: string; badgeColor?: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-panel p-3">
