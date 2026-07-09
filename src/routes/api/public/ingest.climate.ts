@@ -13,7 +13,7 @@ const RowSchema = z.object({
 });
 
 const PayloadSchema = z.object({
-  source: z.literal("imd", "mosdac"),
+  source: z.enum(["imd", "mosdac"]),
   rows: z.array(RowSchema).min(1).max(5000),
 });
 
