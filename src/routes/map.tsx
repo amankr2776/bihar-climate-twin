@@ -74,7 +74,7 @@ function MapPage() {
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
     rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
-    compound: true, districts: true, blocks: false, rivers: false, infra: false,
+    compound: true, districts: true, blocks: true, rivers: false, infra: false,
   });
   // Data layers are mutually exclusive so the chosen metric drives the choropleth.
   const DATA_LAYERS: LayerKey[] = ["rainfall", "flood", "temperature", "soil", "heatwave", "compound"];
@@ -131,7 +131,20 @@ function MapPage() {
       if (!riskFilter[sev]) {
         return { fillColor: "oklch(0.3 0.005 260)", fillOpacity: 0.4, color: "oklch(0.35 0.02 260)", weight: 1 };
       }
-      if (activeLayerCategory === "compound") color = RISK_COLORS[d.category];
+      if (activeLayerCategory === "compound") {
+        // In compound mode, show a continuous risk gradient (max of flood/drought
+        // pressure) so "normal" districts still surface subtle variation rather
+        // than reading as a uniform grey blob on cold-load.
+        if (d.category === "compound") color = RISK_COLORS.compound;
+        else if (d.category === "flood") color = RISK_COLORS.flood;
+        else if (d.category === "heat" || d.category === "drought") color = RISK_COLORS[d.category];
+        else {
+          const pressure = Math.max(0, Math.min(1, Math.max(d.flood_risk, d.drought_risk)));
+          // Cool teal at low pressure → warm amber as risk climbs, so the whole
+          // state is visibly data-driven even before any category threshold trips.
+          color = `oklch(${0.78 - pressure * 0.15} ${0.07 + pressure * 0.18} ${210 - pressure * 150})`;
+        }
+      }
       else if (activeLayerCategory === "flood") {
         const t = Math.max(0, Math.min(1, d.flood_risk));
         color = `oklch(${0.78 - t * 0.18} ${0.06 + t * 0.22} 240)`;
