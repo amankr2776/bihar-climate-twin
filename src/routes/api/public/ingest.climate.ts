@@ -13,7 +13,7 @@ const RowSchema = z.object({
 });
 
 const PayloadSchema = z.object({
-  source: z.literal("imd"),
+  source: z.literal("imd", "mosdac"),
   rows: z.array(RowSchema).min(1).max(5000),
 });
 
@@ -51,10 +51,10 @@ export const Route = createFileRoute("/api/public/ingest/climate")({
         try {
           payload = PayloadSchema.parse(await request.json());
         } catch (err) {
-          return new Response(
-            JSON.stringify({ error: "invalid_payload", detail: String(err) }),
-            { status: 400, headers: { "content-type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ error: "invalid_payload", detail: String(err) }), {
+            status: 400,
+            headers: { "content-type": "application/json" },
+          });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
