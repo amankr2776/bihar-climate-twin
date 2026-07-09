@@ -154,14 +154,29 @@ function PredictionPage() {
       <ProvenanceStrip />
 
       {/* Top row */}
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
         <StatusCard title="Model Status" badge="ACTIVE" badgeColor="var(--risk-drought)" icon={<Cpu />}>
           <div className="text-sm">PI-GNN v1.0</div>
           <div className="text-[11px] text-muted-foreground">Trained 2026-06-30</div>
         </StatusCard>
-        <StatusCard title="Forecast Horizon" icon={<Activity />}>
-          <div className="text-sm">T+1 step · iterative rollout</div>
-          <div className="text-[11px] text-muted-foreground">3 hours per step · up to T+8</div>
+        <StatusCard
+          title="GFS Forecast Feed"
+          badge={forecast && forecast.days > 0 ? "LIVE" : "…"}
+          badgeColor="var(--risk-flood)"
+          icon={<CloudRain />}
+        >
+          <div className="text-sm">
+            {forecast ? `${forecast.days}-day · ${forecast.districts_covered}/38 dist.` : "loading…"}
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            {forecast?.latest_run_at
+              ? `Run ${new Date(forecast.latest_run_at).toISOString().slice(0, 16).replace("T", " ")}Z · Open-Meteo GFS`
+              : "Open-Meteo GFS · daily 04:15 UTC"}
+          </div>
+        </StatusCard>
+        <StatusCard title="Rollout" icon={<Activity />}>
+          <div className="text-sm">Daily rollout · T+1…T+7</div>
+          <div className="text-[11px] text-muted-foreground">24 h per step · anchored on GFS</div>
         </StatusCard>
         <StatusCard title="Validation Score" icon={<Target />}>
           <div className="flex items-center gap-3">
