@@ -99,9 +99,9 @@ function MethodologyPage() {
             beat baseline on the 2022–24 monsoon holdout are promoted.
           </p>
           <div className="mt-3">
-            <Link to="/validation" className="inline-flex items-center gap-1 text-xs text-[color:var(--brand-cyan)] hover:underline">
+            <a href="#validation" className="inline-flex items-center gap-1 text-xs text-[color:var(--brand-cyan)] hover:underline">
               See live validation metrics <ArrowRight className="h-3 w-3" />
-            </Link>
+            </a>
           </div>
         </Card>
       </section>
