@@ -52,7 +52,14 @@ export type DistrictState = {
   rainfall_mm: number;
   temperature_c: number;
   population_at_risk: number;
+  // Data provenance for the district's observed layer.
+  provenance?: {
+    rainfall: "mosdac" | "imd" | "open-meteo";
+    tmax: "mosdac" | "imd" | "open-meteo";
+    tmin: "imd" | "open-meteo";
+  };
 };
+
 
 // Deterministic seeded PRNG so mock data is stable across renders.
 function mulberry32(seed: number) {
