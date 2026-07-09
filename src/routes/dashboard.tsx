@@ -13,6 +13,7 @@ import { Recommendations } from "@/components/varuna/Recommendations";
 import { DashboardSkeleton, MapTransitionOverlay } from "@/components/varuna/DashboardSkeleton";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { SourceChip } from "@/components/varuna/SourceChip";
+import { IngestFreshness } from "@/components/varuna/ProvenanceStrip";
 import { useCurrentState, useAlerts, useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
@@ -173,6 +174,7 @@ function VarunaDashboard() {
               resolution="12 km"
               cadence="Hourly (historical)"
             />
+            <IngestFreshness />
           </div>
 
 

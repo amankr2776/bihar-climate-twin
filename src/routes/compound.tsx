@@ -5,6 +5,7 @@ import { useCurrentState } from "@/lib/varuna/useCurrentState";
 
 import { historicalCompoundEvents } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -85,6 +86,7 @@ function CompoundPage() {
             "This page surfaces simultaneous multi-hazard events — where flood risk and drought/heat risk are elevated at the same time in the same window. Use the scatter to spot compound blocks and the timeline slider to replay the past 30 days.",
         }}
       />
+      <ProvenanceStrip />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[color:var(--risk-heat)]/40 to-[color:var(--risk-compound)]/30 p-5">
         <div>

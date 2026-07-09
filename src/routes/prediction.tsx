@@ -6,6 +6,7 @@ import { useImdNormals } from "@/lib/varuna/imd-normals";
 
 import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
 import {
   LineChart, Line, ScatterChart, Scatter, XAxis, YAxis, ResponsiveContainer,
@@ -125,6 +126,7 @@ function PredictionPage() {
             "Exposes the PI-GNN model status, iterative rollout forecasts up to T+8 (24h), and per-block prediction explanations. Bottom row validates against holdout observations using CSI and RMSE vs. persistence baseline.",
         }}
       />
+      <ProvenanceStrip />
 
       {/* Top row */}
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">

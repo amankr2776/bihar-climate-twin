@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RTooltip } from "recharts";
 import { useI18n } from "@/lib/i18n";
 
@@ -300,14 +301,17 @@ function MapPage() {
 
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between px-4 py-2">
-          <PageHeader
-            title={t("page.map.title")}
-            help={{
-              title: "Bihar Map",
-              description:
-                "Toggle overlays, filter by risk severity, and split-compare with a historical date. Double-click any district for block markers, then any marker for a detailed popup and 30-day history modal.",
-            }}
-          />
+          <div className="flex-1">
+            <PageHeader
+              title={t("page.map.title")}
+              help={{
+                title: "Bihar Map",
+                description:
+                  "Toggle overlays, filter by risk severity, and split-compare with a historical date. Double-click any district for block markers, then any marker for a detailed popup and 30-day history modal.",
+              }}
+            />
+            <ProvenanceStrip variant="compact" />
+          </div>
         </div>
 
         <div className={`grid flex-1 ${compareMode ? "grid-cols-2" : "grid-cols-1"} gap-2 p-2`}>
