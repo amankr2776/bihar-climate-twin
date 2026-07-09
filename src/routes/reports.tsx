@@ -120,22 +120,8 @@ function ReportsPage() {
     toast.success("Selected reports deleted");
   };
 
-  if (roleState === "loading") {
-    return (
-      <div className="mx-auto max-w-[1600px] p-6 text-sm text-muted-foreground">{t("gate.checking")}</div>
-    );
-  }
-  if (roleState === "denied") {
-    return (
-      <div className="mx-auto max-w-xl p-6">
-        <div className="rounded-xl border border-border bg-panel p-6 text-center">
-          <ShieldAlert className="mx-auto mb-3 h-10 w-10 text-[color:var(--risk-compound)]" />
-          <div className="text-lg font-semibold">{t("gate.officialsOnly")}</div>
-          <p className="mt-2 text-sm text-muted-foreground">{t("gate.officialsOnlyDesc")}</p>
-        </div>
-      </div>
-    );
-  }
+
+
 
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
