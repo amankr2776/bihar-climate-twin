@@ -1,5 +1,10 @@
 import { DISTRICTS, type District } from "./districts";
 import type { ClimateReading } from "./climate";
+import {
+  floodRiskFromHydrology,
+  inferCover,
+  AVG_BLOCK_AREA_KM2,
+} from "./hydrology";
 
 export type ScenarioBias = {
   rainfall_pct?: number;
@@ -30,6 +35,10 @@ export type BlockState = {
   category: RiskCategory;
   kosi_basin: boolean;
   population: number;
+  // Physically-based hydrology outputs (SCS-CN + SCS UH). See lib/varuna/hydrology.ts.
+  runoff_mm?: number;
+  peak_q_m3s?: number;
+  curve_number?: number;
 };
 
 export type DistrictState = {
