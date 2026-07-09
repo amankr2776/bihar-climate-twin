@@ -10,21 +10,14 @@ import {
   Settings,
   ChevronRight,
   BookOpen,
-  LineChart,
-  Database,
-  ShieldCheck,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import type { DistrictState } from "@/lib/varuna/state";
 import { varunaStore } from "@/lib/varuna/store";
 import { useI18n } from "@/lib/i18n";
-import { getMyRoles } from "@/lib/admin.functions";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
 
 type NavItem = { icon: React.ReactNode; key: string; to: string };
 
+// Exactly matches the 8-item nav in the ISRO pitch deck (page 6).
 const NAV: NavItem[] = [
   { icon: <LayoutDashboard className="h-4 w-4" />, key: "nav.dashboard", to: "/dashboard" },
   { icon: <Map className="h-4 w-4" />, key: "nav.map", to: "/map" },
@@ -33,9 +26,6 @@ const NAV: NavItem[] = [
   { icon: <FlaskConical className="h-4 w-4" />, key: "nav.simulator", to: "/simulator" },
   { icon: <Bell className="h-4 w-4" />, key: "nav.alerts", to: "/alerts" },
   { icon: <FileText className="h-4 w-4" />, key: "nav.reports", to: "/reports" },
-  { icon: <BookOpen className="h-4 w-4" />, key: "nav.methodology", to: "/methodology" },
-  { icon: <LineChart className="h-4 w-4" />, key: "nav.validation", to: "/validation" },
-  { icon: <Database className="h-4 w-4" />, key: "nav.dataSources", to: "/data-sources" },
   { icon: <Settings className="h-4 w-4" />, key: "nav.settings", to: "/settings" },
 ];
 
