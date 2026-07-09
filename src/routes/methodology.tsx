@@ -260,3 +260,12 @@ function Stat({ label, target }: { label: string; target: string }) {
     </div>
   );
 }
+
+function Equation({ title, body }: { title: string; body: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border bg-background/40 p-3">
+      <div className="mb-1 text-[10px] uppercase tracking-widest text-[color:var(--brand-cyan)]">{title}</div>
+      {body}
+    </div>
+  );
+}
