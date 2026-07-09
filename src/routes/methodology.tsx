@@ -36,7 +36,30 @@ function MethodologyPage() {
         }}
       />
 
-      <section className="rounded-xl border border-border bg-panel p-5">
+      <section className="rounded-xl border border-[color:var(--risk-heat)]/40 bg-[color:var(--risk-heat)]/5 p-5">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--risk-heat)]" />
+          <div>
+            <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">
+              Honest model labeling
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The current production ensemble is a <strong className="text-foreground">rule-based
+              digital twin</strong> anchored on live IMD and Open-Meteo GFS observations, with a
+              PI-GNN-ready spatial graph (534 CD-blocks · Kosi/Bagmati/Gandak/Ganga DAG) already wired
+              end-to-end. A trained Physics-Informed Graph Neural Network is <em>not yet</em> serving
+              inference — that requires paired discharge data (CWC) and GPU training against the
+              2022–24 monsoon holdout. Every metric on the <a href="#validation" className="text-[color:var(--brand-cyan)] hover:underline">Validation</a>{" "}
+              card below is computed live from the last 30 days of real observations, not synthetic
+              data. Confidence bands and risk indices are auditable functions of observed rainfall vs
+              IMD normal, T<sub>max</sub> vs normal, 3-day forecast rainfall, and upstream routed
+              contribution — no hidden constants.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-5 rounded-xl border border-border bg-panel p-5">
         <h2 className="font-display text-lg font-semibold text-foreground">Overview</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           VARUNA is a Physics-Informed Graph Neural Network (PI-GNN) coupled with a Spatio-Temporal
