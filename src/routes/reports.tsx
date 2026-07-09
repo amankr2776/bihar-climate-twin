@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building, ShieldAlert } from "lucide-react";
+import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
-import { getMyRoles } from "@/lib/admin.functions";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/reports")({
