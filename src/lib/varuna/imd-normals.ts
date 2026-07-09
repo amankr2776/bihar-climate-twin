@@ -65,9 +65,10 @@ export async function fetchImdNormals(
 
   const { data, error } = await supabase
     .from("climate_observations")
-    .select("district_id, observed_on, rainfall_mm, tmax_c, tmin_c")
-    .eq("source", "imd")
+    .select("district_id, observed_on, rainfall_mm, tmax_c, tmin_c, source")
+    .in("source", ["imd", "mosdac"])
     .in("observed_on", allDates);
+
 
   if (error || !data) return empty;
 

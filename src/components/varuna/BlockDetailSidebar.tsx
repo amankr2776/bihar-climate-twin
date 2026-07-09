@@ -83,14 +83,27 @@ export function BlockDetailSidebar({ block, district }: Props) {
         </span>
       </div>
       <div className="mt-3">
-        <Row k="Mean rainfall" v={`${d.rainfall_mm} mm`} />
-        <Row k="Mean temperature" v={`${d.temperature_c} °C`} />
+        <Row
+          k="Mean rainfall"
+          v={`${d.rainfall_mm} mm${d.provenance ? `  ·  ${d.provenance.rainfall.toUpperCase()}` : ""}`}
+        />
+        <Row
+          k="Mean temperature"
+          v={`${d.temperature_c} °C${d.provenance ? `  ·  ${d.provenance.tmax.toUpperCase()}` : ""}`}
+        />
         <Row k="Flood risk (mean)" v={`${(d.flood_risk * 100).toFixed(0)}%`} />
         <Row k="Drought risk (mean)" v={`${(d.drought_risk * 100).toFixed(0)}%`} />
         <Row k="Compound risk" v={d.compound_risk ? "Yes" : "No"} />
         <Row k="Population at risk" v={d.population_at_risk.toLocaleString()} />
         <Row k="Kosi basin" v={d.district.kosiBasin ? "Yes" : "No"} />
+        {d.provenance && (
+          <Row
+            k="Data source"
+            v={`Rain ${d.provenance.rainfall.toUpperCase()} · Tmax ${d.provenance.tmax.toUpperCase()} · Tmin ${d.provenance.tmin.toUpperCase()}`}
+          />
+        )}
       </div>
+
     </div>
   );
 }

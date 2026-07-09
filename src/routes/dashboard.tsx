@@ -109,7 +109,7 @@ function VarunaDashboard() {
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
         title={t("dash.title")}
-        subtitle={state?.source === "open-meteo" ? t("dash.subtitleLive") : t("dash.subtitleDefault")}
+        subtitle={state?.source && state.source !== "fallback" ? t("dash.subtitleLive") : t("dash.subtitleDefault")}
         help={{
           title: "Dashboard",
           description:
@@ -158,10 +158,12 @@ function VarunaDashboard() {
             />
             <SourceChip
               source="MOSDAC / INSAT-3DR"
-              dataset="LST, SST, IMC rainfall"
+              dataset="LST + IMC rainfall (satellite-derived, preferred for rainfall/LST)"
               resolution="4 km"
               cadence="3-hourly"
+              updated={lastUpdate}
             />
+
             <SourceChip
               source="Bhuvan"
               dataset="Admin boundaries (state/district/block)"
