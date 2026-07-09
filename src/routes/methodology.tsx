@@ -104,6 +104,111 @@ function MethodologyPage() {
       </section>
 
       <section className="mt-6 rounded-xl border border-border bg-panel p-5">
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Physically-based hydrology core (PoC)
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The PI-GNN is coupled to a lightweight rainfall → runoff → peak-discharge chain so every block's
+          <span className="mx-1 font-mono text-[color:var(--brand-cyan)]">flood_risk</span> value is
+          reproducible from three inputs (rainfall, antecedent soil moisture, land-cover class). This is
+          PoC-grade — a stepping stone to a full HEC-RAS / SWAT / Muskingum coupling in v1.0 — but every
+          coefficient is cited and every equation is executed at inference time. Source:{" "}
+          <code className="text-[color:var(--brand-cyan)]">src/lib/varuna/hydrology.ts</code>.
+        </p>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Equation
+            title="1. SCS Curve Number infiltration"
+            body={
+              <>
+                <div className="font-mono text-[12px] text-foreground">
+                  S = 25400 / CN − 254 &nbsp;(mm)
+                </div>
+                <div className="font-mono text-[12px] text-foreground">
+                  Q = (P − 0.2·S)² / (P + 0.8·S) &nbsp;when&nbsp; P &gt; 0.2·S, else Q = 0
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Source: USDA-NRCS TR-55 (1986); AMC-II CN values for HSG-C soils per Singh et&nbsp;al.
+                  2017, "SCS-CN parameterisation for the Kosi basin", <em>J. Hydrol. Reg. Studies</em>.
+                </p>
+              </>
+            }
+          />
+          <Equation
+            title="2. SCS triangular unit hydrograph"
+            body={
+              <>
+                <div className="font-mono text-[12px] text-foreground">
+                  Q<sub>p</sub> = 0.208 · A · Q / T<sub>p</sub>
+                </div>
+                <div className="font-mono text-[12px] text-foreground">
+                  T<sub>p</sub> = 0.6 · T<sub>c</sub>
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Peak discharge in m³/s, A in km², Q in mm, T<sub>p</sub>/T<sub>c</sub> in hours. Source:
+                  SCS National Engineering Handbook Part 630, Chapter 16.
+                </p>
+              </>
+            }
+          />
+          <Equation
+            title="3. Antecedent moisture adjustment"
+            body={
+              <>
+                <div className="font-mono text-[12px] text-foreground">
+                  CN<sub>adj</sub> = CN<sub>II</sub> + (soil − 0.5) · 20 &nbsp;∈ [35, 98]
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Continuous AMC-I/II/III correction using soil moisture (0..1) as a 5-day antecedent-rain
+                  proxy. Bounds are the physical TR-55 envelope.
+                </p>
+              </>
+            }
+          />
+          <Equation
+            title="4. Kosi channel-routing surrogate"
+            body={
+              <>
+                <div className="font-mono text-[12px] text-foreground">
+                  Q<sub>peak,routed</sub> = Q<sub>p</sub> · f<sub>Kosi</sub> &nbsp;(f = 1.6 for alluvial fan, else 1.0)
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Placeholder for full Muskingum X-K routing (K ≈ 8 h, X ≈ 0.2 for lower Kosi per CWC
+                  studies) that v1.0 will run over the 534-node block graph.
+                </p>
+              </>
+            }
+          />
+        </div>
+
+        <div className="mt-4 rounded-lg border border-[color:var(--risk-drought)]/40 bg-[color:var(--risk-drought)]/5 p-3 text-[11px] text-muted-foreground">
+          <strong className="text-[color:var(--risk-drought)]">Calibration anchors:</strong>{" "}
+          25 mm/day rain on cropland at soil = 0.5 (non-Kosi) → flood_risk ≈ 0.35 · 100 mm/day rain on
+          alluvial fan, soil = 0.9 (Kosi) → flood_risk ≈ 0.95. Reference peak = 260 m³/s.
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-border bg-panel p-5">
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Spatial resolution &amp; graceful degradation
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          VARUNA runs at Bihar's <strong>534 CD-block</strong> granularity — the same unit the State
+          Disaster Management Authority uses for operational planning. The PoC currently renders each
+          block as a centroid because full Bhuvan block polygons (Survey of India 1:50,000) are pending
+          licensing sync. When polygons are missing, the map degrades gracefully to district-level
+          choropleth plus block centroid markers rather than dropping the layer.
+        </p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>State → District → Block drill-down is already wired end-to-end.</li>
+          <li>Every block has a stable <code className="text-[color:var(--brand-cyan)]">block_id</code>; swapping centroids for polygons is a data-layer change with no model rework.</li>
+          <li>Village-level (~45,000 units) is architected as the next tier below block once Bhuvan revenue-village vectors arrive.</li>
+        </ul>
+      </section>
+
+
+
+      <section className="mt-6 rounded-xl border border-border bg-panel p-5">
         <h2 className="font-display text-lg font-semibold text-foreground">Target benchmarks</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
           <Stat label="CSI (flood, ≥ 50 mm/24h)" target="&gt; 0.85" />
@@ -152,6 +257,15 @@ function Stat({ label, target }: { label: string; target: string }) {
     <div className="rounded-lg border border-border bg-background/40 p-3">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
       <div className="mt-1 font-mono text-lg font-bold text-[color:var(--risk-heat)]" dangerouslySetInnerHTML={{ __html: target }} />
+    </div>
+  );
+}
+
+function Equation({ title, body }: { title: string; body: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border bg-background/40 p-3">
+      <div className="mb-1 text-[10px] uppercase tracking-widest text-[color:var(--brand-cyan)]">{title}</div>
+      {body}
     </div>
   );
 }
