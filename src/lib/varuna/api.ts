@@ -79,11 +79,11 @@ export async function getCurrentState(bias: ScenarioBias = {}): Promise<CurrentS
 
   try {
     const snap = await getClimate();
-    const { blocks, districts } = buildStateFromReadings(snap.readings, ts, bias);
-    return { blocks, districts, timestamp: ts, source: snap.source };
+    const { blocks, districts, routing } = buildStateFromReadings(snap.readings, ts, bias);
+    return { blocks, districts, routing, timestamp: ts, source: snap.source };
   } catch {
-    const { blocks, districts } = generateBlockState(ts, bias);
-    return { blocks, districts, timestamp: ts, source: "fallback" };
+    const { blocks, districts, routing } = generateBlockState(ts, bias);
+    return { blocks, districts, routing, timestamp: ts, source: "fallback" };
   }
 }
 
