@@ -205,6 +205,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      varuna_nightly_retention: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "official" | "citizen"
