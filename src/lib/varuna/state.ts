@@ -5,6 +5,7 @@ import {
   inferCover,
   AVG_BLOCK_AREA_KM2,
 } from "./hydrology";
+import { applyRiverRouting, type RoutingTrace } from "./kosi-graph";
 
 export type ScenarioBias = {
   rainfall_pct?: number;
