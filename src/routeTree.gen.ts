@@ -32,6 +32,7 @@ import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
+import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
 import { Route as ApiPublicIngestClimateRouteImport } from './routes/api/public/ingest.climate'
 
 const ValidationRoute = ValidationRouteImport.update({
@@ -149,6 +150,11 @@ const ApiPublicOtpSendRoute = ApiPublicOtpSendRouteImport.update({
   path: '/api/public/otp/send',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIngestLatestRoute = ApiPublicIngestLatestRouteImport.update({
+  id: '/api/public/ingest/latest',
+  path: '/api/public/ingest/latest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIngestClimateRoute = ApiPublicIngestClimateRouteImport.update({
   id: '/api/public/ingest/climate',
   path: '/api/public/ingest/climate',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
 }
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
 }
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/guides/kosi-basin-hydrology': typeof GuidesKosiBasinHydrologyRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
+  '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
 }
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
   fileRoutesByTo: FileRoutesByTo
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
   id:
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/guides/kosi-basin-hydrology'
     | '/api/public/ingest/climate'
+    | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
   fileRoutesById: FileRoutesById
@@ -332,6 +344,7 @@ export interface RootRouteChildren {
   ValidationRoute: typeof ValidationRoute
   GuidesKosiBasinHydrologyRoute: typeof GuidesKosiBasinHydrologyRoute
   ApiPublicIngestClimateRoute: typeof ApiPublicIngestClimateRoute
+  ApiPublicIngestLatestRoute: typeof ApiPublicIngestLatestRoute
   ApiPublicOtpSendRoute: typeof ApiPublicOtpSendRoute
   ApiPublicOtpVerifyRoute: typeof ApiPublicOtpVerifyRoute
 }
@@ -499,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOtpSendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ingest/latest': {
+      id: '/api/public/ingest/latest'
+      path: '/api/public/ingest/latest'
+      fullPath: '/api/public/ingest/latest'
+      preLoaderRoute: typeof ApiPublicIngestLatestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ingest/climate': {
       id: '/api/public/ingest/climate'
       path: '/api/public/ingest/climate'
@@ -543,6 +563,7 @@ const rootRouteChildren: RootRouteChildren = {
   ValidationRoute: ValidationRoute,
   GuidesKosiBasinHydrologyRoute: GuidesKosiBasinHydrologyRoute,
   ApiPublicIngestClimateRoute: ApiPublicIngestClimateRoute,
+  ApiPublicIngestLatestRoute: ApiPublicIngestLatestRoute,
   ApiPublicOtpSendRoute: ApiPublicOtpSendRoute,
   ApiPublicOtpVerifyRoute: ApiPublicOtpVerifyRoute,
 }

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, AlertCircle, Clock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { SourceChip } from "./SourceChip";
+
 
 type IngestRow = {
   source: string;
@@ -20,15 +20,10 @@ function useLatestIngest() {
   return useQuery({
     queryKey: ["varuna", "latest-ingest"],
     queryFn: async (): Promise<IngestRow | null> => {
-      const { data, error } = await supabase
-        .from("ingest_audit")
-        .select("source, dataset_version, rows_upserted, status, finished_at")
-        .in("source", ["imd", "retention"])
-        .order("finished_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data as IngestRow | null;
+      const res = await fetch("/api/public/ingest/latest", { headers: { accept: "application/json" } });
+      if (!res.ok) throw new Error("ingest_latest_unavailable");
+      const json = (await res.json()) as { latest: IngestRow | null };
+      return json.latest;
     },
     refetchInterval: 5 * 60 * 1000,
     staleTime: 60_000,
