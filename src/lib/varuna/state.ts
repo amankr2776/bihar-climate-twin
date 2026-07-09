@@ -265,16 +265,14 @@ export function buildStateFromReadings(
       );
       const rainfall_anomaly_pct = ((rainfall_mm - clim) / clim) * 100;
 
-      const flood_risk = Math.min(
-        1,
-        Math.max(
-          0,
-          0.35 * (rainfall_mm / 90) +
-            0.35 * soil +
-            (d.kosiBasin ? 0.25 : 0.05) +
-            (rand() - 0.5) * 0.08,
-        ),
-      );
+      const hyd = floodRiskFromHydrology({
+        rainfallMm: rainfall_mm,
+        soilMoisture: soil,
+        cover: inferCover({ kosiBasin: d.kosiBasin, region: d.region, districtId: d.id }),
+        areaKm2: AVG_BLOCK_AREA_KM2,
+        kosiBasin: d.kosiBasin,
+      });
+      const flood_risk = hyd.flood_risk;
       const drought_risk = Math.min(
         1,
         Math.max(0, 0.5 * heat + 0.4 * (1 - soil) + (rand() - 0.5) * 0.08),
@@ -301,6 +299,9 @@ export function buildStateFromReadings(
         category: classify(flood_risk, drought_risk, heat, soil),
         kosi_basin: d.kosiBasin,
         population: Math.round((d.population * 1000) / BLOCKS_PER_DISTRICT),
+        runoff_mm: hyd.runoff_mm,
+        peak_q_m3s: hyd.peak_q_m3s,
+        curve_number: hyd.cn,
       });
     }
   }
