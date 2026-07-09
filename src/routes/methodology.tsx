@@ -254,6 +254,8 @@ function MethodologyPage() {
         </p>
       </section>
 
+      <GraphTopologySection />
+
       <DataSourcesSection />
 
       <ValidationSection />
