@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { useI18n } from "@/lib/i18n";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -148,6 +149,7 @@ function SimulatorPage() {
             "Configure rainfall/temperature/humidity anomalies, choose baseline soil and season, pick districts, and set cascade depth. Runs iterative simulation and lists AI recommendations. Save scenarios and compare up to three side by side.",
         }}
       />
+      <ProvenanceStrip />
 
       <div className="grid grid-cols-12 gap-4">
         {/* Config */}

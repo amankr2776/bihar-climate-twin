@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, ArrowUp, Search, Download, Clock } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
+import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -141,6 +142,7 @@ function AlertsPage() {
             "Operational alert center. Active alerts stream on the left with acknowledge/escalate/dismiss actions. Configure thresholds and notification channels on the right. History table exports to CSV.",
         }}
       />
+      <ProvenanceStrip />
 
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <MetricCard label="Active Critical" value={critical} color="var(--risk-compound)" pulse />
