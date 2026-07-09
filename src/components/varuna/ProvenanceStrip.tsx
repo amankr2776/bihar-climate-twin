@@ -29,10 +29,6 @@ function useLatestIngest() {
     staleTime: 60_000,
   });
 }
-    refetchInterval: 5 * 60 * 1000,
-    staleTime: 60_000,
-  });
-}
 
 function relative(ts: string): string {
   const diffMs = Date.now() - new Date(ts).getTime();
