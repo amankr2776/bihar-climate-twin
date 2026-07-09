@@ -84,9 +84,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          By continuing you accept the{" "}
-          <Link to="/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
-          <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
+          Admin sign-in for restricted operational tools. Public dashboards do not require authentication.
         </p>
       </div>
     </div>
