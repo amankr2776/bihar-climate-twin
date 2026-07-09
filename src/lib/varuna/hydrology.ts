@@ -132,7 +132,7 @@ export function floodRiskFromHydrology(input: {
  */
 export function inferCover(opts: {
   kosiBasin: boolean;
-  region: "north" | "central" | "south";
+  region: string;
   districtId: string;
 }): LandCoverClass {
   const URBAN = new Set(["patna", "muzaffarpur", "bhagalpur", "gaya", "darbhanga"]);
