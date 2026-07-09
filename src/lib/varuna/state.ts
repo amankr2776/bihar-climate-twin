@@ -78,10 +78,12 @@ function classify(flood: number, drought: number, heat = 0, soil = 1): RiskCateg
   return "normal";
 }
 
+export type BuiltState = { blocks: BlockState[]; districts: DistrictState[]; routing: RoutingTrace[] };
+
 export function generateBlockState(
   timestampISO: string,
   anomalyBias: { rainfall_pct?: number; temperature_c?: number; soil_override?: "normal" | "drought-baked" | "saturated" } = {},
-): { blocks: BlockState[]; districts: DistrictState[] } {
+): BuiltState {
   const seedBase = Math.floor(new Date(timestampISO).getTime() / (3 * 60 * 60 * 1000));
   const blocks: BlockState[] = [];
 
