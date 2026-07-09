@@ -175,13 +175,6 @@ const BREADCRUMBS: Record<string, string> = {
   "/reports": "Decision Reports",
   "/settings": "Settings",
   "/methodology": "Methodology",
-  "/validation": "Validation",
-  "/data-sources": "Data Sources",
-  "/privacy": "Privacy",
-  "/terms": "Terms",
-  "/disclaimer": "Disclaimer",
-  "/attributions": "Attributions",
-  "/guides/kosi-basin-hydrology": "Kosi Basin Hydrology",
 };
 
 function RootComponent() {
@@ -238,7 +231,7 @@ function RootInner() {
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar lastUpdate={lastUpdate} />
         <div className="flex items-center gap-1.5 border-b border-border bg-panel/50 px-4 py-1.5 text-[11px] text-muted-foreground lg:px-6">
-          <Link to="/" className="hover:text-foreground">
+          <Link to="/dashboard" className="hover:text-foreground">
             VARUNA
           </Link>
           <ChevronRight className="h-3 w-3" />
@@ -252,13 +245,10 @@ function RootInner() {
                 <span className="text-foreground">VARUNA</span> · Decision-support digital twin — not an official warning authority. Verify with IMD / CWC / SEOC.
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link to="/methodology" className="hover:text-foreground">Methodology</Link>
-                <Link to="/validation" className="hover:text-foreground">Validation</Link>
-                <Link to="/data-sources" className="hover:text-foreground">Data Sources</Link>
-                <Link to="/attributions" className="hover:text-foreground">Attributions</Link>
-                <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-                <Link to="/terms" className="hover:text-foreground">Terms</Link>
-                <Link to="/disclaimer" className="hover:text-foreground">Disclaimer</Link>
+                <Link to="/methodology" className="hover:text-foreground">Methodology &amp; Data Sources</Link>
+                <a href="https://www.imdpune.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">IMD</a>
+                <a href="https://www.mosdac.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">MOSDAC</a>
+                <a href="https://bhuvan.nrsc.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">Bhuvan</a>
               </div>
             </div>
           </footer>

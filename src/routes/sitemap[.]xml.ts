@@ -15,24 +15,16 @@ export const Route = createFileRoute("/sitemap.xml")({
     handlers: {
       GET: async () => {
         const entries: SitemapEntry[] = [
-          { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/dashboard", changefreq: "daily", priority: "0.9" },
-          { path: "/map", changefreq: "daily", priority: "0.8" },
-          { path: "/prediction", changefreq: "weekly", priority: "0.8" },
+          { path: "/dashboard", changefreq: "daily", priority: "1.0" },
+          { path: "/map", changefreq: "daily", priority: "0.9" },
           { path: "/compound", changefreq: "weekly", priority: "0.8" },
-          { path: "/alerts", changefreq: "daily", priority: "0.7" },
+          { path: "/prediction", changefreq: "weekly", priority: "0.8" },
+          { path: "/simulator", changefreq: "weekly", priority: "0.7" },
+          { path: "/alerts", changefreq: "daily", priority: "0.8" },
           { path: "/reports", changefreq: "weekly", priority: "0.7" },
-          { path: "/simulator", changefreq: "weekly", priority: "0.6" },
-          { path: "/settings", changefreq: "monthly", priority: "0.5" },
+          { path: "/settings", changefreq: "monthly", priority: "0.4" },
           { path: "/methodology", changefreq: "monthly", priority: "0.8" },
-          { path: "/validation", changefreq: "weekly", priority: "0.7" },
-          { path: "/data-sources", changefreq: "monthly", priority: "0.7" },
-          { path: "/attributions", changefreq: "monthly", priority: "0.4" },
-          { path: "/privacy", changefreq: "yearly", priority: "0.3" },
-          { path: "/terms", changefreq: "yearly", priority: "0.3" },
-          { path: "/disclaimer", changefreq: "yearly", priority: "0.4" },
-          { path: "/guides/kosi-basin-hydrology", changefreq: "monthly", priority: "0.7" },
-          { path: "/api/public/ingest/climate", changefreq: "monthly", priority: "0.3" },
+          { path: "/api/public/ingest/latest", changefreq: "hourly", priority: "0.3" },
         ];
 
         const urls = entries.map((e) =>

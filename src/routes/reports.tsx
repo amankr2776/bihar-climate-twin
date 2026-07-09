@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building, ShieldAlert } from "lucide-react";
+import { Download, Link as LinkIcon, Printer, FileText, Eye, Trash2, Truck, Wheat, Heart, Building } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
-import { getMyRoles } from "@/lib/admin.functions";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/reports")({
+export const Route = createFileRoute("/reports")({
   ssr: false,
   head: () => ({
     meta: [
@@ -45,20 +43,8 @@ const TEMPLATES = [
 
 function ReportsPage() {
   const { t } = useI18n();
-  const fetchMyRoles = useServerFn(getMyRoles);
-  const [roleState, setRoleState] = useState<"loading" | "authorized" | "denied">("loading");
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchMyRoles()
-      .then((roles) => {
-        if (cancelled) return;
-        const allowed = Array.isArray(roles) && (roles.includes("admin") || roles.includes("official"));
-        setRoleState(allowed ? "authorized" : "denied");
-      })
-      .catch(() => !cancelled && setRoleState("denied"));
-    return () => { cancelled = true; };
-  }, [fetchMyRoles]);
+
 
   const [type, setType] = useState(REPORT_TYPES[0]);
   const [from, setFrom] = useState("2026-07-01");
@@ -134,22 +120,8 @@ function ReportsPage() {
     toast.success("Selected reports deleted");
   };
 
-  if (roleState === "loading") {
-    return (
-      <div className="mx-auto max-w-[1600px] p-6 text-sm text-muted-foreground">{t("gate.checking")}</div>
-    );
-  }
-  if (roleState === "denied") {
-    return (
-      <div className="mx-auto max-w-xl p-6">
-        <div className="rounded-xl border border-border bg-panel p-6 text-center">
-          <ShieldAlert className="mx-auto mb-3 h-10 w-10 text-[color:var(--risk-compound)]" />
-          <div className="text-lg font-semibold">{t("gate.officialsOnly")}</div>
-          <p className="mt-2 text-sm text-muted-foreground">{t("gate.officialsOnlyDesc")}</p>
-        </div>
-      </div>
-    );
-  }
+
+
 
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
