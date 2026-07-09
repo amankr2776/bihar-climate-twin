@@ -74,7 +74,7 @@ function MapPage() {
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
     rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
-    compound: true, districts: true, blocks: false, rivers: false, infra: false,
+    compound: true, districts: true, blocks: true, rivers: false, infra: false,
   });
   // Data layers are mutually exclusive so the chosen metric drives the choropleth.
   const DATA_LAYERS: LayerKey[] = ["rainfall", "flood", "temperature", "soil", "heatwave", "compound"];
