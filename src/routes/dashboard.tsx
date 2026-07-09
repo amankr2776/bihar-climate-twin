@@ -158,10 +158,12 @@ function VarunaDashboard() {
             />
             <SourceChip
               source="MOSDAC / INSAT-3DR"
-              dataset="LST, SST, IMC rainfall"
+              dataset="LST + IMC rainfall (satellite-derived, preferred for rainfall/LST)"
               resolution="4 km"
               cadence="3-hourly"
+              updated={lastUpdate}
             />
+
             <SourceChip
               source="Bhuvan"
               dataset="Admin boundaries (state/district/block)"
