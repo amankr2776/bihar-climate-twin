@@ -84,26 +84,27 @@ type OpenMeteoLocation = {
   };
 };
 
-type ImdRow = {
+type OverlayRow = {
   district_id: string;
   observed_on: string;
   rainfall_mm: number | null;
   tmax_c: number | null;
   tmin_c: number | null;
+  source: string;
 };
 
-async function fetchImdOverlay(): Promise<Map<string, ImdRow[]>> {
+async function fetchDbOverlay(): Promise<Map<string, OverlayRow[]>> {
   const since = new Date();
   since.setDate(since.getDate() - 10);
   const { data, error } = await supabase
     .from("climate_observations")
-    .select("district_id, observed_on, rainfall_mm, tmax_c, tmin_c")
-    .eq("source", "imd")
+    .select("district_id, observed_on, rainfall_mm, tmax_c, tmin_c, source")
+    .in("source", ["imd", "mosdac"])
     .gte("observed_on", since.toISOString().slice(0, 10))
     .order("observed_on", { ascending: true });
   if (error || !data) return new Map();
-  const map = new Map<string, ImdRow[]>();
-  for (const row of data as ImdRow[]) {
+  const map = new Map<string, OverlayRow[]>();
+  for (const row of data as OverlayRow[]) {
     const list = map.get(row.district_id) ?? [];
     list.push(row);
     map.set(row.district_id, list);
@@ -112,15 +113,16 @@ async function fetchImdOverlay(): Promise<Map<string, ImdRow[]>> {
 }
 
 export async function fetchBiharClimate(signal?: AbortSignal): Promise<ClimateSnapshot> {
-  const [res, imdOverlay] = await Promise.all([
+  const [res, overlay] = await Promise.all([
     fetch(buildUrl(), { signal }),
-    fetchImdOverlay().catch(() => new Map<string, ImdRow[]>()),
+    fetchDbOverlay().catch(() => new Map<string, OverlayRow[]>()),
   ]);
   if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
   const raw = (await res.json()) as OpenMeteoLocation[] | OpenMeteoLocation;
   const arr: OpenMeteoLocation[] = Array.isArray(raw) ? raw : [raw];
 
-  let imdDaysTotal = 0;
+  let imdCells = 0;
+  let mosdacCells = 0;
   const readings: ClimateReading[] = DISTRICTS.map((d: District, i: number): ClimateReading => {
     const loc = arr[i] ?? arr[0];
     const c = loc?.current ?? {};
@@ -129,28 +131,44 @@ export async function fetchBiharClimate(signal?: AbortSignal): Promise<ClimateSn
     const dailyTmax = (daily.temperature_2m_max ?? []).map(Number);
     const dailyTmin = (daily.temperature_2m_min ?? []).map(Number);
 
-    // Overlay IMD grid values on the "past days" section (first `past_days` entries).
-    const imdRows = imdOverlay.get(d.id) ?? [];
-    let imdOverlayed = 0;
-    if (imdRows.length > 0 && dailyPrecip.length > 0) {
-      // past_days = 3 in buildUrl(); IMD data replaces those slots when available.
-      const pastCount = Math.min(3, dailyPrecip.length);
+    const rows = overlay.get(d.id) ?? [];
+    const pastCount = Math.min(3, dailyPrecip.length);
+    const provRain: CellProvenance[] = new Array(pastCount).fill("open-meteo");
+    const provTmax: CellProvenance[] = new Array(pastCount).fill("open-meteo");
+    const provTmin: CellProvenance[] = new Array(pastCount).fill("open-meteo");
+    let imdHit = false;
+    let mosdacHit = false;
+
+    if (rows.length > 0 && pastCount > 0) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       for (let k = 0; k < pastCount; k++) {
         const dayDate = new Date(today);
         dayDate.setDate(today.getDate() - (pastCount - k));
         const key = dayDate.toISOString().slice(0, 10);
-        const row = imdRows.find((r) => r.observed_on === key);
-        if (row) {
-          if (row.rainfall_mm != null) dailyPrecip[k] = row.rainfall_mm;
-          if (row.tmax_c != null) dailyTmax[k] = row.tmax_c;
-          if (row.tmin_c != null) dailyTmin[k] = row.tmin_c;
-          imdOverlayed++;
+        const dayRows = rows.filter((r) => r.observed_on === key);
+        if (!dayRows.length) continue;
+        const imd = dayRows.find((r) => r.source === "imd");
+        const mos = dayRows.find((r) => r.source === "mosdac");
+
+        // Rainfall: prefer MOSDAC (INSAT IMC satellite); fallback IMD.
+        if (mos?.rainfall_mm != null) {
+          dailyPrecip[k] = mos.rainfall_mm; provRain[k] = "mosdac"; mosdacHit = true; mosdacCells++;
+        } else if (imd?.rainfall_mm != null) {
+          dailyPrecip[k] = imd.rainfall_mm; provRain[k] = "imd"; imdHit = true; imdCells++;
+        }
+        // Tmax: prefer MOSDAC LST-derived; fallback IMD air-temp grid.
+        if (mos?.tmax_c != null) {
+          dailyTmax[k] = mos.tmax_c; provTmax[k] = "mosdac"; mosdacHit = true; mosdacCells++;
+        } else if (imd?.tmax_c != null) {
+          dailyTmax[k] = imd.tmax_c; provTmax[k] = "imd"; imdHit = true; imdCells++;
+        }
+        // Tmin: only IMD provides it.
+        if (imd?.tmin_c != null) {
+          dailyTmin[k] = imd.tmin_c; provTmin[k] = "imd"; imdHit = true; imdCells++;
         }
       }
     }
-    imdDaysTotal += imdOverlayed;
 
     return {
       district_id: d.id,
@@ -163,15 +181,31 @@ export async function fetchBiharClimate(signal?: AbortSignal): Promise<ClimateSn
       daily_temp_max: dailyTmax,
       daily_temp_min: dailyTmin,
       observation_time: c.time ?? new Date().toISOString(),
-      imd_backed: imdOverlayed > 0,
+      imd_backed: imdHit,
+      mosdac_backed: mosdacHit,
+      provenance_rain: provRain,
+      provenance_tmax: provTmax,
+      provenance_tmin: provTmin,
     };
   });
+
+  const src: ClimateSnapshot["source"] =
+    imdCells > 0 && mosdacCells > 0
+      ? "imd+mosdac+open-meteo"
+      : mosdacCells > 0
+      ? "mosdac+open-meteo"
+      : imdCells > 0
+      ? "imd+open-meteo"
+      : "open-meteo";
 
   return {
     readings,
     fetched_at: new Date().toISOString(),
-    source: imdDaysTotal > 0 ? "imd+open-meteo" : "open-meteo",
-    imd_days: imdDaysTotal,
+    source: src,
+    imd_days: imdCells,
+    mosdac_days: mosdacCells,
   };
 }
+
+
 
