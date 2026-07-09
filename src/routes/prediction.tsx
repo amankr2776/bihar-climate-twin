@@ -361,6 +361,10 @@ function PredictionPage() {
         </section>
       </div>
 
+      {/* River-network routing panel — makes the Kosi wave propagation visible. */}
+      <RiverRoutingPanel />
+
+
       {/* Bottom row */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <ChartCard title={`Predicted vs Observed · R² = ${r2.toFixed(2)}`}>
