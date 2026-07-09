@@ -41,6 +41,7 @@ export type AlertItem = {
 export type CurrentState = {
   blocks: BlockState[];
   districts: DistrictState[];
+  routing: RoutingTrace[];
   timestamp: string;
   source: "open-meteo" | "imd+open-meteo" | "fallback";
 };
