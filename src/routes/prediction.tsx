@@ -597,10 +597,11 @@ function ProgressRing({ value, target }: { value: number; target: number }) {
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <div className="h-56 rounded-xl border border-border bg-panel p-3">
       <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{title}</div>
+      {subtitle && <div className="mb-1 text-[9px] text-muted-foreground">{subtitle}</div>}
       <div className="h-[85%]">{children}</div>
     </div>
   );
