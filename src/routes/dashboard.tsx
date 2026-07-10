@@ -68,7 +68,12 @@ function VarunaDashboard() {
     [selectedDistrict, districts],
   );
 
-  const districtsAtRisk = districts.filter((d) => d.flood_risk >= 0.6 || d.drought_risk >= 0.6).length;
+  // "At risk" mirrors the Top District Alerts sidebar: any district whose
+  // classifier puts it above the normal/cold baseline, or that has compound risk.
+  const atRiskDistricts = districts.filter(
+    (d) => d.compound_risk || (d.category !== "normal" && d.category !== "cold"),
+  );
+  const districtsAtRisk = atRiskDistricts.length;
   const popAffected = districts.reduce((s, d) => s + d.population_at_risk, 0);
   const infraAtRisk = Math.round(districtsAtRisk * 12 + districts.filter((d) => d.compound_risk).length * 8);
   const compoundCount = districts.filter((d) => d.compound_risk).length;
