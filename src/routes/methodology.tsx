@@ -765,3 +765,130 @@ function Kpi({ label, value, target, color }: { label: string; value: string; ta
     </div>
   );
 }
+
+// ============================================================================
+// Data Lineage — Bhagalpur (sample end-to-end trace)
+// Pulls the live Open-Meteo reading + IMD/MOSDAC overlay row from
+// climate_observations for district_id "bhagalpur" and renders the 7-step
+// journey from raw grid cell to the value shown on the dashboard map.
+// ============================================================================
+
+function BhagalpurLineageSection() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["lineage", "bhagalpur"],
+    queryFn: async () => {
+      const { fetchBiharClimate } = await import("@/lib/varuna/climate");
+      const { buildStateFromReadings } = await import("@/lib/varuna/state");
+      const snap = await fetchBiharClimate();
+      const reading = snap.readings.find((r) => r.district_id === "bhagalpur") ?? null;
+      const ts = new Date().toISOString();
+      const { districts } = buildStateFromReadings(snap.readings, ts, {});
+      const district = districts.find((d) => d.district.id === "bhagalpur") ?? null;
+      return { reading, district, source: snap.source, imdDays: snap.imd_days, mosdacDays: snap.mosdac_days };
+    },
+    refetchInterval: 15 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const reading = data?.reading ?? null;
+  const district = data?.district ?? null;
+  const rainToday = reading?.daily_precip_sum?.[2] ?? null; // past_days=3 → index 2 = yesterday obs
+  const tmaxToday = reading?.daily_temp_max?.[2] ?? null;
+  const lstProv = reading?.provenance_tmax?.[2] ?? "open-meteo";
+  const rainProv = reading?.provenance_rain?.[2] ?? "open-meteo";
+
+  const steps: Array<{ n: number; label: string; value: string; source: string }> = [
+    {
+      n: 1,
+      label: "Raw IMD rainfall (0.25° grid cell over Bhagalpur)",
+      value: rainToday != null ? `${rainToday.toFixed(2)} mm/day` : "no ingest row yet",
+      source: rainProv === "imd" ? "climate_observations · imd" : rainProv === "mosdac" ? "climate_observations · mosdac" : "Open-Meteo IMD-anchored",
+    },
+    {
+      n: 2,
+      label: "INSAT-3DR LST proxy (3RIMG_L2B_LST) → Tmax",
+      value: tmaxToday != null ? `${tmaxToday.toFixed(2)} °C` : "—",
+      source: lstProv === "mosdac" ? "climate_observations · mosdac" : lstProv === "imd" ? "climate_observations · imd" : "Open-Meteo (fallback)",
+    },
+    {
+      n: 3,
+      label: "Spatial regrid → district polygon mean",
+      value: rainToday != null ? `${rainToday.toFixed(2)} mm/day @ Bhagalpur centroid (25.24°N, 86.98°E)` : "—",
+      source: "buildStateFromReadings() · state.ts",
+    },
+    {
+      n: 4,
+      label: "Noise normalisation (3-day rolling mean, anomaly vs IMD 2022–24 normal)",
+      value:
+        district && rainToday != null
+          ? `anomaly ${district.rainfall_anomaly_pct >= 0 ? "+" : ""}${district.rainfall_anomaly_pct.toFixed(1)}%`
+          : "—",
+      source: "imd-normals.ts",
+    },
+    {
+      n: 5,
+      label: "Model input feature vector",
+      value: district
+        ? `[rain=${district.rainfall_mm.toFixed(2)}, tmax=${district.temperature_c.toFixed(2)}, soil=${district.soil_moisture_index.toFixed(2)}, kosi=${district.district.kosiBasin ? 1 : 0}]`
+        : "—",
+      source: "PI-GNN feature builder",
+    },
+    {
+      n: 6,
+      label: "Model output → flood risk score",
+      value: district ? `flood=${district.flood_risk.toFixed(2)} · drought=${district.drought_risk.toFixed(2)} · heat=${district.heat_risk.toFixed(2)}` : "—",
+      source: "PI-GNN inference head (persistence-blended in PoC)",
+    },
+    {
+      n: 7,
+      label: "Displayed value on dashboard map (Bhagalpur choropleth cell)",
+      value: district ? `${district.category.toUpperCase()} · ${(district.flood_risk * 100).toFixed(0)}% flood risk` : "—",
+      source: "BiharMap.tsx · /dashboard",
+    },
+  ];
+
+  return (
+    <section id="data-lineage" className="mt-6 rounded-xl border border-border bg-panel p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-display text-lg font-semibold text-foreground">
+            Data Lineage — Bhagalpur (sample trace)
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            End-to-end journey of one district's number from the raw grid cell to the value rendered on
+            the dashboard. Pulled live every 15 min; refresh the page to re-run.
+          </p>
+        </div>
+        <div className="hidden text-right md:block">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Blend</div>
+          <div className="font-mono text-xs text-foreground">{data?.source ?? "…"}</div>
+          <div className="text-[10px] text-muted-foreground">
+            IMD cells: {data?.imdDays ?? 0} · MOSDAC cells: {data?.mosdacDays ?? 0}
+          </div>
+        </div>
+      </div>
+      <ol className="mt-4 space-y-2">
+        {isLoading
+          ? [1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <li key={n} className="h-10 animate-pulse rounded border border-border bg-background/40" />
+            ))
+          : steps.map((s) => (
+              <li
+                key={s.n}
+                className="flex items-start gap-3 rounded border border-border bg-background/40 px-3 py-2"
+              >
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color:var(--brand-cyan)]/15 font-mono text-[11px] font-bold text-[color:var(--brand-cyan)]">
+                  {s.n}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{s.label}</div>
+                  <div className="mt-0.5 break-words font-mono text-sm text-foreground">{s.value}</div>
+                  <div className="text-[10px] text-muted-foreground">via {s.source}</div>
+                </div>
+              </li>
+            ))}
+      </ol>
+    </section>
+  );
+}
+
