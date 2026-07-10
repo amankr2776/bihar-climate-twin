@@ -159,7 +159,7 @@ function CompoundPage() {
             <div className="mb-3 font-display text-sm font-semibold uppercase tracking-widest">Compound Risk Map</div>
             <div className="relative h-80 overflow-hidden rounded-lg border border-border bg-background/40">
               {/* Stylised compound risk visualization */}
-              <svg viewBox="0 0 400 260" className="h-full w-full">
+              <svg viewBox="0 0 400 260" className="h-full w-full" onMouseLeave={() => setHover(null)}>
                 <defs>
                   <pattern id="flood-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                     <line x1="0" y1="0" x2="0" y2="8" stroke="var(--risk-flood)" strokeWidth="2" />
@@ -168,37 +168,67 @@ function CompoundPage() {
                     <line x1="0" y1="0" x2="0" y2="8" stroke="var(--risk-heat)" strokeWidth="2" />
                   </pattern>
                 </defs>
-                {districts.map((d, i) => {
+                {districts.map((d) => {
                   const isNorth = d.district.region === "north" || d.district.kosiBasin;
                   const isSouth = d.district.region === "south";
                   const x = ((d.district.lng - 83) / 5.5) * 400;
                   const y = 260 - ((d.district.lat - 24.3) / 3.5) * 260;
-                  const compound = d.compound_risk;
+                  const boosted = boostedDistrictIds.has(d.district.id);
+                  const compound = d.compound_risk || boosted;
+                  const pop = d.blocks.reduce((s, b) => s + b.population, 0);
+                  const flood = boosted ? Math.max(d.flood_risk, 0.72) : d.flood_risk;
+                  const drought = boosted ? Math.max(d.drought_risk, 0.55) : d.drought_risk;
+                  const severity = compound ? +(1.4 + flood + drought + scen.severityBoost * 0.3).toFixed(1) : +(1 + Math.max(flood, drought)).toFixed(1);
+                  const onEnter = (e: React.MouseEvent<SVGGElement>) => {
+                    const svg = e.currentTarget.ownerSVGElement;
+                    if (!svg) return;
+                    const rect = svg.getBoundingClientRect();
+                    setHover({
+                      x: ((x / 400) * rect.width),
+                      y: ((y / 260) * rect.height),
+                      name: d.district.name, flood, drought, severity, pop, compound,
+                    });
+                  };
                   return (
-                    <g key={d.district.id}>
+                    <g key={d.district.id} onMouseEnter={onEnter} style={{ cursor: "pointer" }}>
                       <circle
                         cx={x} cy={y}
                         r={compound ? 14 : 10}
                         fill={compound ? "var(--risk-compound)" : isNorth ? "url(#flood-hatch)" : isSouth ? "url(#drought-hatch)" : "oklch(0.3 0.02 260)"}
                         stroke="oklch(1 0 0 / 30%)"
                         strokeWidth="0.8"
-                        opacity={0.85}
-                      >
-                        {compound && <animate attributeName="opacity" values="0.6;1;0.6" dur="1.6s" repeatCount="indefinite" />}
-                      </circle>
-                      <text x={x} y={y + 3} fontSize="6" fill="white" textAnchor="middle" style={{ pointerEvents: "none" }}>
+                        opacity={0.9}
+                        className={compound ? "compound-pulse" : undefined}
+                      />
+                      <text x={x} y={y + 3} fontSize="9" fontWeight="600" fill="white" textAnchor="middle" style={{ pointerEvents: "none" }}>
                         {d.district.name.slice(0, 4)}
                       </text>
                     </g>
                   );
                 })}
               </svg>
+              {hover && (
+                <div
+                  className="pointer-events-none absolute z-10 min-w-[180px] -translate-x-1/2 rounded-md border border-border bg-panel/95 p-2 text-[11px] shadow-lg backdrop-blur"
+                  style={{ left: hover.x, top: Math.max(0, hover.y - 100) }}
+                >
+                  <div className="mb-1 font-semibold text-foreground">{hover.name}</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-[10px]">
+                    <span className="text-muted-foreground">Flood risk</span><span style={{ color: "var(--risk-flood)" }}>{(hover.flood * 100).toFixed(0)}%</span>
+                    <span className="text-muted-foreground">Drought risk</span><span style={{ color: "var(--risk-heat)" }}>{(hover.drought * 100).toFixed(0)}%</span>
+                    <span className="text-muted-foreground">Severity</span><span style={{ color: "var(--risk-compound)" }}>×{hover.severity}</span>
+                    <span className="text-muted-foreground">Population</span><span>{hover.pop.toLocaleString()}</span>
+                  </div>
+                  {hover.compound && <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-compound)]">Compound event</div>}
+                </div>
+              )}
               <div className="absolute bottom-2 left-2 space-y-1 rounded border border-border bg-panel/90 p-2 text-[10px]">
                 <div className="flex items-center gap-1.5"><span className="h-2 w-4" style={{ background: "url(#flood-hatch), var(--risk-flood)" }} /><span>Flood-dominant north</span></div>
                 <div className="flex items-center gap-1.5"><span className="h-2 w-4" style={{ background: "url(#drought-hatch), var(--risk-heat)" }} /><span>Drought-dominant south</span></div>
-                <div className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm" style={{ background: "var(--risk-compound)" }} /><span>Compound (pulsing)</span></div>
+                <div className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm compound-pulse" style={{ background: "var(--risk-compound)" }} /><span>Compound (pulsing)</span></div>
               </div>
             </div>
+
 
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
