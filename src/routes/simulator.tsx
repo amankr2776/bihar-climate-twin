@@ -265,6 +265,22 @@ function SimulatorPage() {
                 </div>
               </div>
 
+              <div
+                className="rounded-r bg-[color:var(--risk-heat)]/10 p-3"
+                style={{ borderLeft: "4px solid var(--risk-heat)" }}
+              >
+                <div className="mb-1.5 text-xs font-bold uppercase tracking-widest text-[color:var(--risk-heat)]">
+                  AI Recommended Actions
+                </div>
+                <ol className="list-decimal space-y-1 pl-5 text-foreground/90" style={{ fontSize: "13px", lineHeight: 1.4 }}>
+                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
+                  <li>Issue flood warnings for Kosi basin districts.</li>
+                  <li>Monitor soil moisture in southern districts for drought escalation.</li>
+                  <li>Activate cooling shelters in Gaya, Aurangabad.</li>
+                </ol>
+              </div>
+
+
               <div className="flex items-center justify-center gap-3 rounded border border-[color:var(--risk-heat)]/20 bg-[color:var(--risk-heat)]/10 px-3 py-2 text-[11px]">
                 <span className="font-bold text-[color:var(--risk-heat)]">Severity ×{result.severity_multiplier}</span>
                 <span className="text-[color:var(--risk-heat)]/60">|</span>
@@ -338,15 +354,6 @@ function SimulatorPage() {
                 </table>
               </div>
 
-              <div className="rounded border border-[color:var(--risk-heat)]/40 bg-[color:var(--risk-heat)]/10 p-3 text-[11px]">
-                <div className="mb-1 font-semibold text-[color:var(--risk-heat)]">AI Recommendation</div>
-                <ol className="list-decimal space-y-0.5 pl-4 text-muted-foreground">
-                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
-                  <li>Issue flood warnings for Kosi basin districts.</li>
-                  <li>Monitor soil moisture in southern districts for drought escalation.</li>
-                  <li>Activate cooling shelters in Gaya, Aurangabad.</li>
-                </ol>
-              </div>
             </>
           )}
         </section>
@@ -380,7 +387,7 @@ function SimulatorPage() {
 
           <div className="mt-4 font-display text-sm font-semibold uppercase tracking-widest">Compare Scenarios</div>
           {compareScenarios.length === 0 ? (
-            <div className="mt-1 text-xs text-muted-foreground">Check up to 3 scenarios.</div>
+            <div className="mt-1 text-xs text-muted-foreground">Tick 2–3 saved scenarios above to compare their impacts side by side.</div>
           ) : (
             <table className="mt-2 w-full text-[10px]">
               <thead className="text-muted-foreground"><tr><th className="text-left">Field</th>{compareScenarios.map((s) => <th key={s.id} className="text-right">{s.name}</th>)}</tr></thead>
