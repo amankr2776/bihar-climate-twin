@@ -112,17 +112,45 @@ function CompoundPage() {
       />
       <ProvenanceStrip />
 
+      <style>{`
+        @keyframes varuna-compound-pulse {
+          0%, 100% { filter: drop-shadow(0 0 1px var(--risk-compound)) drop-shadow(0 0 2px var(--risk-compound)); opacity: 0.85; }
+          50% { filter: drop-shadow(0 0 6px var(--risk-compound)) drop-shadow(0 0 12px var(--risk-compound)); opacity: 1; }
+        }
+        .compound-pulse { animation: varuna-compound-pulse 1.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+      `}</style>
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-panel/60 px-4 py-3">
+        <div>
+          <label htmlFor="scenario-select" className="block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Load Historical Scenario</label>
+          <div className="mt-0.5 text-[11px] text-muted-foreground">Replay a past compound event for demonstration</div>
+        </div>
+        <select
+          id="scenario-select"
+          value={scenario}
+          onChange={(e) => setScenario(e.target.value as ScenarioKey)}
+          className="min-w-[280px] rounded border border-border bg-background px-3 py-2 text-xs"
+        >
+          {(Object.keys(SCENARIOS) as ScenarioKey[]).map((k) => (
+            <option key={k} value={k}>{SCENARIOS[k].label}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[color:var(--risk-heat)]/40 to-[color:var(--risk-compound)]/30 p-5">
         <div>
           <div className="font-display text-2xl font-bold uppercase tracking-widest">Compound Risk Analysis</div>
-          <div className="mt-1 text-xs text-muted-foreground">Simultaneous multi-hazard monitoring across Bihar</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {scenario === "current" ? "Simultaneous multi-hazard monitoring across Bihar" : `Replaying: ${scen.label}`}
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Metric label="Active Compound Events" value={activeEvents.length} icon={<AlertTriangle />} color="var(--risk-compound)" pulse />
-          <Metric label="Blocks in Dual Extremes" value={compoundBlocks.length} icon={<Flame />} color="var(--risk-heat)" />
+          <Metric label="Active Compound Events" value={displayedEventCount} icon={<AlertTriangle />} color="var(--risk-compound)" pulse />
+          <Metric label="Blocks in Dual Extremes" value={displayedBlockCount} icon={<Flame />} color="var(--risk-heat)" />
           <Metric label="Max Compound Severity" value={`×${maxSeverity.toFixed(1)}`} icon={<Users />} color="var(--risk-compound)" />
         </div>
       </div>
+
 
       <div className="grid grid-cols-12 gap-4">
         {/* Left column */}
