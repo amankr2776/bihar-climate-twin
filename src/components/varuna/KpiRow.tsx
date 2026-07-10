@@ -161,8 +161,21 @@ function RingProgress({ value }: { value: number }) {
 }
 
 function formatCompact(n: number) {
-  if (n >= 1e7) return (n / 1e7).toFixed(2) + " Cr";
-  if (n >= 1e5) return (n / 1e5).toFixed(1) + " Lakh";
-  if (n >= 1e3) return (n / 1e3).toFixed(1) + "k";
+  if (n >= 1e7) {
+    const v = n / 1e7;
+    return (Math.round(v * 100) / 100).toFixed(2).replace(/\.?0+$/, "") + " Cr";
+  }
+  if (n >= 1e5) {
+    const v = n / 1e5;
+    // Show one decimal, but if the natural rounding lands on .0, reveal
+    // finer precision so the KPI never reads as a placeholder round number.
+    const one = (Math.round(v * 10) / 10).toFixed(1);
+    if (one.endsWith(".0")) {
+      const two = (Math.round(v * 100) / 100).toFixed(2);
+      return (two.endsWith("0") ? two.slice(0, -1) : two) + " Lakh";
+    }
+    return one + " Lakh";
+  }
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
   return String(n);
 }
