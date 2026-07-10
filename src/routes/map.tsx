@@ -52,7 +52,7 @@ type LayerKey =
   | "infra";
 
 const LAYER_META: { key: LayerKey; label: string; color: string; category?: string }[] = [
-  { key: "rainfall", label: "Rainfall intensity", color: "oklch(0.7 0.15 240)", category: "flood" },
+  { key: "rainfall", label: "Rainfall (IMD + INSAT-3DR blend)", color: "oklch(0.7 0.15 240)", category: "flood" },
   { key: "flood", label: "Flood risk", color: "var(--risk-flood)", category: "flood" },
   { key: "temperature", label: "Temperature", color: "oklch(0.65 0.22 25)", category: "heat" },
   { key: "soil", label: "Soil moisture", color: "var(--risk-drought)", category: "drought" },
