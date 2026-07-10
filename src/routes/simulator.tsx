@@ -354,15 +354,6 @@ function SimulatorPage() {
                 </table>
               </div>
 
-              <div className="rounded border border-[color:var(--risk-heat)]/40 bg-[color:var(--risk-heat)]/10 p-3 text-[11px]">
-                <div className="mb-1 font-semibold text-[color:var(--risk-heat)]">AI Recommendation</div>
-                <ol className="list-decimal space-y-0.5 pl-4 text-muted-foreground">
-                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
-                  <li>Issue flood warnings for Kosi basin districts.</li>
-                  <li>Monitor soil moisture in southern districts for drought escalation.</li>
-                  <li>Activate cooling shelters in Gaya, Aurangabad.</li>
-                </ol>
-              </div>
             </>
           )}
         </section>
