@@ -128,24 +128,33 @@ function SimulatorPage() {
   // across renders but differentiated across districts.
   const districtImpact = useMemo(() => {
     if (!result) return [] as Array<{ id: string; name: string; population: number; flood: number; drought: number; heat: number }>;
-    const clamp = (n: number) => Math.max(0, Math.min(1, n));
-    const hash = (s: string) => {
+    // Soft saturation curve — approaches 1 asymptotically so no two districts
+    // land on an identical hard cap. `k` shapes steepness.
+    const soft = (raw: number, k = 1.35) => 1 - Math.exp(-Math.max(0, raw) * k);
+    const hash = (s: string, salt: string) => {
       let h = 2166136261;
-      for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-      return ((h >>> 0) % 1000) / 1000; // 0..1
+      const src = s + "|" + salt;
+      for (let i = 0; i < src.length; i++) h = Math.imul(h ^ src.charCodeAt(i), 16777619);
+      return ((h >>> 0) % 10000) / 10000; // 0..1 with 4-digit resolution
     };
     return DISTRICTS.map((d) => {
-      const j = hash(d.id) - 0.5; // -0.5..0.5 deterministic jitter
+      // Independent per-hazard jitter so districts don't collide on any axis.
+      const jf = (hash(d.id, "flood") - 0.5) * 0.09;
+      const jd = (hash(d.id, "drought") - 0.5) * 0.08;
+      const jh = (hash(d.id, "heat") - 0.5) * 0.07;
+      // Upstream-Kosi exposure gradient — north-east headwaters carry more risk
+      // than lower-basin districts. Latitude proxy keeps ordering realistic.
+      const kosiExposure = d.kosiBasin ? 0.85 + (d.lat - 25.2) * 0.22 : 1;
       const floodMul =
-        (d.kosiBasin ? 1.35 : 1) *
+        (d.kosiBasin ? 1.28 : 1) * kosiExposure *
         (d.region === "north" ? 1.15 : d.region === "east" ? 1.05 : d.region === "central" ? 0.95 : d.region === "west" ? 0.85 : 0.6);
       const droughtMul =
         d.region === "south" ? 1.4 : d.region === "west" ? 1.15 : d.region === "central" ? 0.9 : d.kosiBasin ? 0.45 : 0.6;
       const heatMul =
         d.region === "south" ? 1.3 : d.region === "central" ? 1.1 : d.region === "west" ? 1.0 : 0.75;
-      const flood = clamp(result.flood_level.score * floodMul + j * 0.08);
-      const drought = clamp(result.drought_index.score * droughtMul + j * 0.06);
-      const heat = clamp(result.heatwave_alert.score * heatMul + j * 0.05);
+      const flood = soft(result.flood_level.score * floodMul + jf);
+      const drought = soft(result.drought_index.score * droughtMul + jd);
+      const heat = soft(result.heatwave_alert.score * heatMul + jh);
       return { id: d.id, name: d.name, population: d.population, flood, drought, heat };
     });
   }, [result]);
