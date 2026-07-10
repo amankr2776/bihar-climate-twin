@@ -116,42 +116,79 @@ function SettingsPage() {
           {cat === "data" && (
             <>
               <SectionTitle>Data Sources</SectionTitle>
+              <div className="mb-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-3 text-[11px] text-muted-foreground">
+                <span className="font-semibold text-[color:var(--brand-cyan)]">Transparency:</span>{" "}
+                Every source below is labelled with its live/cached/planned mode and endpoint URL so
+                you can trace exactly where each number on the dashboard comes from.
+              </div>
               <div className="space-y-2">
                 {sources.map((s) => {
                   const syncing = s.status === "syncing";
+                  const mode = s.mode ?? "live";
+                  const modeColor: Record<string, string> = {
+                    live: "var(--risk-drought)",
+                    cached: "var(--risk-heat)",
+                    fallback: "var(--risk-flood)",
+                    planned: "var(--muted-foreground)",
+                  };
+                  const c = modeColor[mode];
                   return (
-                    <div key={s.name} className="flex items-center gap-3 rounded border border-border bg-background/40 px-3 py-2">
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold">{s.name}</div>
-                        {s.name === "IMDAA" && (
-                          <div className="text-[11px] text-muted-foreground">
-                            India Meteorological Department Advanced Analysis — reanalysis gridded product
+                    <div key={s.name} className="rounded border border-border bg-background/40 px-3 py-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">{s.name}</span>
+                            <span
+                              className="rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
+                              style={{
+                                color: c,
+                                borderWidth: 1,
+                                borderStyle: "solid",
+                                borderColor: `color-mix(in oklch, ${c} 50%, transparent)`,
+                                backgroundColor: `color-mix(in oklch, ${c} 12%, transparent)`,
+                              }}
+                            >
+                              {mode}
+                            </span>
                           </div>
-                        )}
-                        <div className="text-[11px] text-muted-foreground">
-                          Last sync: {syncing ? "syncing…" : relTime(s.lastSync)}
+                          <div className="mt-0.5 break-all font-mono text-[10px] text-muted-foreground">
+                            {s.endpoint}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            <span className="uppercase tracking-widest">Cadence:</span> {s.cadence}
+                            <span className="mx-1.5 text-border">·</span>
+                            <span className="uppercase tracking-widest">Last sync:</span>{" "}
+                            {syncing ? "syncing…" : relTime(s.lastSync)}
+                          </div>
+                          {s.note && (
+                            <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                              {s.note}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span
+                            className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                              s.status === "connected"
+                                ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
+                                : syncing
+                                  ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
+                                  : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {s.status.toUpperCase()}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={syncing}
+                            onClick={() => sync(s.name)}
+                            className="gap-1 text-xs disabled:opacity-60"
+                          >
+                            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
+                          </Button>
                         </div>
                       </div>
-                      <span
-                        className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                          s.status === "connected"
-                            ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
-                            : syncing
-                              ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {s.status.toUpperCase()}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={syncing}
-                        onClick={() => sync(s.name)}
-                        className="gap-1 text-xs disabled:opacity-60"
-                      >
-                        <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
-                      </Button>
                     </div>
                   );
                 })}
@@ -164,6 +201,7 @@ function SettingsPage() {
                   <RefreshCw className="h-3 w-3" /> Sync All Sources
                 </Button>
               </div>
+              <LiveFetchProbe />
             </>
           )}
 
