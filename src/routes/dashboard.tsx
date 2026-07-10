@@ -214,15 +214,40 @@ function VarunaDashboard() {
                     }}
                     onSelectBlock={(b) => setSelectedBlock(b)}
                   />
-                  <div className="pointer-events-none absolute left-4 top-4 z-[500] hidden max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-flood)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
-                    <CloudRain className="h-4 w-4 shrink-0 text-[color:var(--risk-flood)]" />
-                    <div className="text-[11px] leading-tight">
-                      <div className="text-muted-foreground">Kosi basin rainfall vs. rest of Bihar</div>
-                      <div className="font-mono text-sm font-bold text-[color:var(--risk-flood)]">
-                        {kosiExcess >= 0 ? "+" : ""}{kosiExcess}%
+                  {showKosiCallout && (
+                    <div className="absolute left-4 top-4 z-[500] hidden max-w-[240px] items-start gap-2.5 rounded-lg border border-[color:var(--risk-flood)]/60 bg-background/95 p-3 shadow-xl backdrop-blur md:flex">
+                      <div
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-md"
+                        style={{
+                          backgroundColor:
+                            "color-mix(in oklch, var(--risk-flood) 22%, transparent)",
+                          color: "var(--risk-flood)",
+                        }}
+                      >
+                        <Droplets className="h-3.5 w-3.5" />
                       </div>
+                      <div className="min-w-0 flex-1 text-[11px] leading-tight">
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                          Kosi basin rainfall
+                        </div>
+                        <div className="mt-0.5 font-mono text-base font-bold text-[color:var(--risk-flood)]">
+                          {kosiExcess >= 0 ? "+" : ""}
+                          {kosiExcess}%
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          vs. rest of Bihar
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowKosiCallout(false)}
+                        aria-label="Dismiss Kosi basin callout"
+                        className="ml-1 rounded p-0.5 text-muted-foreground transition-colors hover:bg-panel hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
-                  </div>
+                  )}
                   <div className="pointer-events-none absolute bottom-4 left-4 z-[500] hidden max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-compound)]/60 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
                     <Zap className="h-4 w-4 shrink-0 text-[color:var(--risk-compound)]" />
                     <div className="text-[11px] leading-tight">
