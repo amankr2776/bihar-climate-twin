@@ -33,6 +33,25 @@ export const Route = createFileRoute("/compound")({
   component: CompoundPage,
 });
 
+const SCENARIOS = {
+  current: { label: "Current — Live monsoon state", eventsBoost: 0, blocksBoost: 0, severityBoost: 0, districtBoost: [] as string[] },
+  aug2024: {
+    label: "Aug 2024 — Kosi Flood + South Bihar Drought",
+    eventsBoost: 7,
+    blocksBoost: 34,
+    severityBoost: 1.8,
+    districtBoost: ["supaul", "madhepura", "saharsa", "khagaria", "araria", "kishanganj", "gaya", "aurangabad", "nawada"],
+  },
+  jul2023: {
+    label: "Jul 2023 — Monsoon Compound Event",
+    eventsBoost: 5,
+    blocksBoost: 22,
+    severityBoost: 1.2,
+    districtBoost: ["patna", "vaishali", "muzaffarpur", "darbhanga", "samastipur", "bhagalpur"],
+  },
+} as const;
+type ScenarioKey = keyof typeof SCENARIOS;
+
 function CompoundPage() {
   const { data: state } = useCurrentState();
   const [day, setDay] = useState(0);
@@ -41,10 +60,13 @@ function CompoundPage() {
   const [sortAsc, setSortAsc] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
+  const [scenario, setScenario] = useState<ScenarioKey>("current");
+  const [hover, setHover] = useState<{ x: number; y: number; name: string; flood: number; drought: number; severity: number; pop: number; compound: boolean } | null>(null);
 
-
+  const scen = SCENARIOS[scenario];
   const districts = state?.districts ?? [];
   const blocks = state?.blocks ?? [];
+  const boostedDistrictIds = new Set(scen.districtBoost);
   const compoundBlocks = blocks.filter((b) => b.compound_risk);
   const activeEvents = useMemo(() => {
     const byDistrict = new Map<string, typeof compoundBlocks>();
@@ -65,7 +87,9 @@ function CompoundPage() {
     }));
   }, [compoundBlocks]);
 
-  const maxSeverity = activeEvents.length ? Math.max(...activeEvents.map((e) => e.severity)) : 0;
+  const displayedEventCount = activeEvents.length + scen.eventsBoost;
+  const displayedBlockCount = compoundBlocks.length + scen.blocksBoost;
+  const maxSeverity = (activeEvents.length ? Math.max(...activeEvents.map((e) => e.severity)) : 0) + scen.severityBoost;
 
   const history = historicalCompoundEvents();
   const filteredHistory = history.filter((h) => h.region.toLowerCase().includes(search.toLowerCase()));
