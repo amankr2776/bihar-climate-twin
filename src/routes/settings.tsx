@@ -328,3 +328,131 @@ function StatusItem({ label, value, color }: { label: string; value: string; col
     </div>
   );
 }
+
+type ProbeResult = {
+  url: string;
+  status: number;
+  bytes: number;
+  gridPoints: number;
+  fetchedAt: string;
+  sampleCurrent?: { temperature_2m?: number; precipitation?: number };
+  error?: string;
+};
+
+function LiveFetchProbe() {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<ProbeResult | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+
+  const probeUrl =
+    "https://api.open-meteo.com/v1/forecast?latitude=25.6&longitude=85.14" +
+    "&current=temperature_2m,precipitation,relative_humidity_2m,soil_moisture_0_to_1cm" +
+    "&daily=precipitation_sum,temperature_2m_max,temperature_2m_min" +
+    "&past_days=3&forecast_days=3&timezone=Asia%2FKolkata";
+
+  const run = async () => {
+    setRunning(true);
+    const startedAt = new Date().toISOString();
+    try {
+      const res = await fetch(probeUrl);
+      const text = await res.text();
+      const bytes = new Blob([text]).size;
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(text); } catch { /* ignore */ }
+      // eslint-disable-next-line no-console
+      console.log("[VARUNA · live-fetch probe]", { url: probeUrl, status: res.status, bytes, parsed });
+      const gridPoints = Array.isArray(parsed)
+        ? parsed.length
+        : parsed && typeof parsed === "object"
+          ? 1
+          : 0;
+      const first = Array.isArray(parsed) ? parsed[0] : parsed;
+      const current = (first as { current?: ProbeResult["sampleCurrent"] })?.current;
+      const r: ProbeResult = {
+        url: probeUrl,
+        status: res.status,
+        bytes,
+        gridPoints,
+        fetchedAt: startedAt,
+        sampleCurrent: current,
+      };
+      setResult(r);
+      setHistory((h) => [startedAt, ...h].slice(0, 3));
+      toast.success(`Probe ok — ${(bytes / 1024).toFixed(1)} KB, ${gridPoints} grid point(s)`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setResult({ url: probeUrl, status: 0, bytes: 0, gridPoints: 0, fetchedAt: startedAt, error: msg });
+      toast.error(`Probe failed — ${msg}`);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 rounded border border-border bg-background/40 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)]">
+          Live-fetch probe · Open-Meteo primary feed
+        </h3>
+        <Button size="sm" variant="outline" disabled={running} onClick={run} className="gap-1 text-xs">
+          <RefreshCw className={`h-3 w-3 ${running ? "animate-spin" : ""}`} /> Run probe
+        </Button>
+      </div>
+      <div className="break-all font-mono text-[10px] text-muted-foreground">{probeUrl}</div>
+      {result && (
+        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
+          <Metric label="HTTP status" value={String(result.status)} good={result.status === 200} />
+          <Metric label="Response size" value={`${(result.bytes / 1024).toFixed(1)} KB`} />
+          <Metric label="Grid points" value={String(result.gridPoints)} />
+          <Metric
+            label="Fetched at (IST)"
+            value={new Date(result.fetchedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })}
+          />
+          {result.sampleCurrent && (
+            <div className="col-span-2 rounded border border-border bg-panel/60 px-2 py-1 md:col-span-4">
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sample (Patna centroid) · </span>
+              <span className="font-mono">
+                T={result.sampleCurrent.temperature_2m ?? "—"}°C · P={result.sampleCurrent.precipitation ?? "—"} mm/h
+              </span>
+            </div>
+          )}
+          {result.error && (
+            <div className="col-span-2 rounded border border-[color:var(--risk-flood)]/60 bg-[color:var(--risk-flood)]/10 px-2 py-1 text-[color:var(--risk-flood)] md:col-span-4">
+              {result.error}
+            </div>
+          )}
+        </div>
+      )}
+      {history.length > 0 && (
+        <div className="mt-2 text-[10px] text-muted-foreground">
+          Last 3 probes:{" "}
+          {history.map((h, i) => (
+            <span key={h} className="font-mono">
+              {i > 0 ? " · " : ""}
+              {new Date(h).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-2 text-[10px] text-muted-foreground">
+        The full response JSON is logged to the browser console under{" "}
+        <span className="font-mono">[VARUNA · live-fetch probe]</span> so you can copy it into any
+        verification tool.
+      </div>
+    </div>
+  );
+}
+
+function Metric({ label, value, good }: { label: string; value: string; good?: boolean }) {
+  return (
+    <div className="rounded border border-border bg-panel/60 px-2 py-1">
+      <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div
+        className="font-mono text-xs font-semibold"
+        style={{ color: good === undefined ? undefined : good ? "var(--risk-drought)" : "var(--risk-flood)" }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
