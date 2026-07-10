@@ -59,12 +59,20 @@ function ReportsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const saved = useVarunaStore((s) => s.savedReports);
 
+  const authorFor = (t: string) => {
+    const s = t.toLowerCase();
+    if (s.includes("ndrf") || s.includes("infrastructure")) return "Ab. Kumar";
+    if (s.includes("dashboard") || s.includes("daily") || s.includes("weekly")) return "J. Panchal";
+    if (s.includes("what-if") || s.includes("scenario") || s.includes("compound") || s.includes("ai")) return "A. Kumar";
+    return "A. Choudhary";
+  };
+
   const generate = async () => {
     setGenerating(true);
     await new Promise((r) => setTimeout(r, 2000));
     const rep: SavedReport = {
       id: `rep-${Date.now()}`, type, generatedAt: new Date().toISOString().slice(0, 10),
-      period: `${from} → ${to}`, author: "A. Kumar", sizeKb: 200 + Math.floor(Math.random() * 400),
+      period: `${from} → ${to}`, author: authorFor(type), sizeKb: 200 + Math.floor(Math.random() * 400),
       districts,
     };
     varunaStore.set((s) => ({ savedReports: [rep, ...s.savedReports] }));
