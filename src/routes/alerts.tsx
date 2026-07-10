@@ -217,10 +217,21 @@ function AlertsPage() {
           <div className="rounded-xl border border-border bg-panel p-4">
             <div className="mb-2 font-display text-sm font-semibold uppercase tracking-widest">Notification Settings</div>
             {(["emailNotifications", "smsNotifications", "dashboardAlerts", "autoEscalate"] as const).map((k) => (
-              <label key={k} className="flex items-center justify-between py-1 text-xs">
-                <span className="capitalize">{k.replace(/([A-Z])/g, " $1")}</span>
-                <Switch checked={config[k]} onCheckedChange={(v) => varunaStore.set((s) => ({ alertConfig: { ...s.alertConfig, [k]: v } }))} />
-              </label>
+              <div key={k} className="flex items-center justify-between py-1 text-xs">
+                <label className="flex items-center gap-2 capitalize">
+                  <span>{k.replace(/([A-Z])/g, " $1")}</span>
+                  {k === "smsNotifications" && (
+                    <span className="inline-flex items-center gap-1 rounded border border-[color:var(--brand-cyan)]/50 bg-[color:var(--brand-cyan)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)]">
+                      <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--brand-cyan)]" />
+                      Twilio · Connected
+                    </span>
+                  )}
+                </label>
+                <div className="flex items-center gap-2">
+                  {k === "smsNotifications" && <TestSmsButton />}
+                  <Switch checked={config[k]} onCheckedChange={(v) => varunaStore.set((s) => ({ alertConfig: { ...s.alertConfig, [k]: v } }))} />
+                </div>
+              </div>
             ))}
             <div className="mt-3 mb-2 font-display text-sm font-semibold uppercase tracking-widest">Threshold Settings</div>
             {([
@@ -270,6 +281,55 @@ function AlertsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function TestSmsButton() {
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState("+91");
+  const [sending, setSending] = useState(false);
+  const send = async () => {
+    if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
+      toast.error("Enter phone in E.164 format (e.g. +919876543210)");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch("/api/public/sms/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      toast.success(`Test SMS sent via Twilio${body.sid ? ` · ${String(body.sid).slice(0, 10)}…` : ""}`);
+      setOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "SMS failed");
+    } finally {
+      setSending(false);
+    }
+  };
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); setOpen(true); }}
+        className="rounded border border-[color:var(--brand-cyan)]/50 bg-[color:var(--brand-cyan)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/20"
+      >
+        Send test
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="border-border bg-panel text-foreground">
+          <DialogHeader><DialogTitle>Send test SMS via Twilio</DialogTitle></DialogHeader>
+          <div className="text-xs text-muted-foreground">Delivers a live alert-channel test message from the connected Twilio number to verify SMS routing.</div>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+919876543210" className="text-sm" />
+          <Button onClick={send} disabled={sending} className="bg-[color:var(--brand-cyan)] text-background hover:bg-[color:var(--brand-cyan)]/90">
+            {sending ? "Sending…" : "Send test SMS"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

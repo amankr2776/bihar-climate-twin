@@ -23,6 +23,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicSmsTestRouteImport } from './routes/api/public/sms.test'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
@@ -99,6 +100,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicSmsTestRoute = ApiPublicSmsTestRouteImport.update({
+  id: '/api/public/sms/test',
+  path: '/api/public/sms/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicOtpVerifyRoute = ApiPublicOtpVerifyRouteImport.update({
   id: '/api/public/otp/verify',
   path: '/api/public/otp/verify',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
+  '/api/public/sms/test': typeof ApiPublicSmsTestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
+  '/api/public/sms/test': typeof ApiPublicSmsTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/api/public/ingest/latest': typeof ApiPublicIngestLatestRoute
   '/api/public/otp/send': typeof ApiPublicOtpSendRoute
   '/api/public/otp/verify': typeof ApiPublicOtpVerifyRoute
+  '/api/public/sms/test': typeof ApiPublicSmsTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
+    | '/api/public/sms/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
+    | '/api/public/sms/test'
   id:
     | '__root__'
     | '/'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/api/public/ingest/latest'
     | '/api/public/otp/send'
     | '/api/public/otp/verify'
+    | '/api/public/sms/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   ApiPublicIngestLatestRoute: typeof ApiPublicIngestLatestRoute
   ApiPublicOtpSendRoute: typeof ApiPublicOtpSendRoute
   ApiPublicOtpVerifyRoute: typeof ApiPublicOtpVerifyRoute
+  ApiPublicSmsTestRoute: typeof ApiPublicSmsTestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -385,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/sms/test': {
+      id: '/api/public/sms/test'
+      path: '/api/public/sms/test'
+      fullPath: '/api/public/sms/test'
+      preLoaderRoute: typeof ApiPublicSmsTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/otp/verify': {
       id: '/api/public/otp/verify'
       path: '/api/public/otp/verify'
@@ -461,6 +481,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicIngestLatestRoute: ApiPublicIngestLatestRoute,
   ApiPublicOtpSendRoute: ApiPublicOtpSendRoute,
   ApiPublicOtpVerifyRoute: ApiPublicOtpVerifyRoute,
+  ApiPublicSmsTestRoute: ApiPublicSmsTestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
