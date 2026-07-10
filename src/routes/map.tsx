@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup } from "react-lea
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { PathOptions } from "leaflet";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass, Lock } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
