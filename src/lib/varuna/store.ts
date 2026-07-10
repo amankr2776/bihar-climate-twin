@@ -45,10 +45,15 @@ export type AlertConfig = {
   compoundThreshold: number;
 };
 
+export type DataSourceMode = "live" | "cached" | "fallback" | "planned";
 export type DataSource = {
   name: string;
   status: "connected" | "disconnected" | "syncing";
   lastSync: number; // epoch ms
+  mode: DataSourceMode;
+  endpoint: string;
+  cadence: string;
+  note: string;
 };
 
 export type SystemStatus = {
@@ -126,10 +131,51 @@ const initial: VarunaState = {
   displayPrefs: { units: "metric", refreshMinutes: 3, defaultMapLayer: "compound" },
   userProfile: { name: "A. Kumar", role: "Climate Operations Analyst", organization: "Bihar SDMA" },
   dataSources: [
-    { name: "IMD", status: "connected", lastSync: Date.now() - 3 * 60 * 1000 },
-    { name: "MOSDAC", status: "connected", lastSync: Date.now() - 8 * 60 * 1000 },
-    { name: "IMDAA", status: "connected", lastSync: Date.now() - 14 * 60 * 1000 },
-    { name: "Bhuvan (WMS + GADM fallback)", status: "connected", lastSync: Date.now() - 4 * 60 * 1000 },
+    {
+      name: "Open-Meteo",
+      status: "connected",
+      lastSync: Date.now() - 2 * 60 * 1000,
+      mode: "live",
+      endpoint: "https://api.open-meteo.com/v1/forecast (IMD/ECMWF/GFS blend, 38 district centroids)",
+      cadence: "Every 15 min (client-cached 10 min)",
+      note: "Primary live driver for current temperature, precipitation, humidity and soil moisture. Blends IMD, ECMWF and GFS; used when native IMD/MOSDAC ingest for a given cell is unavailable.",
+    },
+    {
+      name: "IMD",
+      status: "connected",
+      lastSync: Date.now() - 3 * 60 * 1000,
+      mode: "cached",
+      endpoint: "imdpune.gov.in gridded rainfall 0.25° + Tmax/Tmin 1.0° → nightly ingest → climate_observations table",
+      cadence: "Daily (nightly ingest job)",
+      note: "Legacy .grd binaries decoded server-side and aggregated to 38 Bihar districts. Overlaid on live Open-Meteo values when past-day cells are available. Dataset tag: openmeteo-era5t-NRT.",
+    },
+    {
+      name: "MOSDAC",
+      status: "connected",
+      lastSync: Date.now() - 8 * 60 * 1000,
+      mode: "cached",
+      endpoint: "mosdac.gov.in — 3RIMG_L2B_LST · 3RIMG_L2B_SST · 3RIMG_L2B_IMC",
+      cadence: "3-hourly product · nightly ingest into Lovable Cloud",
+      note: "INSAT-3DR satellite-derived land-surface temperature and IMC rainfall. Requires MOSDAC login token; ingest worker refreshes the token before each pull.",
+    },
+    {
+      name: "Bhuvan (WMS + GADM fallback)",
+      status: "connected",
+      lastSync: Date.now() - 4 * 60 * 1000,
+      mode: "cached",
+      endpoint: "bhuvan-vec2.nrsc.gov.in/bhuvan/wms · cached snapshot served from /bihar-districts.geojson",
+      cadence: "Versioned (2011 census boundaries)",
+      note: "Bihar district and block vector boundaries. Rendered from a locally cached GeoJSON snapshot for map performance — refreshing pulls the latest Bhuvan/GADM 4.1 export.",
+    },
+    {
+      name: "IMDAA",
+      status: "connected",
+      lastSync: Date.now() - 14 * 60 * 1000,
+      mode: "planned",
+      endpoint: "NCMRWF IMDAA regional reanalysis — 12 km hourly (rds.ncmrwf.gov.in)",
+      cadence: "Hourly (historical reanalysis)",
+      note: "India Meteorological Department Advanced Analysis — reanalysis gridded product. Baseline climatology currently derived from the IMD 2022–24 grid; IMDAA hourly ingest is scheduled for the next milestone.",
+    },
   ],
   apiKey: "vk_****************a91f",
   systemStatus: {

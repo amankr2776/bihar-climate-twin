@@ -116,42 +116,79 @@ function SettingsPage() {
           {cat === "data" && (
             <>
               <SectionTitle>Data Sources</SectionTitle>
+              <div className="mb-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-3 text-[11px] text-muted-foreground">
+                <span className="font-semibold text-[color:var(--brand-cyan)]">Transparency:</span>{" "}
+                Every source below is labelled with its live/cached/planned mode and endpoint URL so
+                you can trace exactly where each number on the dashboard comes from.
+              </div>
               <div className="space-y-2">
                 {sources.map((s) => {
                   const syncing = s.status === "syncing";
+                  const mode = s.mode ?? "live";
+                  const modeColor: Record<string, string> = {
+                    live: "var(--risk-drought)",
+                    cached: "var(--risk-heat)",
+                    fallback: "var(--risk-flood)",
+                    planned: "var(--muted-foreground)",
+                  };
+                  const c = modeColor[mode];
                   return (
-                    <div key={s.name} className="flex items-center gap-3 rounded border border-border bg-background/40 px-3 py-2">
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold">{s.name}</div>
-                        {s.name === "IMDAA" && (
-                          <div className="text-[11px] text-muted-foreground">
-                            India Meteorological Department Advanced Analysis — reanalysis gridded product
+                    <div key={s.name} className="rounded border border-border bg-background/40 px-3 py-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">{s.name}</span>
+                            <span
+                              className="rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
+                              style={{
+                                color: c,
+                                borderWidth: 1,
+                                borderStyle: "solid",
+                                borderColor: `color-mix(in oklch, ${c} 50%, transparent)`,
+                                backgroundColor: `color-mix(in oklch, ${c} 12%, transparent)`,
+                              }}
+                            >
+                              {mode}
+                            </span>
                           </div>
-                        )}
-                        <div className="text-[11px] text-muted-foreground">
-                          Last sync: {syncing ? "syncing…" : relTime(s.lastSync)}
+                          <div className="mt-0.5 break-all font-mono text-[10px] text-muted-foreground">
+                            {s.endpoint}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            <span className="uppercase tracking-widest">Cadence:</span> {s.cadence}
+                            <span className="mx-1.5 text-border">·</span>
+                            <span className="uppercase tracking-widest">Last sync:</span>{" "}
+                            {syncing ? "syncing…" : relTime(s.lastSync)}
+                          </div>
+                          {s.note && (
+                            <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                              {s.note}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span
+                            className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                              s.status === "connected"
+                                ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
+                                : syncing
+                                  ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
+                                  : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {s.status.toUpperCase()}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={syncing}
+                            onClick={() => sync(s.name)}
+                            className="gap-1 text-xs disabled:opacity-60"
+                          >
+                            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
+                          </Button>
                         </div>
                       </div>
-                      <span
-                        className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                          s.status === "connected"
-                            ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
-                            : syncing
-                              ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {s.status.toUpperCase()}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={syncing}
-                        onClick={() => sync(s.name)}
-                        className="gap-1 text-xs disabled:opacity-60"
-                      >
-                        <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
-                      </Button>
                     </div>
                   );
                 })}
@@ -164,6 +201,7 @@ function SettingsPage() {
                   <RefreshCw className="h-3 w-3" /> Sync All Sources
                 </Button>
               </div>
+              <LiveFetchProbe />
             </>
           )}
 
@@ -287,6 +325,134 @@ function StatusItem({ label, value, color }: { label: string; value: string; col
     <div className="rounded border border-border bg-background/40 p-3">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
       <div className="mt-1 font-mono text-sm font-semibold" style={{ color }}>{value}</div>
+    </div>
+  );
+}
+
+type ProbeResult = {
+  url: string;
+  status: number;
+  bytes: number;
+  gridPoints: number;
+  fetchedAt: string;
+  sampleCurrent?: { temperature_2m?: number; precipitation?: number };
+  error?: string;
+};
+
+function LiveFetchProbe() {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<ProbeResult | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+
+  const probeUrl =
+    "https://api.open-meteo.com/v1/forecast?latitude=25.6&longitude=85.14" +
+    "&current=temperature_2m,precipitation,relative_humidity_2m,soil_moisture_0_to_1cm" +
+    "&daily=precipitation_sum,temperature_2m_max,temperature_2m_min" +
+    "&past_days=3&forecast_days=3&timezone=Asia%2FKolkata";
+
+  const run = async () => {
+    setRunning(true);
+    const startedAt = new Date().toISOString();
+    try {
+      const res = await fetch(probeUrl);
+      const text = await res.text();
+      const bytes = new Blob([text]).size;
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(text); } catch { /* ignore */ }
+      // eslint-disable-next-line no-console
+      console.log("[VARUNA · live-fetch probe]", { url: probeUrl, status: res.status, bytes, parsed });
+      const gridPoints = Array.isArray(parsed)
+        ? parsed.length
+        : parsed && typeof parsed === "object"
+          ? 1
+          : 0;
+      const first = Array.isArray(parsed) ? parsed[0] : parsed;
+      const current = (first as { current?: ProbeResult["sampleCurrent"] })?.current;
+      const r: ProbeResult = {
+        url: probeUrl,
+        status: res.status,
+        bytes,
+        gridPoints,
+        fetchedAt: startedAt,
+        sampleCurrent: current,
+      };
+      setResult(r);
+      setHistory((h) => [startedAt, ...h].slice(0, 3));
+      toast.success(`Probe ok — ${(bytes / 1024).toFixed(1)} KB, ${gridPoints} grid point(s)`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setResult({ url: probeUrl, status: 0, bytes: 0, gridPoints: 0, fetchedAt: startedAt, error: msg });
+      toast.error(`Probe failed — ${msg}`);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 rounded border border-border bg-background/40 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)]">
+          Live-fetch probe · Open-Meteo primary feed
+        </h3>
+        <Button size="sm" variant="outline" disabled={running} onClick={run} className="gap-1 text-xs">
+          <RefreshCw className={`h-3 w-3 ${running ? "animate-spin" : ""}`} /> Run probe
+        </Button>
+      </div>
+      <div className="break-all font-mono text-[10px] text-muted-foreground">{probeUrl}</div>
+      {result && (
+        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
+          <Metric label="HTTP status" value={String(result.status)} good={result.status === 200} />
+          <Metric label="Response size" value={`${(result.bytes / 1024).toFixed(1)} KB`} />
+          <Metric label="Grid points" value={String(result.gridPoints)} />
+          <Metric
+            label="Fetched at (IST)"
+            value={new Date(result.fetchedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })}
+          />
+          {result.sampleCurrent && (
+            <div className="col-span-2 rounded border border-border bg-panel/60 px-2 py-1 md:col-span-4">
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sample (Patna centroid) · </span>
+              <span className="font-mono">
+                T={result.sampleCurrent.temperature_2m ?? "—"}°C · P={result.sampleCurrent.precipitation ?? "—"} mm/h
+              </span>
+            </div>
+          )}
+          {result.error && (
+            <div className="col-span-2 rounded border border-[color:var(--risk-flood)]/60 bg-[color:var(--risk-flood)]/10 px-2 py-1 text-[color:var(--risk-flood)] md:col-span-4">
+              {result.error}
+            </div>
+          )}
+        </div>
+      )}
+      {history.length > 0 && (
+        <div className="mt-2 text-[10px] text-muted-foreground">
+          Last 3 probes:{" "}
+          {history.map((h, i) => (
+            <span key={h} className="font-mono">
+              {i > 0 ? " · " : ""}
+              {new Date(h).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-2 text-[10px] text-muted-foreground">
+        The full response JSON is logged to the browser console under{" "}
+        <span className="font-mono">[VARUNA · live-fetch probe]</span> so you can copy it into any
+        verification tool.
+      </div>
+    </div>
+  );
+}
+
+function Metric({ label, value, good }: { label: string; value: string; good?: boolean }) {
+  return (
+    <div className="rounded border border-border bg-panel/60 px-2 py-1">
+      <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div
+        className="font-mono text-xs font-semibold"
+        style={{ color: good === undefined ? undefined : good ? "var(--risk-drought)" : "var(--risk-flood)" }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
