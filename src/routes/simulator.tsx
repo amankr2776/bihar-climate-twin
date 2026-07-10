@@ -278,19 +278,42 @@ function SimulatorPage() {
                 <ResultCard label="Coldwave Alert" value={result.coldwave_alert.label} score={result.coldwave_alert.score} color="var(--risk-cold)" desc={result.coldwave_alert.explanation} />
               </div>
 
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Cascade Evolution</div>
+              <div className="flex items-baseline justify-between">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Cascade Evolution</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Blocks at elevated risk</div>
+              </div>
               <div className="flex gap-1">
                 {result.cascade.map((c, i) => {
                   const total = Object.values(c.category_counts).reduce((s, v) => s + v, 0);
+                  const tiers: Array<[string, string]> = [
+                    ["normal", "Normal"],
+                    ["elevated", "Elevated"],
+                    ["high", "High"],
+                    ["critical", "Critical"],
+                  ];
                   return (
                     <div key={i} className="flex-1 rounded border border-border bg-background/40 p-1 text-center text-[9px]">
                       <div className="mb-1 text-muted-foreground">T+{c.hours_ahead}h</div>
-                      <div className="grid grid-cols-2 gap-px">
-                        {Object.entries(c.category_counts).slice(0, 4).map(([k, v]) => (
-                          <div key={k} className="rounded-sm px-1 font-mono" style={{ backgroundColor: `color-mix(in oklch, var(--risk-${k}) 30%, transparent)`, color: `var(--risk-${k})` }}>{v}</div>
-                        ))}
+                      <div className="text-[8px] uppercase tracking-wider text-muted-foreground/70">blocks</div>
+                      <div className="text-sm font-mono font-semibold text-foreground">{total}</div>
+                      <div className="mt-1 space-y-px">
+                        {tiers.map(([k, label]) => {
+                          const v = c.category_counts[k] ?? 0;
+                          return (
+                            <div
+                              key={k}
+                              className="flex items-center justify-between rounded-sm px-1 font-mono"
+                              style={{
+                                backgroundColor: `color-mix(in oklch, var(--risk-${k}) 22%, transparent)`,
+                                color: `var(--risk-${k})`,
+                              }}
+                            >
+                              <span className="text-[8px] uppercase tracking-wide opacity-80">{label}</span>
+                              <span>{v}</span>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="mt-1 text-muted-foreground">{total}</div>
                     </div>
                   );
                 })}
