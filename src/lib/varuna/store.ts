@@ -45,10 +45,15 @@ export type AlertConfig = {
   compoundThreshold: number;
 };
 
+export type DataSourceMode = "live" | "cached" | "fallback" | "planned";
 export type DataSource = {
   name: string;
   status: "connected" | "disconnected" | "syncing";
   lastSync: number; // epoch ms
+  mode: DataSourceMode;
+  endpoint: string;
+  cadence: string;
+  note: string;
 };
 
 export type SystemStatus = {
