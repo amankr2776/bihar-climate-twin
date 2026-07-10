@@ -265,6 +265,20 @@ function SimulatorPage() {
                 </div>
               </div>
 
+              <div
+                className="rounded-r bg-[color:var(--risk-heat)]/10 p-3"
+                style={{ borderLeft: "4px solid var(--risk-heat)" }}
+              >
+                <div className="mb-1.5 text-xs font-bold uppercase tracking-widest text-[color:var(--risk-heat)]">
+                  AI Recommended Actions
+                </div>
+                <ol className="list-decimal space-y-1 pl-5 text-foreground/90" style={{ fontSize: "13px", lineHeight: 1.4 }}>
+                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
+                  <li>Issue flood warnings for Kosi basin districts.</li>
+                  <li>Monitor soil moisture in southern districts for drought escalation.</li>
+                  <li>Activate cooling shelters in Gaya, Aurangabad.</li>
+                </ol>
+
               <div className="flex items-center justify-center gap-3 rounded border border-[color:var(--risk-heat)]/20 bg-[color:var(--risk-heat)]/10 px-3 py-2 text-[11px]">
                 <span className="font-bold text-[color:var(--risk-heat)]">Severity ×{result.severity_multiplier}</span>
                 <span className="text-[color:var(--risk-heat)]/60">|</span>
