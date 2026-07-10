@@ -98,6 +98,35 @@ function AuthPage() {
   );
 }
 
+function GoogleButton({ busy, setBusy }: { busy: boolean; setBusy: (b: boolean) => void }) {
+  const onClick = async () => {
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/dashboard",
+      });
+      if (result.error) throw result.error;
+      // If redirected, browser will navigate away; otherwise session is set.
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google sign-in failed");
+      setBusy(false);
+    }
+  };
+  return (
+    <Button type="button" variant="outline" className="w-full" onClick={onClick} disabled={busy}>
+      {busy ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.31 0-6.01-2.74-6.01-6.11S8.69 5.98 12 5.98c1.88 0 3.14.8 3.86 1.49l2.63-2.53C16.9 3.4 14.66 2.4 12 2.4 6.94 2.4 2.85 6.5 2.85 12s4.09 9.6 9.15 9.6c5.28 0 8.78-3.72 8.78-8.95 0-.6-.06-1.06-.15-1.55H12z"/>
+        </svg>
+      )}
+      Continue with Google
+    </Button>
+  );
+}
+
+
 function EmailForm({
   mode,
   busy,
