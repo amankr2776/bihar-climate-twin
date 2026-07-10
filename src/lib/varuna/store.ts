@@ -116,7 +116,7 @@ const initial: VarunaState = {
   savedReports: seedReports(),
   alertConfig: {
     emailNotifications: true,
-    smsNotifications: false,
+    smsNotifications: true,
     dashboardAlerts: true,
     autoEscalate: false,
     floodThreshold: 0.65,
