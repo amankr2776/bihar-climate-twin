@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroVideo from "@/assets/landing-hero.mp4.asset.json";
+import heroPoster from "@/assets/landing-poster.jpg";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -23,6 +24,8 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const navigate = useNavigate();
   const [authed, setAuthed] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
@@ -30,33 +33,86 @@ function Landing() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Nudge autoplay in strict browsers
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const tryPlay = () => v.play().catch(() => {});
+    tryPlay();
+    document.addEventListener("visibilitychange", tryPlay);
+    return () => document.removeEventListener("visibilitychange", tryPlay);
+  }, []);
+
   const enter = () => navigate({ to: authed ? "/dashboard" : "/auth" });
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
+      {/* Poster fallback (shows instantly, hides once video is playing) */}
+      <img
+        src={heroPoster}
+        alt=""
+        aria-hidden="true"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
+          videoReady ? "opacity-0" : "opacity-100"
+        }`}
+        style={{ animation: "heroKenBurns 30s ease-in-out infinite alternate" }}
+      />
+
       {/* Cinematic looping video background */}
       <video
-        className="absolute inset-0 -z-10 h-full w-full object-cover"
+        ref={videoRef}
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
+          videoReady ? "opacity-100" : "opacity-0"
+        }`}
         src={heroVideo.url}
+        poster={heroPoster}
         autoPlay
         muted
         loop
         playsInline
         preload="auto"
+        onCanPlay={() => setVideoReady(true)}
+        onLoadedData={() => setVideoReady(true)}
         aria-hidden="true"
       />
 
       {/* Cinematic vignette + tint */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/50 via-black/30 to-black/90" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.85)_90%)]" />
-      {/* Subtle animated scanlines */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/95" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/40" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,transparent_0%,rgba(0,0,0,0.75)_85%)]" />
+
+      {/* Animated cyan/amber data-grid overlay */}
       <div
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] mix-blend-screen"
+        className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-screen"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(34,211,238,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(251,191,36,0.25) 1px, transparent 1px)",
+          backgroundSize: "60px 60px, 60px 60px",
+          animation: "heroGridDrift 25s linear infinite",
+        }}
+      />
+
+      {/* Subtle scanlines */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-screen"
         style={{
           backgroundImage:
             "repeating-linear-gradient(0deg, rgba(0,255,255,0.6) 0px, rgba(0,255,255,0.6) 1px, transparent 1px, transparent 4px)",
         }}
       />
+
+      {/* Local keyframes */}
+      <style>{`
+        @keyframes heroKenBurns {
+          0% { transform: scale(1.05) translate(0, 0); }
+          100% { transform: scale(1.15) translate(-2%, -1%); }
+        }
+        @keyframes heroGridDrift {
+          0% { background-position: 0 0, 0 0; }
+          100% { background-position: 60px 60px, -60px 60px; }
+        }
+      `}</style>
+
 
       {/* Nav */}
       <header className="relative z-10 flex items-center justify-between px-6 py-5 lg:px-12">
