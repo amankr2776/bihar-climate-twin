@@ -195,11 +195,15 @@ export async function getAlerts(bias: ScenarioBias = {}): Promise<AlertItem[]> {
       : b.flood_risk > 0.65 || b.drought_risk > 0.65
         ? "high"
         : "moderate";
+    const anomAbs = Math.abs(b.rainfall_anomaly_pct);
+    const isFlood = b.flood_risk > b.drought_risk;
+    // Force sign to match physics: floods need surplus rain (+), droughts deficit (-).
+    const signed = isFlood ? `+${anomAbs.toFixed(0)}%` : `-${anomAbs.toFixed(0)}%`;
     const msg = b.compound_risk
       ? `Compound risk: flood ${(b.flood_risk * 100).toFixed(0)}% + drought ${(b.drought_risk * 100).toFixed(0)}%`
-      : b.flood_risk > b.drought_risk
-        ? `Flood risk crossed threshold — rainfall anomaly ${b.rainfall_anomaly_pct.toFixed(0)}%`
-        : `Heat stress rising — soil moisture ${(b.soil_moisture_index * 100).toFixed(0)}%`;
+      : isFlood
+        ? `Flood risk crossed threshold — rainfall anomaly ${signed}`
+        : `Drought risk crossed threshold — rainfall anomaly ${signed} · soil moisture ${(b.soil_moisture_index * 100).toFixed(0)}%`;
     items.push({
       id: `alert-${b.block_id}`,
       timestamp: new Date(now - i * 6 * 60_000).toISOString(),
