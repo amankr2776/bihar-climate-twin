@@ -299,7 +299,7 @@ export function buildStateFromReadings(
         1,
         Math.max(0, 0.5 * heat + 0.4 * (1 - soil) + (rand() - 0.5) * 0.08),
       );
-      const compound = flood_risk >= 0.6 && drought_risk >= 0.4;
+      const compound = flood_risk >= 0.5 && drought_risk >= 0.35;
 
       blocks.push({
         block_id: `${d.id}-b${i + 1}`,
@@ -336,7 +336,7 @@ export function buildStateFromReadings(
     const soil = dBlocks.reduce((s, b) => s + b.soil_moisture_index, 0) / dBlocks.length;
     const rain = dBlocks.reduce((s, b) => s + b.rainfall_mm, 0) / dBlocks.length;
     const temp = dBlocks.reduce((s, b) => s + b.temperature_c, 0) / dBlocks.length;
-    const compound = flood >= 0.6 && drought >= 0.4;
+    const compound = flood >= 0.5 && drought >= 0.35;
     const highRiskBlocks = dBlocks.filter((b) => b.flood_risk >= 0.6 || b.drought_risk >= 0.6);
     const pop = highRiskBlocks.reduce((s, b) => s + b.population, 0);
     const r = byId.get(d.id);

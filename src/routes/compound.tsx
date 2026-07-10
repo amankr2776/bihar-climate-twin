@@ -168,7 +168,7 @@ function CompoundPage() {
                   <XAxis type="number" dataKey="flood_risk" domain={[0, 1]} tick={{ fontSize: 10 }} label={{ value: "Flood risk →", position: "bottom", fill: "#94a3b8", fontSize: 10 }} />
                   <YAxis type="number" dataKey="drought_risk" domain={[0, 1]} tick={{ fontSize: 10 }} label={{ value: "Drought risk →", angle: -90, position: "insideLeft", fill: "#94a3b8", fontSize: 10 }} />
                   <ZAxis range={[20, 120]} />
-                  <ReferenceArea x1={0.6} x2={1} y1={0.6} y2={1} strokeDasharray="4 4" stroke="var(--risk-compound)" fill="var(--risk-compound)" fillOpacity={0.15} label={{ value: "COMPOUND ZONE", fill: "var(--risk-compound)", fontSize: 10 }} />
+                  <ReferenceArea x1={0.5} x2={1} y1={0.35} y2={1} strokeDasharray="4 4" stroke="var(--risk-compound)" fill="var(--risk-compound)" fillOpacity={0.15} label={{ value: "COMPOUND ZONE", fill: "var(--risk-compound)", fontSize: 10 }} />
                   <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155", fontSize: 11 }} />
                   <Scatter
                     data={blocks.map((b) => ({
