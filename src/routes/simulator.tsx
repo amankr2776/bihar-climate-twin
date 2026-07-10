@@ -387,7 +387,7 @@ function SimulatorPage() {
 
           <div className="mt-4 font-display text-sm font-semibold uppercase tracking-widest">Compare Scenarios</div>
           {compareScenarios.length === 0 ? (
-            <div className="mt-1 text-xs text-muted-foreground">Check up to 3 scenarios.</div>
+            <div className="mt-1 text-xs text-muted-foreground">Tick 2–3 saved scenarios above to compare their impacts side by side.</div>
           ) : (
             <table className="mt-2 w-full text-[10px]">
               <thead className="text-muted-foreground"><tr><th className="text-left">Field</th>{compareScenarios.map((s) => <th key={s.id} className="text-right">{s.name}</th>)}</tr></thead>
