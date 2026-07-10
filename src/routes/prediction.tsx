@@ -76,6 +76,23 @@ function PredictionPage() {
   const [step, setStep] = useState(1);
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
+  const [geo, setGeo] = useState<{ features: Array<{ geometry: { type: string; coordinates: number[][][] | number[][][][] } }> } | null>(null);
+  useEffect(() => {
+    fetch("/bihar-districts.geojson").then((r) => r.json()).then(setGeo).catch(() => setGeo(null));
+  }, []);
+  const geoPaths = useMemo(() => {
+    if (!geo) return [] as string[];
+    const xOf = (lng: number) => ((lng - 83) / 5.5) * 400;
+    const yOf = (lat: number) => 260 - ((lat - 24.3) / 3.5) * 260;
+    const ringToPath = (ring: number[][]) =>
+      ring.map(([lng, lat], i) => `${i === 0 ? "M" : "L"}${xOf(lng).toFixed(2)},${yOf(lat).toFixed(2)}`).join(" ") + " Z";
+    return geo.features.flatMap((f) => {
+      if (f.geometry.type === "Polygon") return [(f.geometry.coordinates as number[][][]).map(ringToPath).join(" ")];
+      if (f.geometry.type === "MultiPolygon")
+        return (f.geometry.coordinates as number[][][][]).map((poly) => poly.map(ringToPath).join(" "));
+      return [];
+    });
+  }, [geo]);
 
   useEffect(() => {
     if (state && !selectedBlock) setSelectedBlock(state.blocks[0]);
@@ -220,7 +237,18 @@ function PredictionPage() {
             </div>
           </div>
           <div className="relative flex h-72 items-center justify-center overflow-hidden rounded-lg border border-border bg-background/40">
-            <svg viewBox="0 0 400 260" className="h-full w-full">
+            <svg viewBox="0 0 400 260" className="h-full w-full" preserveAspectRatio="xMidYMid meet">
+              {/* Bhuvan district boundary overlay */}
+              {geoPaths.map((p, i) => (
+                <path
+                  key={i}
+                  d={p}
+                  fill="oklch(0.28 0.02 260 / 35%)"
+                  stroke="oklch(0.75 0.02 260 / 55%)"
+                  strokeWidth="0.5"
+                  strokeLinejoin="round"
+                />
+              ))}
               {(state?.districts ?? []).map((d) => {
                 const x = ((d.district.lng - 83) / 5.5) * 400;
                 const y = 260 - ((d.district.lat - 24.3) / 3.5) * 260;
@@ -252,11 +280,14 @@ function PredictionPage() {
               </defs>
             </svg>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">Forecast steps:</span>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">Iterative rollout:</span>
             {[1, 2, 4, 8].map((n) => (
               <ToggleBtn key={n} active={step === n} onClick={() => setStep(n)}>T+{n}</ToggleBtn>
             ))}
+            <span className="rounded-full border border-border bg-background/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+              T+1 base · rolled forward {step}×
+            </span>
             <span className="ml-auto text-[10px] text-muted-foreground">Uncertainty grows with each iterative step</span>
           </div>
         </section>
