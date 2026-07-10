@@ -212,9 +212,9 @@ function VarunaDashboard() {
                   <div className="pointer-events-none absolute left-4 top-4 z-[500] hidden max-w-[220px] items-start gap-2 rounded-lg border border-[color:var(--risk-flood)]/50 bg-panel/95 p-2.5 shadow-lg backdrop-blur md:flex">
                     <CloudRain className="h-4 w-4 shrink-0 text-[color:var(--risk-flood)]" />
                     <div className="text-[11px] leading-tight">
-                      <div className="text-muted-foreground">Excess precipitation — Kosi basin</div>
+                      <div className="text-muted-foreground">Kosi basin rainfall vs. rest of Bihar</div>
                       <div className="font-mono text-sm font-bold text-[color:var(--risk-flood)]">
-                        +{Math.max(0, kosiExcess)}%
+                        {kosiExcess >= 0 ? "+" : ""}{kosiExcess}%
                       </div>
                     </div>
                   </div>
