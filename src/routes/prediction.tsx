@@ -362,20 +362,27 @@ function PredictionPage() {
               </div>
 
               <div className="mt-3 h-32 rounded border border-border bg-background/40 p-2">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {districtForecast.length > 0 ? "7-day GFS forecast" : "24-h forecast"} · {feature}
+                <div className="flex items-baseline justify-between">
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {districtForecast.length > 0 ? "7-day GFS forecast" : "24-h forecast"} · {feature}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                    <span className="inline-block h-2 w-3 rounded-sm" style={{ backgroundColor: "var(--risk-flood)", opacity: 0.28 }} />
+                    <span>90% confidence interval</span>
+                  </div>
                 </div>
                 <ResponsiveContainer width="100%" height="85%">
                   <AreaChart data={blockForecast}>
                     <XAxis dataKey="label" tick={{ fontSize: 9 }} />
                     <YAxis tick={{ fontSize: 9 }} width={30} />
-                    <Area dataKey="hi" fill="var(--risk-flood)" fillOpacity={0.15} stroke="none" />
-                    <Area dataKey="lo" fill="var(--panel)" stroke="none" />
-                    <Line dataKey="value" stroke="var(--risk-flood)" dot={false} strokeWidth={1.8} />
+                    <Area dataKey="hi" fill="var(--risk-flood)" fillOpacity={0.28} stroke="var(--risk-flood)" strokeOpacity={0.35} strokeWidth={0.8} isAnimationActive={false} />
+                    <Area dataKey="lo" fill="var(--panel)" fillOpacity={1} stroke="none" isAnimationActive={false} />
+                    <Line dataKey="value" stroke="var(--risk-flood)" dot={false} strokeWidth={1.8} isAnimationActive={false} />
                     <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155", fontSize: 11 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+
 
               <div className="mt-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-2 text-[11px]">
                 <div className="flex items-center justify-between">
