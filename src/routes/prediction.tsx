@@ -280,11 +280,14 @@ function PredictionPage() {
               </defs>
             </svg>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">Forecast steps:</span>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">Iterative rollout:</span>
             {[1, 2, 4, 8].map((n) => (
               <ToggleBtn key={n} active={step === n} onClick={() => setStep(n)}>T+{n}</ToggleBtn>
             ))}
+            <span className="rounded-full border border-border bg-background/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+              T+1 base · rolled forward {step}×
+            </span>
             <span className="ml-auto text-[10px] text-muted-foreground">Uncertainty grows with each iterative step</span>
           </div>
         </section>
