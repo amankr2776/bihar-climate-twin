@@ -76,6 +76,23 @@ function PredictionPage() {
   const [step, setStep] = useState(1);
   const [blockSearch, setBlockSearch] = useState("");
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
+  const [geo, setGeo] = useState<{ features: Array<{ geometry: { type: string; coordinates: number[][][] | number[][][][] } }> } | null>(null);
+  useEffect(() => {
+    fetch("/bihar-districts.geojson").then((r) => r.json()).then(setGeo).catch(() => setGeo(null));
+  }, []);
+  const geoPaths = useMemo(() => {
+    if (!geo) return [] as string[];
+    const xOf = (lng: number) => ((lng - 83) / 5.5) * 400;
+    const yOf = (lat: number) => 260 - ((lat - 24.3) / 3.5) * 260;
+    const ringToPath = (ring: number[][]) =>
+      ring.map(([lng, lat], i) => `${i === 0 ? "M" : "L"}${xOf(lng).toFixed(2)},${yOf(lat).toFixed(2)}`).join(" ") + " Z";
+    return geo.features.flatMap((f) => {
+      if (f.geometry.type === "Polygon") return [(f.geometry.coordinates as number[][][]).map(ringToPath).join(" ")];
+      if (f.geometry.type === "MultiPolygon")
+        return (f.geometry.coordinates as number[][][][]).map((poly) => poly.map(ringToPath).join(" "));
+      return [];
+    });
+  }, [geo]);
 
   useEffect(() => {
     if (state && !selectedBlock) setSelectedBlock(state.blocks[0]);
