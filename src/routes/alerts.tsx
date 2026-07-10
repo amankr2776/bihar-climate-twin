@@ -147,7 +147,12 @@ function AlertsPage() {
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <MetricCard label="Active Critical" value={critical} color="var(--risk-compound)" pulse />
         <MetricCard label="Active High" value={high} color="var(--risk-heat)" />
-        <MetricCard label="Resolved Today" value={dismissed.length} color="var(--risk-drought)" icon={<Check />} />
+        <MetricCard
+          label="Resolved Today"
+          value={dismissed.length}
+          color={dismissed.length > 0 ? "var(--risk-drought)" : "var(--muted-foreground)"}
+          icon={dismissed.length > 0 ? <Check /> : <Clock />}
+        />
         <MetricCard label="Avg Resolution" value="3.2h" color="var(--brand-cyan)" icon={<Clock />} />
       </div>
 
