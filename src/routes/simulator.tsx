@@ -123,11 +123,38 @@ function SimulatorPage() {
     toast.success("Deleted");
   };
 
+  // Per-district scaling by geography — Kosi/north dominate flood, south
+  // dominates drought/heat. Deterministic hash keeps the table stable
+  // across renders but differentiated across districts.
+  const districtImpact = useMemo(() => {
+    if (!result) return [] as Array<{ id: string; name: string; population: number; flood: number; drought: number; heat: number }>;
+    const clamp = (n: number) => Math.max(0, Math.min(1, n));
+    const hash = (s: string) => {
+      let h = 2166136261;
+      for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+      return ((h >>> 0) % 1000) / 1000; // 0..1
+    };
+    return DISTRICTS.map((d) => {
+      const j = hash(d.id) - 0.5; // -0.5..0.5 deterministic jitter
+      const floodMul =
+        (d.kosiBasin ? 1.35 : 1) *
+        (d.region === "north" ? 1.15 : d.region === "east" ? 1.05 : d.region === "central" ? 0.95 : d.region === "west" ? 0.85 : 0.6);
+      const droughtMul =
+        d.region === "south" ? 1.4 : d.region === "west" ? 1.15 : d.region === "central" ? 0.9 : d.kosiBasin ? 0.45 : 0.6;
+      const heatMul =
+        d.region === "south" ? 1.3 : d.region === "central" ? 1.1 : d.region === "west" ? 1.0 : 0.75;
+      const flood = clamp(result.flood_level.score * floodMul + j * 0.08);
+      const drought = clamp(result.drought_index.score * droughtMul + j * 0.06);
+      const heat = clamp(result.heatwave_alert.score * heatMul + j * 0.05);
+      return { id: d.id, name: d.name, population: d.population, flood, drought, heat };
+    });
+  }, [result]);
+
   const exportCsv = () => {
     if (!result) return;
     const rows = ["District,Flood,Drought,Heatwave,Coldwave,Blocks,Population"];
-    DISTRICTS.forEach((d) => {
-      rows.push(`${d.name},${(result.flood_level.score * (0.7 + Math.random() * 0.6)).toFixed(2)},${(result.drought_index.score * (0.6 + Math.random() * 0.7)).toFixed(2)},${(result.heatwave_alert.score * (0.7 + Math.random() * 0.5)).toFixed(2)},${result.coldwave_alert.score.toFixed(2)},${14},${d.population}`);
+    districtImpact.forEach((r) => {
+      rows.push(`${r.name},${r.flood.toFixed(2)},${r.drought.toFixed(2)},${r.heat.toFixed(2)},${result.coldwave_alert.score.toFixed(2)},14,${r.population}`);
     });
     const blob = new Blob([rows.join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
