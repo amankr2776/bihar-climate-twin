@@ -175,9 +175,9 @@ export async function getAlerts(bias: ScenarioBias = {}): Promise<AlertItem[]> {
   );
   for (let i = 0; i < 12 && i < sorted.length; i++) {
     const b = sorted[i];
-    const sev: AlertItem["severity"] = b.compound_risk
+    const sev: AlertItem["severity"] = b.compound_risk || b.flood_risk > 0.82 || b.drought_risk > 0.82
       ? "critical"
-      : b.flood_risk > 0.7 || b.drought_risk > 0.7
+      : b.flood_risk > 0.65 || b.drought_risk > 0.65
         ? "high"
         : "moderate";
     const msg = b.compound_risk
