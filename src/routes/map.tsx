@@ -346,8 +346,23 @@ function MapPage() {
             <div className="absolute bottom-3 right-3 z-[500] rounded-md bg-panel/95 p-2 backdrop-blur">
               <Compass className="h-5 w-5 text-primary" />
             </div>
-            <div className="absolute bottom-3 left-3 z-[500] rounded-md border border-border bg-panel/95 px-2 py-1 text-[10px] font-mono text-muted-foreground backdrop-blur">
-              50 km
+            <div className="absolute bottom-3 left-3 z-[500] rounded-md border border-border bg-panel/95 p-2 backdrop-blur">
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Legend</div>
+              <div className="grid grid-cols-1 gap-1 text-[11px]">
+                {[
+                  { c: "var(--risk-flood)", l: "Flood Risk" },
+                  { c: "var(--risk-compound)", l: "Compound Risk" },
+                  { c: "var(--risk-heat)", l: "Heatwave / Drought" },
+                  { c: "var(--risk-drought)", l: "Drought (Low soil)" },
+                  { c: "var(--risk-normal)", l: "Normal" },
+                ].map((item) => (
+                  <div key={item.l} className="flex items-center gap-2">
+                    <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.c }} />
+                    <span>{item.l}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 border-t border-border pt-1.5 font-mono text-[10px] text-muted-foreground">50 km</div>
             </div>
 
             <MapContainer bounds={BIHAR_BOUNDS} style={{ height: "100%", width: "100%", background: "oklch(0.14 0.02 260)" }} scrollWheelZoom>
