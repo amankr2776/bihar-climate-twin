@@ -215,9 +215,9 @@ function RootInner() {
     : "—";
   const label = BREADCRUMBS[pathname] ?? "Dashboard";
 
-  const isLanding = pathname === "/";
+  const isPublic = pathname === "/" || pathname === "/auth";
 
-  if (isLanding) {
+  if (isPublic) {
     return (
       <div className="min-h-screen w-full bg-background text-foreground">
         <Outlet />

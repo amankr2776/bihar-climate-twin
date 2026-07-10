@@ -42,9 +42,10 @@ function AuthPage() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
-        <Link to="/" className="mb-6 flex items-center gap-2">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      {/* Public header */}
+      <header className="flex items-center justify-between border-b border-border bg-panel/40 px-6 py-4 backdrop-blur lg:px-12">
+        <Link to="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[color:var(--brand-magenta)] to-[color:var(--brand-cyan)] font-display text-lg font-black text-background">
             V
           </div>
@@ -52,7 +53,12 @@ function AuthPage() {
             VARUNA
           </div>
         </Link>
+        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+          ← Back to home
+        </Link>
+      </header>
 
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
         <div className="rounded-xl border border-border bg-panel p-6 shadow-lg">
           <div className="mb-4 flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-[color:var(--brand-cyan)]" />
@@ -60,6 +66,7 @@ function AuthPage() {
               {mode === "in" ? "Sign in to VARUNA" : "Create an account"}
             </h1>
           </div>
+
 
           <Tabs defaultValue="email" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -94,6 +101,15 @@ function AuthPage() {
           Admin sign-in for restricted operational tools. Public dashboards do not require authentication.
         </p>
       </div>
+
+      <footer className="border-t border-border bg-panel/40 px-6 py-4 text-center text-[11px] text-muted-foreground lg:px-12">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3">
+          <span><span className="text-foreground">VARUNA</span> · Decision-support digital twin — not an official warning authority.</span>
+          <a href="https://www.imdpune.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">IMD</a>
+          <a href="https://www.mosdac.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">MOSDAC</a>
+          <a href="https://bhuvan.nrsc.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">Bhuvan</a>
+        </div>
+      </footer>
     </div>
   );
 }
