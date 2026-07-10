@@ -278,6 +278,8 @@ function SimulatorPage() {
                   <li>Monitor soil moisture in southern districts for drought escalation.</li>
                   <li>Activate cooling shelters in Gaya, Aurangabad.</li>
                 </ol>
+              </div>
+
 
               <div className="flex items-center justify-center gap-3 rounded border border-[color:var(--risk-heat)]/20 bg-[color:var(--risk-heat)]/10 px-3 py-2 text-[11px]">
                 <span className="font-bold text-[color:var(--risk-heat)]">Severity ×{result.severity_multiplier}</span>
