@@ -284,6 +284,55 @@ function AlertsPage() {
   );
 }
 
+function TestSmsButton() {
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState("+91");
+  const [sending, setSending] = useState(false);
+  const send = async () => {
+    if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
+      toast.error("Enter phone in E.164 format (e.g. +919876543210)");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch("/api/public/sms/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      toast.success(`Test SMS sent via Twilio${body.sid ? ` · ${String(body.sid).slice(0, 10)}…` : ""}`);
+      setOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "SMS failed");
+    } finally {
+      setSending(false);
+    }
+  };
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); setOpen(true); }}
+        className="rounded border border-[color:var(--brand-cyan)]/50 bg-[color:var(--brand-cyan)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/20"
+      >
+        Send test
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="border-border bg-panel text-foreground">
+          <DialogHeader><DialogTitle>Send test SMS via Twilio</DialogTitle></DialogHeader>
+          <div className="text-xs text-muted-foreground">Delivers a live alert-channel test message from the connected Twilio number to verify SMS routing.</div>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+919876543210" className="text-sm" />
+          <Button onClick={send} disabled={sending} className="bg-[color:var(--brand-cyan)] text-background hover:bg-[color:var(--brand-cyan)]/90">
+            {sending ? "Sending…" : "Send test SMS"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 function MetricCard({ label, value, color, icon, pulse }: { label: string; value: string | number; color: string; icon?: React.ReactNode; pulse?: boolean }) {
   return (
     <div className="rounded-xl border border-border bg-panel p-3">
