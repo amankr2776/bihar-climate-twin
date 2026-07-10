@@ -76,10 +76,10 @@ function Landing() {
         aria-hidden="true"
       />
 
-      {/* Cinematic vignette + tint */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/95" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/40" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,transparent_0%,rgba(0,0,0,0.75)_85%)]" />
+      {/* Light edge tint only — keep the video bright and visible */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/55" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,transparent_20%,rgba(0,0,0,0.35)_90%)]" />
 
       {/* Animated cyan/amber data-grid overlay */}
       <div
