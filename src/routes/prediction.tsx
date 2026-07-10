@@ -432,7 +432,10 @@ function PredictionPage() {
 
       {/* Bottom row */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ChartCard title={`Predicted vs Observed · R² = ${r2.toFixed(2)}`}>
+        <ChartCard
+          title={`Predicted vs Observed · R² = ${r2.toFixed(2)} (2022–24 monsoon holdout)`}
+          subtitle="Test set only — model was not trained on this period."
+        >
           <ResponsiveContainer>
             <ScatterChart>
               <XAxis type="number" dataKey="obs" domain={[0, 100]} tick={{ fontSize: 9 }} name="Obs" />
@@ -594,10 +597,11 @@ function ProgressRing({ value, target }: { value: number; target: number }) {
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <div className="h-56 rounded-xl border border-border bg-panel p-3">
       <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{title}</div>
+      {subtitle && <div className="mb-1 text-[9px] text-muted-foreground">{subtitle}</div>}
       <div className="h-[85%]">{children}</div>
     </div>
   );
