@@ -80,9 +80,12 @@ function VarunaDashboard() {
 
   const kosiExcess = useMemo(() => {
     const kosi = districts.filter((d) => d.district.kosiBasin);
-    if (!kosi.length) return 0;
-    const mean = kosi.reduce((s, d) => s + d.rainfall_mm, 0) / kosi.length;
-    return Math.round(((mean - 30) / 30) * 100);
+    const nonKosi = districts.filter((d) => !d.district.kosiBasin);
+    if (!kosi.length || !nonKosi.length) return 0;
+    const kosiMean = kosi.reduce((s, d) => s + d.rainfall_mm, 0) / kosi.length;
+    const restMean = nonKosi.reduce((s, d) => s + d.rainfall_mm, 0) / nonKosi.length;
+    const baseline = Math.max(restMean, 8); // guard against tiny denominators in dry spells
+    return Math.round(((kosiMean - baseline) / baseline) * 100);
   }, [districts]);
 
   const soilAnomaly = useMemo(() => {
