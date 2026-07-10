@@ -160,7 +160,22 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
           ? "Nocturnal temperatures dropping in north corridor."
           : "No coldwave signature in projection window.",
     },
-    severity_multiplier: +(1 + compound / 40).toFixed(2),
+    severity_multiplier: (() => {
+      const maxRisk = Math.max(floodScore, droughtScore, heatScore);
+      const soilBoost =
+        input.soil_condition === "saturated" ? 0.65 :
+        input.soil_condition === "drought-baked" ? 0.55 : 0;
+      const rainAmp = Math.abs(input.rainfall_anomaly_pct) / 100;
+      const tempAmp = Math.abs(input.temperature_anomaly_c) / 10;
+      const compoundBoost = compound / 25;
+      let m = 1 + maxRisk * 1.4 + soilBoost + rainAmp * 0.5 + tempAmp * 0.4 + compoundBoost;
+      // Compound amplification: severe + saturated + heavy rain magnifies further.
+      if (floodScore >= 0.75 && input.soil_condition === "saturated") m += 0.35;
+      // Floor: never show ×1 when risk label is Severe or Critical.
+      if (maxRisk >= 0.75) m = Math.max(m, 2.15);
+      else if (maxRisk >= 0.5) m = Math.max(m, 1.45);
+      return +Math.min(3.5, m).toFixed(2);
+    })(),
     districts_affected: Math.min(38, districtsAffected),
     cascade,
   };
