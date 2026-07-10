@@ -68,6 +68,12 @@ function AuthPage() {
             </TabsList>
 
             <TabsContent value="email" className="mt-4">
+              <GoogleButton busy={busy} setBusy={setBusy} />
+              <div className="my-4 flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <div className="h-px flex-1 bg-border" />
+                <span>or continue with email</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
               <EmailForm mode={mode} busy={busy} setBusy={setBusy} onDone={() => navigate({ to: "/dashboard" })} />
               <button
                 type="button"
