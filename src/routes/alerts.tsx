@@ -217,10 +217,21 @@ function AlertsPage() {
           <div className="rounded-xl border border-border bg-panel p-4">
             <div className="mb-2 font-display text-sm font-semibold uppercase tracking-widest">Notification Settings</div>
             {(["emailNotifications", "smsNotifications", "dashboardAlerts", "autoEscalate"] as const).map((k) => (
-              <label key={k} className="flex items-center justify-between py-1 text-xs">
-                <span className="capitalize">{k.replace(/([A-Z])/g, " $1")}</span>
-                <Switch checked={config[k]} onCheckedChange={(v) => varunaStore.set((s) => ({ alertConfig: { ...s.alertConfig, [k]: v } }))} />
-              </label>
+              <div key={k} className="flex items-center justify-between py-1 text-xs">
+                <label className="flex items-center gap-2 capitalize">
+                  <span>{k.replace(/([A-Z])/g, " $1")}</span>
+                  {k === "smsNotifications" && (
+                    <span className="inline-flex items-center gap-1 rounded border border-[color:var(--brand-cyan)]/50 bg-[color:var(--brand-cyan)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--brand-cyan)]">
+                      <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--brand-cyan)]" />
+                      Twilio · Connected
+                    </span>
+                  )}
+                </label>
+                <div className="flex items-center gap-2">
+                  {k === "smsNotifications" && <TestSmsButton />}
+                  <Switch checked={config[k]} onCheckedChange={(v) => varunaStore.set((s) => ({ alertConfig: { ...s.alertConfig, [k]: v } }))} />
+                </div>
+              </div>
             ))}
             <div className="mt-3 mb-2 font-display text-sm font-semibold uppercase tracking-widest">Threshold Settings</div>
             {([
