@@ -302,8 +302,8 @@ function SimulatorPage() {
                     <tr><th className="p-1 text-left">District</th><th className="p-1 text-right">Flood</th><th className="p-1 text-right">Drought</th><th className="p-1 text-right">Heat</th><th className="p-1 text-right">Pop</th></tr>
                   </thead>
                   <tbody>
-                    {DISTRICTS.slice(0, 15).map((d) => (
-                      <tr key={d.id} className="border-t border-border/40"><td className="p-1">{d.name}</td><td className="p-1 text-right font-mono">{(result.flood_level.score * 0.8).toFixed(2)}</td><td className="p-1 text-right font-mono">{(result.drought_index.score * 0.8).toFixed(2)}</td><td className="p-1 text-right font-mono">{(result.heatwave_alert.score * 0.8).toFixed(2)}</td><td className="p-1 text-right font-mono">{d.population}k</td></tr>
+                    {districtImpact.map((d) => (
+                      <tr key={d.id} className="border-t border-border/40"><td className="p-1">{d.name}</td><td className="p-1 text-right font-mono">{d.flood.toFixed(2)}</td><td className="p-1 text-right font-mono">{d.drought.toFixed(2)}</td><td className="p-1 text-right font-mono">{d.heat.toFixed(2)}</td><td className="p-1 text-right font-mono">{d.population}k</td></tr>
                     ))}
                   </tbody>
                 </table>
