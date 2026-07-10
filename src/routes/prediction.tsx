@@ -432,7 +432,10 @@ function PredictionPage() {
 
       {/* Bottom row */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ChartCard title={`Predicted vs Observed · R² = ${r2.toFixed(2)}`}>
+        <ChartCard
+          title={`Predicted vs Observed · R² = ${r2.toFixed(2)} (2022–24 monsoon holdout)`}
+          subtitle="Test set only — model was not trained on this period."
+        >
           <ResponsiveContainer>
             <ScatterChart>
               <XAxis type="number" dataKey="obs" domain={[0, 100]} tick={{ fontSize: 9 }} name="Obs" />
