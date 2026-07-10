@@ -820,8 +820,11 @@ function BhagalpurLineageSection() {
       n: 4,
       label: "Noise normalisation (3-day rolling mean, anomaly vs IMD 2022–24 normal)",
       value:
-        district && rainToday != null
-          ? `anomaly ${district.rainfall_anomaly_pct >= 0 ? "+" : ""}${district.rainfall_anomaly_pct.toFixed(1)}%`
+        district && district.blocks.length > 0
+          ? (() => {
+              const anom = district.blocks.reduce((s, b) => s + b.rainfall_anomaly_pct, 0) / district.blocks.length;
+              return `anomaly ${anom >= 0 ? "+" : ""}${anom.toFixed(1)}%`;
+            })()
           : "—",
       source: "imd-normals.ts",
     },
@@ -829,16 +832,25 @@ function BhagalpurLineageSection() {
       n: 5,
       label: "Model input feature vector",
       value: district
-        ? `[rain=${district.rainfall_mm.toFixed(2)}, tmax=${district.temperature_c.toFixed(2)}, soil=${district.soil_moisture_index.toFixed(2)}, kosi=${district.district.kosiBasin ? 1 : 0}]`
+        ? (() => {
+            const soil = district.blocks.reduce((s, b) => s + b.soil_moisture_index, 0) / Math.max(1, district.blocks.length);
+            return `[rain=${district.rainfall_mm.toFixed(2)}, tmax=${district.temperature_c.toFixed(2)}, soil=${soil.toFixed(2)}, kosi=${district.district.kosiBasin ? 1 : 0}]`;
+          })()
         : "—",
       source: "PI-GNN feature builder",
     },
     {
       n: 6,
       label: "Model output → flood risk score",
-      value: district ? `flood=${district.flood_risk.toFixed(2)} · drought=${district.drought_risk.toFixed(2)} · heat=${district.heat_risk.toFixed(2)}` : "—",
+      value: district
+        ? (() => {
+            const heat = district.blocks.reduce((s, b) => s + b.heat_retention_score, 0) / Math.max(1, district.blocks.length);
+            return `flood=${district.flood_risk.toFixed(2)} · drought=${district.drought_risk.toFixed(2)} · heat=${heat.toFixed(2)}`;
+          })()
+        : "—",
       source: "PI-GNN inference head (persistence-blended in PoC)",
     },
+
     {
       n: 7,
       label: "Displayed value on dashboard map (Bhagalpur choropleth cell)",
