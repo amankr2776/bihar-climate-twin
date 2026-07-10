@@ -20,6 +20,44 @@ export const Route = createFileRoute("/methodology")({
       { property: "og:type", content: "article" },
     ],
     links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/methodology" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          headline: "VARUNA PI-GNN Methodology",
+          description:
+            "How VARUNA's Physics-Informed Graph Neural Network models Bihar's climate — 534-block spatial graph, spatio-temporal transformer, IMD ground-truth validation loop.",
+          author: {
+            "@type": "Organization",
+            name: "VARUNA Digital Twin",
+            url: "https://varuna-digital-twin.lovable.app",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "VARUNA Digital Twin",
+            url: "https://varuna-digital-twin.lovable.app",
+          },
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": "https://varuna-digital-twin.lovable.app/methodology",
+          },
+          keywords: [
+            "Physics-Informed Graph Neural Network",
+            "PI-GNN",
+            "Spatio-Temporal Transformer",
+            "Bihar climate risk",
+            "digital twin",
+            "IMD",
+            "INSAT",
+            "flood forecasting",
+            "drought forecasting",
+            "heatwave forecasting",
+          ],
+        }),
+      },
+    ],
   }),
   component: MethodologyPage,
 });
