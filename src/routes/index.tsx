@@ -1,9 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import heroVideo from "@/assets/landing-hero.mp4.asset.json";
+import { ArrowRight, Play } from "lucide-react";
+import heroVideoHQ from "@/assets/landing-hero.mp4.asset.json";
+import heroVideo720 from "@/assets/landing-hero-720.mp4.asset.json";
+import heroVideo480 from "@/assets/landing-hero-480.mp4.asset.json";
+import heroVideoWebm from "@/assets/landing-hero-720.webm.asset.json";
 import heroPoster from "@/assets/landing-poster.jpg";
 
 export const Route = createFileRoute("/")({
@@ -21,10 +24,41 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+type Tier = "hq" | "720" | "480" | "off";
+
+function pickTier(): Tier {
+  if (typeof window === "undefined") return "720";
+
+  // Respect reduce-motion
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return "off";
+
+  // Save-data / slow networks
+  const conn: any =
+    (navigator as any).connection ||
+    (navigator as any).mozConnection ||
+    (navigator as any).webkitConnection;
+  if (conn?.saveData) return "off";
+  const et = conn?.effectiveType as string | undefined;
+  if (et === "slow-2g" || et === "2g") return "off";
+  if (et === "3g") return "480";
+
+  // Device memory / cores hint
+  const mem = (navigator as any).deviceMemory as number | undefined;
+  if (mem && mem <= 2) return "480";
+
+  const w = window.innerWidth * (window.devicePixelRatio || 1);
+  if (w < 900) return "480";
+  if (w < 1600) return "720";
+  return "hq";
+}
+
 function Landing() {
   const navigate = useNavigate();
   const [authed, setAuthed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [tier, setTier] = useState<Tier>("off"); // start safe, upgrade on mount
+  const [userForcedPlay, setUserForcedPlay] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -33,17 +67,52 @@ function Landing() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Nudge autoplay in strict browsers
+  // Decide tier on mount + react to connection / motion changes
+  useEffect(() => {
+    const apply = () => setTier(pickTier());
+    apply();
+
+    const mm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    mm.addEventListener?.("change", apply);
+
+    const conn: any = (navigator as any).connection;
+    conn?.addEventListener?.("change", apply);
+
+    return () => {
+      mm.removeEventListener?.("change", apply);
+      conn?.removeEventListener?.("change", apply);
+    };
+  }, []);
+
+  const sources = useMemo(() => {
+    if (tier === "off") return null;
+    // WebM first (smaller), then MP4 fallback at the chosen resolution.
+    const mp4 =
+      tier === "hq" ? heroVideoHQ.url : tier === "720" ? heroVideo720.url : heroVideo480.url;
+    return { webm: tier === "480" ? null : heroVideoWebm.url, mp4 };
+  }, [tier]);
+
+  // Nudge autoplay when tab regains focus
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
+    if (!v || !sources) return;
     const tryPlay = () => v.play().catch(() => {});
     tryPlay();
     document.addEventListener("visibilitychange", tryPlay);
     return () => document.removeEventListener("visibilitychange", tryPlay);
-  }, []);
+  }, [sources]);
+
+  // Reset ready state when swapping sources
+  useEffect(() => {
+    setVideoReady(false);
+  }, [tier]);
 
   const enter = () => navigate({ to: authed ? "/dashboard" : "/auth" });
+
+  const forcePlay = () => {
+    setUserForcedPlay(true);
+    setTier((t) => (t === "off" ? "480" : t));
+  };
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
@@ -53,28 +122,33 @@ function Landing() {
         alt=""
         aria-hidden="true"
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
-          videoReady ? "opacity-0" : "opacity-100"
+          videoReady && sources ? "opacity-0" : "opacity-100"
         }`}
         style={{ animation: "heroKenBurns 30s ease-in-out infinite alternate" }}
       />
 
-      {/* Cinematic looping video background */}
-      <video
-        ref={videoRef}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
-          videoReady ? "opacity-100" : "opacity-0"
-        }`}
-        src={heroVideo.url}
-        poster={heroPoster}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        onCanPlay={() => setVideoReady(true)}
-        onLoadedData={() => setVideoReady(true)}
-        aria-hidden="true"
-      />
+      {/* Cinematic looping video background — only mounted when tier allows */}
+      {sources && (
+        <video
+          key={tier}
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
+            videoReady ? "opacity-100" : "opacity-0"
+          }`}
+          poster={heroPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload={tier === "480" ? "metadata" : "auto"}
+          onCanPlay={() => setVideoReady(true)}
+          onLoadedData={() => setVideoReady(true)}
+          aria-hidden="true"
+        >
+          {sources.webm && <source src={sources.webm} type="video/webm" />}
+          <source src={sources.mp4} type="video/mp4" />
+        </video>
+      )}
 
       {/* Light edge tint only — keep the video bright and visible */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/55" />
@@ -170,6 +244,16 @@ function Landing() {
             {authed ? "Enter" : "Get started"}
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Button>
+
+          {tier === "off" && !userForcedPlay && (
+            <button
+              onClick={forcePlay}
+              className="inline-flex h-14 items-center gap-2 rounded-md border border-white/25 bg-white/5 px-5 text-sm font-medium text-white/80 backdrop-blur transition hover:bg-white/10 hover:text-white"
+            >
+              <Play className="h-4 w-4" />
+              Play cinematic
+            </button>
+          )}
         </div>
       </section>
 
