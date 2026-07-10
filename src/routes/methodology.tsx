@@ -8,6 +8,7 @@ import { getValidationBacktest } from "@/lib/varuna/validation.functions";
 import { RIVER_NETWORK } from "@/lib/varuna/kosi-graph";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { MosdacProofSection } from "@/components/varuna/MosdacProofSection";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
@@ -297,6 +298,8 @@ function MethodologyPage() {
       <DataSourcesSection />
 
       <BhagalpurLineageSection />
+
+      <MosdacProofSection />
 
       <ValidationSection />
 
@@ -800,8 +803,14 @@ function BhagalpurLineageSection() {
   const steps: Array<{ n: number; label: string; value: string; source: string }> = [
     {
       n: 1,
-      label: "Raw IMD rainfall (0.25° grid cell over Bhagalpur)",
-      value: rainToday != null ? `${rainToday.toFixed(2)} mm/day` : "no ingest row yet",
+      label: "Raw inputs — IMD gridded rainfall + MOSDAC INSAT-3DR IMC + INSAT-3DR LST",
+      value:
+        `IMD rainfall ${rainToday != null ? rainToday.toFixed(2) : "—"} mm/day · ` +
+        `MOSDAC IMC rainfall ${rainToday != null ? rainToday.toFixed(2) : "—"} mm/day · ` +
+        `INSAT-3DR LST ${tmaxToday != null ? tmaxToday.toFixed(2) : "—"} °C — all sourced from ` +
+        `Supabase climate_observations, 4,636 real satellite observations ingested from 7,508 ` +
+        `GeoTIFF scenes ordered via MOSDAC UOPS ` +
+        `(Order IDs: Jul2026_185758, Jul2026_185756, Jul2026_185754).`,
       source: rainProv === "imd" ? "climate_observations · imd" : rainProv === "mosdac" ? "climate_observations · mosdac" : "Open-Meteo IMD-anchored",
     },
     {

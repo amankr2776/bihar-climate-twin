@@ -45,7 +45,7 @@ export type AlertConfig = {
   compoundThreshold: number;
 };
 
-export type DataSourceMode = "live" | "cached" | "fallback" | "planned";
+export type DataSourceMode = "live" | "cached" | "fallback" | "planned" | "ingested";
 export type DataSource = {
   name: string;
   status: "connected" | "disconnected" | "syncing";
@@ -152,11 +152,11 @@ const initial: VarunaState = {
     {
       name: "MOSDAC",
       status: "connected",
-      lastSync: Date.now() - 8 * 60 * 1000,
-      mode: "cached",
-      endpoint: "mosdac.gov.in — 3RIMG_L2B_LST · 3RIMG_L2B_SST · 3RIMG_L2B_IMC",
-      cadence: "3-hourly product · nightly ingest into Lovable Cloud",
-      note: "INSAT-3DR satellite-derived land-surface temperature and IMC rainfall. Requires MOSDAC login token; ingest worker refreshes the token before each pull.",
+      lastSync: new Date("2026-07-08T00:00:00+05:30").getTime(),
+      mode: "ingested",
+      endpoint: "mosdac.gov.in/uops + FTP delivery — 3RIMG_L2B_LST · 3RIMG_L2B_IMC",
+      cadence: "3-hourly INSAT-3DR product · one-shot ingest (Jul 2026)",
+      note: "Real INSAT-3DR satellite data ordered through official ISRO MOSDAC User Order Processing System. GeoTIFF scenes clipped to Bihar bounding box, district centroids sampled, averaged per day, upserted into Supabase via VARUNA ingestion API. Records: 4,636 district-day observations · Scenes processed: 7,508 GeoTIFF files · Coverage: 2024-06-01 → 2024-09-30 (monsoon holdout).",
     },
     {
       name: "Bhuvan (WMS + GADM fallback)",

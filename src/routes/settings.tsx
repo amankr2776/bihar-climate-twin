@@ -127,6 +127,7 @@ function SettingsPage() {
                   const mode = s.mode ?? "live";
                   const modeColor: Record<string, string> = {
                     live: "var(--risk-drought)",
+                    ingested: "var(--risk-drought)",
                     cached: "var(--risk-heat)",
                     fallback: "var(--risk-flood)",
                     planned: "var(--muted-foreground)",
@@ -276,6 +277,7 @@ function SettingsPage() {
           {cat === "status" && (
             <>
               <SectionTitle>System Status</SectionTitle>
+              <MosdacVerificationBanner />
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <StatusItem label="Uptime" value={systemStatus.uptime} />
                 <StatusItem label="Last inference" value={relTime(systemStatus.lastInference)} />
@@ -453,6 +455,129 @@ function Metric({ label, value, good }: { label: string; value: string; good?: b
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+function MosdacVerificationBanner() {
+  type Result = {
+    count: number;
+    dateMin: string | null;
+    dateMax: string | null;
+    districts: number;
+    hasLst: boolean;
+    hasImc: boolean;
+    sample: { district_id: string; observed_on: string; tmax_c: number | null; rainfall_mm: number | null } | null;
+    error?: string;
+  };
+  const [res, setRes] = useState<Result | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const run = async () => {
+    setLoading(true);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { count } = await supabase
+        .from("climate_observations")
+        .select("*", { count: "exact", head: true })
+        .eq("source", "mosdac");
+      const { data: minRow } = await supabase
+        .from("climate_observations")
+        .select("observed_on")
+        .eq("source", "mosdac")
+        .order("observed_on", { ascending: true })
+        .limit(1);
+      const { data: maxRow } = await supabase
+        .from("climate_observations")
+        .select("observed_on")
+        .eq("source", "mosdac")
+        .order("observed_on", { ascending: false })
+        .limit(1);
+      const { data: distRows } = await supabase
+        .from("climate_observations")
+        .select("district_id")
+        .eq("source", "mosdac")
+        .limit(10000);
+      const districts = new Set((distRows ?? []).map((r) => r.district_id)).size;
+      const { data: lstRows } = await supabase
+        .from("climate_observations")
+        .select("tmax_c")
+        .eq("source", "mosdac")
+        .not("tmax_c", "is", null)
+        .limit(1);
+      const { data: imcRows } = await supabase
+        .from("climate_observations")
+        .select("rainfall_mm")
+        .eq("source", "mosdac")
+        .not("rainfall_mm", "is", null)
+        .limit(1);
+      const { data: sample } = await supabase
+        .from("climate_observations")
+        .select("district_id, observed_on, tmax_c, rainfall_mm")
+        .eq("source", "mosdac")
+        .eq("district_id", "bhagalpur")
+        .order("observed_on", { ascending: false })
+        .limit(1);
+      setRes({
+        count: count ?? 0,
+        dateMin: minRow?.[0]?.observed_on ?? null,
+        dateMax: maxRow?.[0]?.observed_on ?? null,
+        districts,
+        hasLst: (lstRows?.length ?? 0) > 0,
+        hasImc: (imcRows?.length ?? 0) > 0,
+        sample: sample?.[0] ?? null,
+      });
+    } catch (e) {
+      setRes({ count: 0, dateMin: null, dateMax: null, districts: 0, hasLst: false, hasImc: false, sample: null, error: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { run(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  const verified = res && !res.error && res.count >= 4636 && res.hasLst && res.hasImc && res.districts >= 38;
+  const failed = res && (res.error || res.count === 0);
+  const color = verified ? "var(--risk-drought)" : failed ? "var(--risk-flood)" : "var(--risk-heat)";
+
+  return (
+    <div
+      className="mb-4 rounded-lg border p-3"
+      style={{
+        borderColor: `color-mix(in oklch, ${color} 55%, transparent)`,
+        backgroundColor: `color-mix(in oklch, ${color} 10%, transparent)`,
+      }}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="font-display text-xs font-semibold uppercase tracking-widest" style={{ color }}>
+          {loading
+            ? "MOSDAC INSAT-3DR integration — verifying…"
+            : verified
+              ? `MOSDAC INSAT-3DR integration verified — ${res!.count.toLocaleString()} real satellite observations active`
+              : failed
+                ? `MOSDAC INSAT-3DR integration FAILED — ${res?.error ?? "no records found in climate_observations"}`
+                : "MOSDAC INSAT-3DR integration — partial data"}
+        </div>
+        <Button size="sm" variant="outline" onClick={run} disabled={loading} className="gap-1 text-xs">
+          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Re-check
+        </Button>
+      </div>
+      {res && !res.error && (
+        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] md:grid-cols-4">
+          <Metric label="MOSDAC records" value={res.count.toLocaleString()} good={res.count >= 4636} />
+          <Metric label="Districts covered" value={`${res.districts}/38`} good={res.districts >= 38} />
+          <Metric label="Products" value={`${res.hasLst ? "LST" : "—"} · ${res.hasImc ? "IMC" : "—"}`} good={res.hasLst && res.hasImc} />
+          <Metric label="Date range" value={res.dateMin && res.dateMax ? `${res.dateMin} → ${res.dateMax}` : "—"} />
+          {res.sample && (
+            <div className="col-span-2 rounded border border-border bg-panel/60 px-2 py-1 md:col-span-4">
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sample · Bhagalpur ({res.sample.observed_on}) · </span>
+              <span className="font-mono">
+                LST={res.sample.tmax_c != null ? `${res.sample.tmax_c.toFixed(2)}°C` : "—"} · IMC rainfall={res.sample.rainfall_mm != null ? `${res.sample.rainfall_mm.toFixed(2)} mm/day` : "—"}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
