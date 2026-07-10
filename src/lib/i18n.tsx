@@ -37,7 +37,7 @@ const EN: Dict = {
   "topbar.signOut": "Sign out",
 
   // Dashboard
-  "dash.title": "Dashboard",
+  "dash.title": "Bihar Climate Risk Dashboard",
   "dash.subtitleLive": "Live observations from IMD / Open-Meteo · 38 districts · 534 blocks",
   "dash.subtitleDefault": "Live compound climate risk · 38 districts · 534 blocks",
   "dash.riskZones": "Bihar — Climate Risk Zones",
@@ -123,7 +123,7 @@ const HI: Dict = {
   "topbar.signIn": "साइन इन",
   "topbar.signOut": "साइन आउट",
 
-  "dash.title": "डैशबोर्ड",
+  "dash.title": "बिहार जलवायु जोखिम डैशबोर्ड",
   "dash.subtitleLive": "IMD / Open-Meteo से लाइव अवलोकन · 38 जिले · 534 ब्लॉक",
   "dash.subtitleDefault": "लाइव संयुक्त जलवायु जोखिम · 38 जिले · 534 ब्लॉक",
   "dash.riskZones": "बिहार — जलवायु जोखिम क्षेत्र",
