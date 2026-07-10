@@ -266,6 +266,9 @@ function VarunaDashboard() {
                         {soilAnomaly > 0 ? "+" : ""}
                         {soilAnomaly}%
                       </div>
+                      <div className="mt-0.5 text-[9px] uppercase tracking-widest text-[color:var(--brand-cyan)]">
+                        (INSAT-3DR LST)
+                      </div>
                     </div>
                   </div>
                   {imdBaseline?.rain_mm != null && (
