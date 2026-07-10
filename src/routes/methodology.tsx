@@ -298,6 +298,8 @@ function MethodologyPage() {
 
       <BhagalpurLineageSection />
 
+      <MosdacProofSection />
+
       <ValidationSection />
 
 
