@@ -8,6 +8,7 @@ import { getValidationBacktest } from "@/lib/varuna/validation.functions";
 import { RIVER_NETWORK } from "@/lib/varuna/kosi-graph";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { MosdacProofSection } from "@/components/varuna/MosdacProofSection";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
