@@ -254,8 +254,17 @@ function PredictionPage() {
                 const y = 260 - ((d.district.lat - 24.3) / 3.5) * 260;
                 const forecast = mode === "forecast";
                 const val = feature === "rainfall" ? d.rainfall_mm : d.temperature_c;
-                const intensity = feature === "rainfall" ? Math.min(1, val / 80) : Math.min(1, (val - 25) / 20);
-                const color = feature === "rainfall" ? `oklch(0.7 ${0.05 + intensity * 0.2} 240)` : `oklch(0.7 ${0.05 + intensity * 0.22} 30)`;
+                let color: string;
+                if (feature === "rainfall") {
+                  // Rainfall gradient: light→medium→dark blue, red above 60 mm/day
+                  if (val >= 60) color = "oklch(0.62 0.22 25)";        // red (heavy)
+                  else if (val >= 30) color = "oklch(0.42 0.18 245)";   // dark blue
+                  else if (val >= 10) color = "oklch(0.62 0.15 240)";   // medium blue
+                  else color = "oklch(0.82 0.08 235)";                  // light blue
+                } else {
+                  const intensity = Math.min(1, (val - 25) / 20);
+                  color = `oklch(0.7 ${0.05 + intensity * 0.22} 30)`;
+                }
                 return (
                   <circle
                     key={d.district.id} cx={x} cy={y} r={11}
@@ -268,8 +277,16 @@ function PredictionPage() {
               <defs>
                 {(state?.districts ?? []).map((d) => {
                   const val = feature === "rainfall" ? d.rainfall_mm * 1.1 : d.temperature_c + 0.5;
-                  const intensity = feature === "rainfall" ? Math.min(1, val / 80) : Math.min(1, (val - 25) / 20);
-                  const color = feature === "rainfall" ? `oklch(0.7 ${0.05 + intensity * 0.2} 240)` : `oklch(0.7 ${0.05 + intensity * 0.22} 30)`;
+                  let color: string;
+                  if (feature === "rainfall") {
+                    if (val >= 60) color = "oklch(0.62 0.22 25)";
+                    else if (val >= 30) color = "oklch(0.42 0.18 245)";
+                    else if (val >= 10) color = "oklch(0.62 0.15 240)";
+                    else color = "oklch(0.82 0.08 235)";
+                  } else {
+                    const intensity = Math.min(1, (val - 25) / 20);
+                    color = `oklch(0.7 ${0.05 + intensity * 0.22} 30)`;
+                  }
                   return (
                     <pattern key={d.district.id} id={`hatch-${d.district.id}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                       <rect width="6" height="6" fill={color} />
@@ -279,7 +296,17 @@ function PredictionPage() {
                 })}
               </defs>
             </svg>
+            {feature === "rainfall" && (
+              <div className="absolute bottom-2 left-2 rounded-md border border-border bg-panel/90 p-2 text-[10px] backdrop-blur">
+                <div className="mb-1 font-semibold uppercase tracking-widest text-muted-foreground">Rainfall (mm/day)</div>
+                <div className="flex h-2 w-40 overflow-hidden rounded" style={{ background: "linear-gradient(to right, oklch(0.82 0.08 235) 0%, oklch(0.62 0.15 240) 25%, oklch(0.42 0.18 245) 60%, oklch(0.62 0.22 25) 100%)" }} />
+                <div className="mt-1 flex w-40 justify-between font-mono text-[9px] text-muted-foreground">
+                  <span>0</span><span>10</span><span>30</span><span>60+</span>
+                </div>
+              </div>
+            )}
           </div>
+
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
             <span className="text-muted-foreground">Iterative rollout:</span>
             {[1, 2, 4, 8].map((n) => (
