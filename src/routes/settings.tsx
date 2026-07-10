@@ -277,6 +277,7 @@ function SettingsPage() {
           {cat === "status" && (
             <>
               <SectionTitle>System Status</SectionTitle>
+              <MosdacVerificationBanner />
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <StatusItem label="Uptime" value={systemStatus.uptime} />
                 <StatusItem label="Last inference" value={relTime(systemStatus.lastInference)} />
