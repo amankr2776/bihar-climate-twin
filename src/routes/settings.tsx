@@ -123,6 +123,11 @@ function SettingsPage() {
                     <div key={s.name} className="flex items-center gap-3 rounded border border-border bg-background/40 px-3 py-2">
                       <div className="flex-1">
                         <div className="text-sm font-semibold">{s.name}</div>
+                        {s.name === "IMDAA" && (
+                          <div className="text-[11px] text-muted-foreground">
+                            India Meteorological Department Advanced Analysis — reanalysis gridded product
+                          </div>
+                        )}
                         <div className="text-[11px] text-muted-foreground">
                           Last sync: {syncing ? "syncing…" : relTime(s.lastSync)}
                         </div>
