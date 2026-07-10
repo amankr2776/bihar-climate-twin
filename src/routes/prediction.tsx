@@ -237,7 +237,18 @@ function PredictionPage() {
             </div>
           </div>
           <div className="relative flex h-72 items-center justify-center overflow-hidden rounded-lg border border-border bg-background/40">
-            <svg viewBox="0 0 400 260" className="h-full w-full">
+            <svg viewBox="0 0 400 260" className="h-full w-full" preserveAspectRatio="xMidYMid meet">
+              {/* Bhuvan district boundary overlay */}
+              {geoPaths.map((p, i) => (
+                <path
+                  key={i}
+                  d={p}
+                  fill="oklch(0.28 0.02 260 / 35%)"
+                  stroke="oklch(0.75 0.02 260 / 55%)"
+                  strokeWidth="0.5"
+                  strokeLinejoin="round"
+                />
+              ))}
               {(state?.districts ?? []).map((d) => {
                 const x = ((d.district.lng - 83) / 5.5) * 400;
                 const y = 260 - ((d.district.lat - 24.3) / 3.5) * 260;
