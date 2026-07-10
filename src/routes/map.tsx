@@ -238,7 +238,7 @@ function MapPage() {
         <div className="flex w-[280px] shrink-0 flex-col overflow-y-auto border-r border-border bg-panel">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="font-display text-sm font-semibold uppercase tracking-widest">Map Controls</div>
-            <button onClick={() => setCollapsed(true)} className="rounded p-1 text-muted-foreground hover:bg-accent">
+            <button onClick={() => setCollapsed(true)} aria-label="Collapse map controls" className="rounded p-1 text-muted-foreground hover:bg-accent">
               <ChevronLeft className="h-4 w-4" />
             </button>
           </div>
@@ -306,6 +306,7 @@ function MapPage() {
       {collapsed && (
         <button
           onClick={() => setCollapsed(false)}
+          aria-label="Expand map controls"
           className="grid w-6 place-items-center border-r border-border bg-panel text-muted-foreground hover:bg-accent"
         >
           <ChevronRight className="h-4 w-4" />
