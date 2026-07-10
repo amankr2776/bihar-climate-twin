@@ -143,7 +143,7 @@ export function generateBlockState(
       // Drought risk: heat × soil deficit
       const drought_risk = Math.min(1, Math.max(0, 0.5 * heat + 0.4 * (1 - soil) + (rand() - 0.5) * 0.1));
 
-      const compound = flood_risk >= 0.6 && drought_risk >= 0.4;
+      const compound = flood_risk >= 0.5 && drought_risk >= 0.35;
 
       blocks.push({
         block_id: `${d.id}-b${i + 1}`,
