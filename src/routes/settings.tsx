@@ -127,6 +127,7 @@ function SettingsPage() {
                   const mode = s.mode ?? "live";
                   const modeColor: Record<string, string> = {
                     live: "var(--risk-drought)",
+                    ingested: "var(--risk-drought)",
                     cached: "var(--risk-heat)",
                     fallback: "var(--risk-flood)",
                     planned: "var(--muted-foreground)",
