@@ -409,7 +409,7 @@ function SelectRow({ label, value, onChange, opts }: { label: string; value: str
     </div>
   );
 }
-function ResultCard({ label, value, score, color, desc }: { label: string; value: string | number; score: number; color: string; desc: string }) {
+function ResultCard({ label, value, score, color, desc, subtitle }: { label: string; value: string | number; score: number; color: string; desc: string; subtitle?: string }) {
   return (
     <div className="rounded border border-border bg-background/40 p-2">
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
@@ -417,6 +417,7 @@ function ResultCard({ label, value, score, color, desc }: { label: string; value
         <span className="font-mono text-xl font-bold" style={{ color }}>{value}</span>
         <div className="h-1 flex-1 rounded bg-background"><div className="h-full rounded" style={{ width: `${score * 100}%`, backgroundColor: color }} /></div>
       </div>
+      {subtitle && <div className="mt-1 text-[10px] leading-tight text-muted-foreground/80">{subtitle}</div>}
       <div className="mt-1 text-[10px] text-muted-foreground">{desc}</div>
     </div>
   );
