@@ -271,19 +271,21 @@ function MapPage() {
           </Section>
 
           <Section title="Compare Mode">
-            <div className="flex items-center justify-between text-xs">
-              <span>Split view</span>
-              <Switch checked={compareMode} onCheckedChange={setCompareMode} />
-            </div>
-            {compareMode && (
-              <input
-                type="date"
-                value={compareDate}
-                onChange={(e) => setCompareDate(e.target.value)}
-                className="mt-2 w-full rounded border border-border bg-input px-2 py-1 text-xs"
-              />
-            )}
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Split view comparison is planned for v1.0"
+              className="flex w-full items-center justify-between gap-2 rounded border border-border bg-muted/30 px-2 py-2 text-xs text-muted-foreground opacity-70 cursor-not-allowed"
+            >
+              <span className="flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5" />
+                Split View
+              </span>
+              <span className="rounded bg-background/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">Coming in v1.0</span>
+            </button>
           </Section>
+
 
           <Section title="Export">
             <Button onClick={exportPng} size="sm" variant="outline" className="mb-2 w-full justify-start gap-2">
