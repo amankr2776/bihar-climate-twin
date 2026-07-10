@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup } from "react-lea
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { PathOptions } from "leaflet";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass, Lock } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
@@ -73,8 +73,8 @@ function MapPage() {
   const { data: state } = useCurrentState();
   const [collapsed, setCollapsed] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
-    rainfall: false, flood: false, temperature: false, soil: false, heatwave: false,
-    compound: true, districts: true, blocks: true, rivers: false, infra: false,
+    rainfall: true, flood: true, temperature: false, soil: false, heatwave: false,
+    compound: false, districts: true, blocks: true, rivers: false, infra: false,
   });
   // Data layers are mutually exclusive so the chosen metric drives the choropleth.
   const DATA_LAYERS: LayerKey[] = ["rainfall", "flood", "temperature", "soil", "heatwave", "compound"];
@@ -271,19 +271,21 @@ function MapPage() {
           </Section>
 
           <Section title="Compare Mode">
-            <div className="flex items-center justify-between text-xs">
-              <span>Split view</span>
-              <Switch checked={compareMode} onCheckedChange={setCompareMode} />
-            </div>
-            {compareMode && (
-              <input
-                type="date"
-                value={compareDate}
-                onChange={(e) => setCompareDate(e.target.value)}
-                className="mt-2 w-full rounded border border-border bg-input px-2 py-1 text-xs"
-              />
-            )}
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Split view comparison is planned for v1.0"
+              className="flex w-full items-center justify-between gap-2 rounded border border-border bg-muted/30 px-2 py-2 text-xs text-muted-foreground opacity-70 cursor-not-allowed"
+            >
+              <span className="flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5" />
+                Split View
+              </span>
+              <span className="rounded bg-background/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">Coming in v1.0</span>
+            </button>
           </Section>
+
 
           <Section title="Export">
             <Button onClick={exportPng} size="sm" variant="outline" className="mb-2 w-full justify-start gap-2">
@@ -344,8 +346,23 @@ function MapPage() {
             <div className="absolute bottom-3 right-3 z-[500] rounded-md bg-panel/95 p-2 backdrop-blur">
               <Compass className="h-5 w-5 text-primary" />
             </div>
-            <div className="absolute bottom-3 left-3 z-[500] rounded-md border border-border bg-panel/95 px-2 py-1 text-[10px] font-mono text-muted-foreground backdrop-blur">
-              50 km
+            <div className="absolute bottom-3 left-3 z-[500] rounded-md border border-border bg-panel/95 p-2 backdrop-blur">
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Legend</div>
+              <div className="grid grid-cols-1 gap-1 text-[11px]">
+                {[
+                  { c: "var(--risk-flood)", l: "Flood Risk" },
+                  { c: "var(--risk-compound)", l: "Compound Risk" },
+                  { c: "var(--risk-heat)", l: "Heatwave / Drought" },
+                  { c: "var(--risk-drought)", l: "Drought (Low soil)" },
+                  { c: "var(--risk-normal)", l: "Normal" },
+                ].map((item) => (
+                  <div key={item.l} className="flex items-center gap-2">
+                    <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.c }} />
+                    <span>{item.l}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 border-t border-border pt-1.5 font-mono text-[10px] text-muted-foreground">50 km</div>
             </div>
 
             <MapContainer bounds={BIHAR_BOUNDS} style={{ height: "100%", width: "100%", background: "oklch(0.14 0.02 260)" }} scrollWheelZoom>
