@@ -59,12 +59,20 @@ function ReportsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const saved = useVarunaStore((s) => s.savedReports);
 
+  const authorFor = (t: string) => {
+    const s = t.toLowerCase();
+    if (s.includes("ndrf") || s.includes("infrastructure")) return "Ab. Kumar";
+    if (s.includes("dashboard") || s.includes("daily") || s.includes("weekly")) return "J. Panchal";
+    if (s.includes("what-if") || s.includes("scenario") || s.includes("compound") || s.includes("ai")) return "A. Kumar";
+    return "A. Choudhary";
+  };
+
   const generate = async () => {
     setGenerating(true);
     await new Promise((r) => setTimeout(r, 2000));
     const rep: SavedReport = {
       id: `rep-${Date.now()}`, type, generatedAt: new Date().toISOString().slice(0, 10),
-      period: `${from} → ${to}`, author: "A. Kumar", sizeKb: 200 + Math.floor(Math.random() * 400),
+      period: `${from} → ${to}`, author: authorFor(type), sizeKb: 200 + Math.floor(Math.random() * 400),
       districts,
     };
     varunaStore.set((s) => ({ savedReports: [rep, ...s.savedReports] }));
@@ -209,19 +217,73 @@ function ReportsPage() {
                 <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
                   <div>
                     <div className="text-lg font-bold">VARUNA · {preview.type}</div>
-                    <div className="text-xs text-slate-500">{preview.period}</div>
+                    <div className="text-xs text-slate-500">Period: {preview.period}</div>
+                    <div className="text-[10px] text-slate-400">Author: {preview.author} · Generated {preview.generatedAt}</div>
                   </div>
                   <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Powered by India's National Climate Data</div>
                 </div>
-                <h3 className="mt-3 text-sm font-bold">District Risk Summary</h3>
-                <table className="mt-2 w-full text-[11px]">
-                  <thead className="border-b border-slate-300 text-slate-500"><tr><th className="p-1 text-left">District</th><th className="p-1 text-left">Region</th><th className="p-1 text-left">Kosi Basin</th><th className="p-1 text-right">Population (k)</th></tr></thead>
-                  <tbody>
-                    {DISTRICTS.slice(0, 15).map((d) => (
-                      <tr key={d.id} className="border-b border-slate-100"><td className="p-1">{d.name}</td><td className="p-1">{d.region}</td><td className="p-1">{d.kosiBasin ? "Yes" : "No"}</td><td className="p-1 text-right font-mono">{d.population}</td></tr>
-                    ))}
-                  </tbody>
-                </table>
+
+                {(() => {
+                  // Deterministic per-district risk snapshot for the preview.
+                  const hash = (s: string, salt: string) => {
+                    let h = 2166136261;
+                    for (let i = 0; i < (s + salt).length; i++) h = Math.imul(h ^ (s + salt).charCodeAt(i), 16777619);
+                    return ((h >>> 0) % 10000) / 10000;
+                  };
+                  const ids = preview.districts?.length ? preview.districts : districts;
+                  const rows = DISTRICTS.filter((d) => ids.includes(d.id)).map((d) => {
+                    const kosi = d.kosiBasin ? 0.25 : 0;
+                    const flood = Math.min(0.99, 0.35 + kosi + hash(d.id, "f") * 0.55);
+                    const drought = Math.min(0.99, 0.25 + (d.region === "south" ? 0.35 : 0.1) + hash(d.id, "d") * 0.5);
+                    const heat = Math.min(0.99, 0.3 + (d.region === "south" || d.region === "central" ? 0.25 : 0.05) + hash(d.id, "h") * 0.45);
+                    return { d, flood, drought, heat, composite: flood + drought + heat };
+                  });
+                  const top5 = [...rows].sort((a, b) => b.composite - a.composite).slice(0, 5);
+                  const districtNames = DISTRICTS.filter((d) => ids.includes(d.id)).map((d) => d.name);
+                  const avgFlood = rows.length ? rows.reduce((s, r) => s + r.flood, 0) / rows.length : 0;
+                  const kosiCount = rows.filter((r) => r.d.kosiBasin).length;
+                  return (
+                    <>
+                      <h3 className="mt-1 text-sm font-bold">Executive Summary</h3>
+                      <p className="mt-1 text-xs leading-relaxed">
+                        Across {rows.length} selected districts ({kosiCount} in the Kosi basin), the composite flood exposure
+                        averages {(avgFlood * 100).toFixed(0)}% with the highest concentration in
+                        {" "}{top5.slice(0, 3).map((r) => r.d.name).join(", ")}. Active-monsoon soil saturation combined with
+                        upstream inflows keeps north-Bihar districts on elevated watch, while south-Bihar districts continue
+                        to show a drought-heat compound signature. Recommend NDRF pre-positioning in the top three flood
+                        districts and cooling-shelter activation in south-central belt.
+                      </p>
+
+                      <h3 className="mt-4 text-sm font-bold">Selected Districts ({districtNames.length})</h3>
+                      <p className="mt-1 text-[11px] text-slate-600">{districtNames.join(", ") || "—"}</p>
+
+                      <h3 className="mt-4 text-sm font-bold">Top 5 At-Risk Districts</h3>
+                      <table className="mt-2 w-full text-[11px]">
+                        <thead className="border-b border-slate-300 text-slate-500">
+                          <tr>
+                            <th className="p-1 text-left">#</th>
+                            <th className="p-1 text-left">District</th>
+                            <th className="p-1 text-right">Flood</th>
+                            <th className="p-1 text-right">Drought</th>
+                            <th className="p-1 text-right">Heat</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {top5.map((r, i) => (
+                            <tr key={r.d.id} className="border-b border-slate-100">
+                              <td className="p-1">{i + 1}</td>
+                              <td className="p-1">{r.d.name}</td>
+                              <td className="p-1 text-right font-mono">{r.flood.toFixed(2)}</td>
+                              <td className="p-1 text-right font-mono">{r.drought.toFixed(2)}</td>
+                              <td className="p-1 text-right font-mono">{r.heat.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                  );
+                })()}
+
                 <h3 className="mt-4 text-sm font-bold">AI Recommendations</h3>
                 <ol className="mt-1 list-decimal pl-5 text-xs">
                   <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>

@@ -89,14 +89,14 @@ export type VarunaState = {
 
 const seedReports = (): SavedReport[] =>
   [
-    ["Daily Situation Report", "2026-07-06", "System"],
+    ["Daily Situation Report", "2026-07-06", "J. Panchal"],
     ["Compound Risk Brief", "2026-07-05", "A. Kumar"],
-    ["District-Level Flood Assessment", "2026-07-04", "System"],
-    ["Drought Status Report", "2026-07-03", "R. Sharma"],
-    ["What-If Scenario Report", "2026-07-02", "System"],
+    ["District-Level Flood Assessment", "2026-07-04", "A. Choudhary"],
+    ["Drought Status Report", "2026-07-03", "A. Choudhary"],
+    ["What-If Scenario Report", "2026-07-02", "A. Kumar"],
     ["Weekly Climate Summary", "2026-07-01", "A. Kumar"],
-    ["NDRF Deployment Brief", "2026-06-30", "System"],
-    ["Agricultural Advisory", "2026-06-29", "R. Sharma"],
+    ["NDRF Deployment Brief", "2026-06-30", "Ab. Kumar"],
+    ["Agricultural Advisory", "2026-06-29", "A. Choudhary"],
   ].map(([type, gen, author], i) => ({
     id: `rep-${i}`,
     type: type as string,

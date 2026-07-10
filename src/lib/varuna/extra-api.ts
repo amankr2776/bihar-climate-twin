@@ -108,7 +108,7 @@ export function alertHistory(): {
       triggeredAt: new Date(t).toISOString(),
       resolvedAt: new Date(t + dur * 3600_000).toISOString(),
       durationH: dur,
-      ackBy: ["System", "A. Kumar", "R. Sharma"][i % 3],
+      ackBy: ["System", "A. Kumar", "Ab. Kumar"][i % 3],
     });
   }
   return arr;
