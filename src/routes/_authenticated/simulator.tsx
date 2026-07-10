@@ -16,7 +16,7 @@ import { varunaStore, useVarunaStore, type SavedScenario } from "@/lib/varuna/st
 import { useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 
 
-export const Route = createFileRoute("/simulator")({
+export const Route = createFileRoute("/_authenticated/simulator")({
   ssr: false,
   head: () => ({
     meta: [

@@ -10,18 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SimulatorRouteImport } from './routes/simulator'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as PredictionRouteImport } from './routes/prediction'
-import { Route as MethodologyRouteImport } from './routes/methodology'
-import { Route as MapRouteImport } from './routes/map'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSimulatorRouteImport } from './routes/_authenticated/simulator'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedPredictionRouteImport } from './routes/_authenticated/prediction'
+import { Route as AuthenticatedMethodologyRouteImport } from './routes/_authenticated/methodology'
+import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCompoundRouteImport } from './routes/_authenticated/compound'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicSmsTestRouteImport } from './routes/api/public/sms.test'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
@@ -36,54 +36,9 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SimulatorRoute = SimulatorRouteImport.update({
-  id: '/simulator',
-  path: '/simulator',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportsRoute = ReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PredictionRoute = PredictionRouteImport.update({
-  id: '/prediction',
-  path: '/prediction',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MethodologyRoute = MethodologyRouteImport.update({
-  id: '/methodology',
-  path: '/methodology',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MapRoute = MapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CompoundRoute = CompoundRouteImport.update({
-  id: '/compound',
-  path: '/compound',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AlertsRoute = AlertsRouteImport.update({
-  id: '/alerts',
-  path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -94,6 +49,52 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSimulatorRoute = AuthenticatedSimulatorRouteImport.update({
+  id: '/simulator',
+  path: '/simulator',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPredictionRoute = AuthenticatedPredictionRouteImport.update({
+  id: '/prediction',
+  path: '/prediction',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMethodologyRoute =
+  AuthenticatedMethodologyRouteImport.update({
+    id: '/methodology',
+    path: '/methodology',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCompoundRoute = AuthenticatedCompoundRouteImport.update({
+  id: '/compound',
+  path: '/compound',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -139,18 +140,18 @@ const ApiPublicHooksIngestForecastRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
-  '/compound': typeof CompoundRoute
-  '/dashboard': typeof DashboardRoute
-  '/map': typeof MapRoute
-  '/methodology': typeof MethodologyRoute
-  '/prediction': typeof PredictionRoute
-  '/reports': typeof ReportsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/compound': typeof AuthenticatedCompoundRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/methodology': typeof AuthenticatedMethodologyRoute
+  '/prediction': typeof AuthenticatedPredictionRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/simulator': typeof AuthenticatedSimulatorRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -161,18 +162,18 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
-  '/compound': typeof CompoundRoute
-  '/dashboard': typeof DashboardRoute
-  '/map': typeof MapRoute
-  '/methodology': typeof MethodologyRoute
-  '/prediction': typeof PredictionRoute
-  '/reports': typeof ReportsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/compound': typeof AuthenticatedCompoundRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/methodology': typeof AuthenticatedMethodologyRoute
+  '/prediction': typeof AuthenticatedPredictionRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/simulator': typeof AuthenticatedSimulatorRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -185,18 +186,18 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
-  '/compound': typeof CompoundRoute
-  '/dashboard': typeof DashboardRoute
-  '/map': typeof MapRoute
-  '/methodology': typeof MethodologyRoute
-  '/prediction': typeof PredictionRoute
-  '/reports': typeof ReportsRoute
-  '/settings': typeof SettingsRoute
-  '/simulator': typeof SimulatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/compound': typeof AuthenticatedCompoundRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/map': typeof AuthenticatedMapRoute
+  '/_authenticated/methodology': typeof AuthenticatedMethodologyRoute
+  '/_authenticated/prediction': typeof AuthenticatedPredictionRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -209,8 +210,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/alerts'
     | '/auth'
+    | '/sitemap.xml'
+    | '/admin'
+    | '/alerts'
     | '/compound'
     | '/dashboard'
     | '/map'
@@ -219,8 +222,6 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
-    | '/sitemap.xml'
-    | '/admin'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -231,8 +232,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/alerts'
     | '/auth'
+    | '/sitemap.xml'
+    | '/admin'
+    | '/alerts'
     | '/compound'
     | '/dashboard'
     | '/map'
@@ -241,8 +244,6 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
-    | '/sitemap.xml'
-    | '/admin'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -254,18 +255,18 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/alerts'
     | '/auth'
-    | '/compound'
-    | '/dashboard'
-    | '/map'
-    | '/methodology'
-    | '/prediction'
-    | '/reports'
-    | '/settings'
-    | '/simulator'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/_authenticated/alerts'
+    | '/_authenticated/compound'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/map'
+    | '/_authenticated/methodology'
+    | '/_authenticated/prediction'
+    | '/_authenticated/reports'
+    | '/_authenticated/settings'
+    | '/_authenticated/simulator'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -278,16 +279,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
-  CompoundRoute: typeof CompoundRoute
-  DashboardRoute: typeof DashboardRoute
-  MapRoute: typeof MapRoute
-  MethodologyRoute: typeof MethodologyRoute
-  PredictionRoute: typeof PredictionRoute
-  ReportsRoute: typeof ReportsRoute
-  SettingsRoute: typeof SettingsRoute
-  SimulatorRoute: typeof SimulatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicHooksIngestForecastRoute: typeof ApiPublicHooksIngestForecastRoute
   ApiPublicHooksIngestImdRoute: typeof ApiPublicHooksIngestImdRoute
@@ -307,74 +299,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/simulator': {
-      id: '/simulator'
-      path: '/simulator'
-      fullPath: '/simulator'
-      preLoaderRoute: typeof SimulatorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reports': {
-      id: '/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prediction': {
-      id: '/prediction'
-      path: '/prediction'
-      fullPath: '/prediction'
-      preLoaderRoute: typeof PredictionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/methodology': {
-      id: '/methodology'
-      path: '/methodology'
-      fullPath: '/methodology'
-      preLoaderRoute: typeof MethodologyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/map': {
-      id: '/map'
-      path: '/map'
-      fullPath: '/map'
-      preLoaderRoute: typeof MapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compound': {
-      id: '/compound'
-      path: '/compound'
-      fullPath: '/compound'
-      preLoaderRoute: typeof CompoundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/alerts': {
-      id: '/alerts'
-      path: '/alerts'
-      fullPath: '/alerts'
-      preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -390,6 +319,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/simulator': {
+      id: '/_authenticated/simulator'
+      path: '/simulator'
+      fullPath: '/simulator'
+      preLoaderRoute: typeof AuthenticatedSimulatorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prediction': {
+      id: '/_authenticated/prediction'
+      path: '/prediction'
+      fullPath: '/prediction'
+      preLoaderRoute: typeof AuthenticatedPredictionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/methodology': {
+      id: '/_authenticated/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof AuthenticatedMethodologyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/map': {
+      id: '/_authenticated/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof AuthenticatedMapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compound': {
+      id: '/_authenticated/compound'
+      path: '/compound'
+      fullPath: '/compound'
+      preLoaderRoute: typeof AuthenticatedCompoundRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -452,10 +444,28 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedCompoundRoute: typeof AuthenticatedCompoundRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMapRoute: typeof AuthenticatedMapRoute
+  AuthenticatedMethodologyRoute: typeof AuthenticatedMethodologyRoute
+  AuthenticatedPredictionRoute: typeof AuthenticatedPredictionRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSimulatorRoute: typeof AuthenticatedSimulatorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedCompoundRoute: AuthenticatedCompoundRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMapRoute: AuthenticatedMapRoute,
+  AuthenticatedMethodologyRoute: AuthenticatedMethodologyRoute,
+  AuthenticatedPredictionRoute: AuthenticatedPredictionRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSimulatorRoute: AuthenticatedSimulatorRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -464,16 +474,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
-  CompoundRoute: CompoundRoute,
-  DashboardRoute: DashboardRoute,
-  MapRoute: MapRoute,
-  MethodologyRoute: MethodologyRoute,
-  PredictionRoute: PredictionRoute,
-  ReportsRoute: ReportsRoute,
-  SettingsRoute: SettingsRoute,
-  SimulatorRoute: SimulatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicHooksIngestForecastRoute: ApiPublicHooksIngestForecastRoute,
   ApiPublicHooksIngestImdRoute: ApiPublicHooksIngestImdRoute,
@@ -486,13 +487,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

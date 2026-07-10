@@ -40,7 +40,7 @@ const PREDICTION_DATASET = {
   isAccessibleForFree: true,
 };
 
-export const Route = createFileRoute("/prediction")({
+export const Route = createFileRoute("/_authenticated/prediction")({
   ssr: false,
   head: () => ({
     meta: [
