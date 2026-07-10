@@ -101,6 +101,15 @@ function AuthPage() {
           Admin sign-in for restricted operational tools. Public dashboards do not require authentication.
         </p>
       </div>
+
+      <footer className="border-t border-border bg-panel/40 px-6 py-4 text-center text-[11px] text-muted-foreground lg:px-12">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3">
+          <span><span className="text-foreground">VARUNA</span> · Decision-support digital twin — not an official warning authority.</span>
+          <a href="https://www.imdpune.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">IMD</a>
+          <a href="https://www.mosdac.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">MOSDAC</a>
+          <a href="https://bhuvan.nrsc.gov.in/" target="_blank" rel="noreferrer" className="hover:text-foreground">Bhuvan</a>
+        </div>
+      </footer>
     </div>
   );
 }
