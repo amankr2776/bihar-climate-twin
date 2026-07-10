@@ -177,7 +177,7 @@ export function generateBlockState(
     const soil = dBlocks.reduce((s, b) => s + b.soil_moisture_index, 0) / dBlocks.length;
     const rain = dBlocks.reduce((s, b) => s + b.rainfall_mm, 0) / dBlocks.length;
     const temp = dBlocks.reduce((s, b) => s + b.temperature_c, 0) / dBlocks.length;
-    const compound = flood >= 0.6 && drought >= 0.4;
+    const compound = flood >= 0.5 && drought >= 0.35;
     const highRiskBlocks = dBlocks.filter((b) => b.flood_risk >= 0.6 || b.drought_risk >= 0.6);
     const pop = highRiskBlocks.reduce((s, b) => s + b.population, 0);
     return {
