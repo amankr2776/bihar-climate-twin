@@ -20,7 +20,7 @@ import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/alerts")({
+export const Route = createFileRoute("/_authenticated/alerts")({
   ssr: false,
   head: () => ({
     meta: [

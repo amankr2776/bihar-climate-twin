@@ -12,7 +12,7 @@ import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/reports")({
+export const Route = createFileRoute("/_authenticated/reports")({
   ssr: false,
   head: () => ({
     meta: [

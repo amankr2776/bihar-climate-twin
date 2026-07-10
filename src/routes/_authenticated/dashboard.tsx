@@ -20,7 +20,7 @@ import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
 import { useI18n } from "@/lib/i18n";
 
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: false,
   head: () => ({
     meta: [

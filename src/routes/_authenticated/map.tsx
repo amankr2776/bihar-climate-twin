@@ -18,7 +18,7 @@ import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RTooltip } from "recharts";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/map")({
+export const Route = createFileRoute("/_authenticated/map")({
   ssr: false,
   head: () => ({
     meta: [

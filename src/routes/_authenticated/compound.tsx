@@ -12,7 +12,7 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, ResponsiveContainer, ReferenceArea, Tooltip as RTooltip, ZAxis,
 } from "recharts";
 
-export const Route = createFileRoute("/compound")({
+export const Route = createFileRoute("/_authenticated/compound")({
   ssr: false,
   head: () => ({
     meta: [
