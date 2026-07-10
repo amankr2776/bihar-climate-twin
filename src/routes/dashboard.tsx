@@ -74,7 +74,7 @@ function VarunaDashboard() {
     (d) => d.compound_risk || (d.category !== "normal" && d.category !== "cold"),
   );
   const districtsAtRisk = atRiskDistricts.length;
-  const popAffected = districts.reduce((s, d) => s + d.population_at_risk, 0);
+  const popAffected = atRiskDistricts.reduce((s, d) => s + d.population_at_risk, 0);
   const infraAtRisk = Math.round(districtsAtRisk * 12 + districts.filter((d) => d.compound_risk).length * 8);
   const compoundCount = districts.filter((d) => d.compound_risk).length;
 
