@@ -296,7 +296,10 @@ function MethodologyPage() {
 
       <DataSourcesSection />
 
+      <BhagalpurLineageSection />
+
       <ValidationSection />
+
 
       <section className="mt-6 rounded-xl border border-border bg-panel p-5">
         <h2 className="font-display text-lg font-semibold text-foreground">Not a warning authority</h2>
