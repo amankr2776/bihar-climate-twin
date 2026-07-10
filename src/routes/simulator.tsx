@@ -265,11 +265,17 @@ function SimulatorPage() {
                 </div>
               </div>
 
+              <div className="flex items-center justify-center gap-3 rounded border border-[color:var(--risk-heat)]/20 bg-[color:var(--risk-heat)]/10 px-3 py-2 text-[11px]">
+                <span className="font-bold text-[color:var(--risk-heat)]">Severity ×{result.severity_multiplier}</span>
+                <span className="text-[color:var(--risk-heat)]/60">|</span>
+                <span className="font-bold text-[color:var(--risk-heat)]">{result.districts_affected} districts affected</span>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <ResultCard label="Flood Risk" value={result.flood_level.label} score={result.flood_level.score} color="var(--risk-flood)" desc={result.flood_level.explanation} />
-                <ResultCard label="Heatwave Alert" value={result.heatwave_alert.label} score={result.heatwave_alert.score} color="var(--risk-heat)" desc={result.heatwave_alert.explanation} />
-                <ResultCard label="Severity Multiplier" value={`×${result.severity_multiplier}`} score={Math.min(1, result.severity_multiplier / 5)} color="var(--risk-compound)" desc="Combined compound-risk uplift" />
-                <ResultCard label="Districts Affected" value={result.districts_affected} score={result.districts_affected / 38} color="var(--brand-cyan)" desc="Districts crossing risk thresholds" />
+                <ResultCard label="Drought Index" value={result.drought_index.label} score={result.drought_index.score} color="var(--risk-drought)" desc={result.drought_index.explanation} />
+                <ResultCard label="Heatwave Alert" value={`${Math.round(result.heatwave_alert.score * 100)}%`} score={result.heatwave_alert.score} color="var(--risk-heat)" desc={result.heatwave_alert.explanation} subtitle="Heat retention score — cumulative soil heat, not current air temperature." />
+                <ResultCard label="Coldwave Alert" value={result.coldwave_alert.label} score={result.coldwave_alert.score} color="var(--risk-cold)" desc={result.coldwave_alert.explanation} />
               </div>
 
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Cascade Evolution</div>
