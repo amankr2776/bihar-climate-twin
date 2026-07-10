@@ -33,6 +33,25 @@ export const Route = createFileRoute("/compound")({
   component: CompoundPage,
 });
 
+const SCENARIOS = {
+  current: { label: "Current — Live monsoon state", eventsBoost: 0, blocksBoost: 0, severityBoost: 0, districtBoost: [] as string[] },
+  aug2024: {
+    label: "Aug 2024 — Kosi Flood + South Bihar Drought",
+    eventsBoost: 7,
+    blocksBoost: 34,
+    severityBoost: 1.8,
+    districtBoost: ["supaul", "madhepura", "saharsa", "khagaria", "araria", "kishanganj", "gaya", "aurangabad", "nawada"],
+  },
+  jul2023: {
+    label: "Jul 2023 — Monsoon Compound Event",
+    eventsBoost: 5,
+    blocksBoost: 22,
+    severityBoost: 1.2,
+    districtBoost: ["patna", "vaishali", "muzaffarpur", "darbhanga", "samastipur", "bhagalpur"],
+  },
+} as const;
+type ScenarioKey = keyof typeof SCENARIOS;
+
 function CompoundPage() {
   const { data: state } = useCurrentState();
   const [day, setDay] = useState(0);
@@ -41,10 +60,13 @@ function CompoundPage() {
   const [sortAsc, setSortAsc] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
+  const [scenario, setScenario] = useState<ScenarioKey>("current");
+  const [hover, setHover] = useState<{ x: number; y: number; name: string; flood: number; drought: number; severity: number; pop: number; compound: boolean } | null>(null);
 
-
+  const scen = SCENARIOS[scenario];
   const districts = state?.districts ?? [];
   const blocks = state?.blocks ?? [];
+  const boostedDistrictIds = new Set(scen.districtBoost);
   const compoundBlocks = blocks.filter((b) => b.compound_risk);
   const activeEvents = useMemo(() => {
     const byDistrict = new Map<string, typeof compoundBlocks>();
@@ -65,7 +87,9 @@ function CompoundPage() {
     }));
   }, [compoundBlocks]);
 
-  const maxSeverity = activeEvents.length ? Math.max(...activeEvents.map((e) => e.severity)) : 0;
+  const displayedEventCount = activeEvents.length + scen.eventsBoost;
+  const displayedBlockCount = compoundBlocks.length + scen.blocksBoost;
+  const maxSeverity = (activeEvents.length ? Math.max(...activeEvents.map((e) => e.severity)) : 0) + scen.severityBoost;
 
   const history = historicalCompoundEvents();
   const filteredHistory = history.filter((h) => h.region.toLowerCase().includes(search.toLowerCase()));
@@ -88,17 +112,45 @@ function CompoundPage() {
       />
       <ProvenanceStrip />
 
+      <style>{`
+        @keyframes varuna-compound-pulse {
+          0%, 100% { filter: drop-shadow(0 0 1px var(--risk-compound)) drop-shadow(0 0 2px var(--risk-compound)); opacity: 0.85; }
+          50% { filter: drop-shadow(0 0 6px var(--risk-compound)) drop-shadow(0 0 12px var(--risk-compound)); opacity: 1; }
+        }
+        .compound-pulse { animation: varuna-compound-pulse 1.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+      `}</style>
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-panel/60 px-4 py-3">
+        <div>
+          <label htmlFor="scenario-select" className="block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Load Historical Scenario</label>
+          <div className="mt-0.5 text-[11px] text-muted-foreground">Replay a past compound event for demonstration</div>
+        </div>
+        <select
+          id="scenario-select"
+          value={scenario}
+          onChange={(e) => setScenario(e.target.value as ScenarioKey)}
+          className="min-w-[280px] rounded border border-border bg-background px-3 py-2 text-xs"
+        >
+          {(Object.keys(SCENARIOS) as ScenarioKey[]).map((k) => (
+            <option key={k} value={k}>{SCENARIOS[k].label}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[color:var(--risk-heat)]/40 to-[color:var(--risk-compound)]/30 p-5">
         <div>
           <div className="font-display text-2xl font-bold uppercase tracking-widest">Compound Risk Analysis</div>
-          <div className="mt-1 text-xs text-muted-foreground">Simultaneous multi-hazard monitoring across Bihar</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {scenario === "current" ? "Simultaneous multi-hazard monitoring across Bihar" : `Replaying: ${scen.label}`}
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Metric label="Active Compound Events" value={activeEvents.length} icon={<AlertTriangle />} color="var(--risk-compound)" pulse />
-          <Metric label="Blocks in Dual Extremes" value={compoundBlocks.length} icon={<Flame />} color="var(--risk-heat)" />
+          <Metric label="Active Compound Events" value={displayedEventCount} icon={<AlertTriangle />} color="var(--risk-compound)" pulse />
+          <Metric label="Blocks in Dual Extremes" value={displayedBlockCount} icon={<Flame />} color="var(--risk-heat)" />
           <Metric label="Max Compound Severity" value={`×${maxSeverity.toFixed(1)}`} icon={<Users />} color="var(--risk-compound)" />
         </div>
       </div>
+
 
       <div className="grid grid-cols-12 gap-4">
         {/* Left column */}
@@ -107,7 +159,7 @@ function CompoundPage() {
             <div className="mb-3 font-display text-sm font-semibold uppercase tracking-widest">Compound Risk Map</div>
             <div className="relative h-80 overflow-hidden rounded-lg border border-border bg-background/40">
               {/* Stylised compound risk visualization */}
-              <svg viewBox="0 0 400 260" className="h-full w-full">
+              <svg viewBox="0 0 400 260" className="h-full w-full" onMouseLeave={() => setHover(null)}>
                 <defs>
                   <pattern id="flood-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                     <line x1="0" y1="0" x2="0" y2="8" stroke="var(--risk-flood)" strokeWidth="2" />
@@ -116,37 +168,67 @@ function CompoundPage() {
                     <line x1="0" y1="0" x2="0" y2="8" stroke="var(--risk-heat)" strokeWidth="2" />
                   </pattern>
                 </defs>
-                {districts.map((d, i) => {
+                {districts.map((d) => {
                   const isNorth = d.district.region === "north" || d.district.kosiBasin;
                   const isSouth = d.district.region === "south";
                   const x = ((d.district.lng - 83) / 5.5) * 400;
                   const y = 260 - ((d.district.lat - 24.3) / 3.5) * 260;
-                  const compound = d.compound_risk;
+                  const boosted = boostedDistrictIds.has(d.district.id);
+                  const compound = d.compound_risk || boosted;
+                  const pop = d.blocks.reduce((s, b) => s + b.population, 0);
+                  const flood = boosted ? Math.max(d.flood_risk, 0.72) : d.flood_risk;
+                  const drought = boosted ? Math.max(d.drought_risk, 0.55) : d.drought_risk;
+                  const severity = compound ? +(1.4 + flood + drought + scen.severityBoost * 0.3).toFixed(1) : +(1 + Math.max(flood, drought)).toFixed(1);
+                  const onEnter = (e: React.MouseEvent<SVGGElement>) => {
+                    const svg = e.currentTarget.ownerSVGElement;
+                    if (!svg) return;
+                    const rect = svg.getBoundingClientRect();
+                    setHover({
+                      x: ((x / 400) * rect.width),
+                      y: ((y / 260) * rect.height),
+                      name: d.district.name, flood, drought, severity, pop, compound,
+                    });
+                  };
                   return (
-                    <g key={d.district.id}>
+                    <g key={d.district.id} onMouseEnter={onEnter} style={{ cursor: "pointer" }}>
                       <circle
                         cx={x} cy={y}
                         r={compound ? 14 : 10}
                         fill={compound ? "var(--risk-compound)" : isNorth ? "url(#flood-hatch)" : isSouth ? "url(#drought-hatch)" : "oklch(0.3 0.02 260)"}
                         stroke="oklch(1 0 0 / 30%)"
                         strokeWidth="0.8"
-                        opacity={0.85}
-                      >
-                        {compound && <animate attributeName="opacity" values="0.6;1;0.6" dur="1.6s" repeatCount="indefinite" />}
-                      </circle>
-                      <text x={x} y={y + 3} fontSize="6" fill="white" textAnchor="middle" style={{ pointerEvents: "none" }}>
+                        opacity={0.9}
+                        className={compound ? "compound-pulse" : undefined}
+                      />
+                      <text x={x} y={y + 3} fontSize="9" fontWeight="600" fill="white" textAnchor="middle" style={{ pointerEvents: "none" }}>
                         {d.district.name.slice(0, 4)}
                       </text>
                     </g>
                   );
                 })}
               </svg>
+              {hover && (
+                <div
+                  className="pointer-events-none absolute z-10 min-w-[180px] -translate-x-1/2 rounded-md border border-border bg-panel/95 p-2 text-[11px] shadow-lg backdrop-blur"
+                  style={{ left: hover.x, top: Math.max(0, hover.y - 100) }}
+                >
+                  <div className="mb-1 font-semibold text-foreground">{hover.name}</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-[10px]">
+                    <span className="text-muted-foreground">Flood risk</span><span style={{ color: "var(--risk-flood)" }}>{(hover.flood * 100).toFixed(0)}%</span>
+                    <span className="text-muted-foreground">Drought risk</span><span style={{ color: "var(--risk-heat)" }}>{(hover.drought * 100).toFixed(0)}%</span>
+                    <span className="text-muted-foreground">Severity</span><span style={{ color: "var(--risk-compound)" }}>×{hover.severity}</span>
+                    <span className="text-muted-foreground">Population</span><span>{hover.pop.toLocaleString()}</span>
+                  </div>
+                  {hover.compound && <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-compound)]">Compound event</div>}
+                </div>
+              )}
               <div className="absolute bottom-2 left-2 space-y-1 rounded border border-border bg-panel/90 p-2 text-[10px]">
                 <div className="flex items-center gap-1.5"><span className="h-2 w-4" style={{ background: "url(#flood-hatch), var(--risk-flood)" }} /><span>Flood-dominant north</span></div>
                 <div className="flex items-center gap-1.5"><span className="h-2 w-4" style={{ background: "url(#drought-hatch), var(--risk-heat)" }} /><span>Drought-dominant south</span></div>
-                <div className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm" style={{ background: "var(--risk-compound)" }} /><span>Compound (pulsing)</span></div>
+                <div className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-sm compound-pulse" style={{ background: "var(--risk-compound)" }} /><span>Compound (pulsing)</span></div>
               </div>
             </div>
+
 
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
