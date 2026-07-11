@@ -35,17 +35,11 @@ export const Route = createFileRoute("/api/public/hooks/ingest-imd")({
       POST: async ({ request }) => {
         const startedAt = new Date().toISOString();
 
-        // Cron uses apikey header (Supabase anon). Manual runs may pass
-        // x-ingest-secret to override rate limiting; either is accepted so
-        // this endpoint is safe to expose under /api/public/*.
-        const apikey = request.headers.get("apikey");
+        // Auth: shared secret only. Both scheduled (pg_cron) and manual runs
+        // MUST send x-ingest-secret matching CLIMATE_INGEST_SECRET.
         const provided = request.headers.get("x-ingest-secret");
         const secret = process.env.CLIMATE_INGEST_SECRET;
-        const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const authorized =
-          (apikey && anon && apikey === anon) ||
-          (provided && secret && provided === secret);
-        if (!authorized) {
+        if (!secret || !provided || provided !== secret) {
           return json({ error: "unauthorized" }, 401);
         }
 

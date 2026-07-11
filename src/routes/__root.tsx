@@ -175,6 +175,7 @@ const BREADCRUMBS: Record<string, string> = {
   "/reports": "Decision Reports",
   "/settings": "Settings",
   "/methodology": "Methodology",
+  "/admin": "Admin Console",
 };
 
 function RootComponent() {

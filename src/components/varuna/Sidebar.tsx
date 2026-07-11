@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Map,
@@ -10,10 +12,12 @@ import {
   Settings,
   ChevronRight,
   BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import type { DistrictState } from "@/lib/varuna/state";
 import { varunaStore } from "@/lib/varuna/store";
 import { useI18n } from "@/lib/i18n";
+import { getMyRoles } from "@/lib/admin.functions";
 
 type NavItem = { icon: React.ReactNode; key: string; to: string };
 
@@ -38,6 +42,13 @@ type Props = {
 export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { t } = useI18n();
+  const myRolesFn = useServerFn(getMyRoles);
+  const myRoles = useQuery({
+    queryKey: ["myRoles"],
+    queryFn: () => myRolesFn(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = (myRoles.data ?? []).includes("admin");
 
   const top = [...districts]
     .sort((a, b) => b.flood_risk + b.drought_risk - (a.flood_risk + a.drought_risk))
@@ -82,6 +93,19 @@ export function Sidebar({ districts, onSelectDistrict, busy = false }: Props) {
             </Link>
           );
         })}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+              pathname.startsWith("/admin")
+                ? "bg-[color:var(--brand-cyan)]/15 text-[color:var(--brand-cyan)] shadow-[inset_2px_0_0_0_var(--brand-cyan)]"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span>Admin Console</span>
+          </Link>
+        )}
         <Link
           to="/methodology"
           className={`mt-2 flex w-full items-center gap-3 rounded-md border-t border-border/40 px-3 pt-3 pb-2 text-xs transition-colors ${
