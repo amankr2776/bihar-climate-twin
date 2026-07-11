@@ -1,4 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Map,
@@ -10,10 +12,12 @@ import {
   Settings,
   ChevronRight,
   BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import type { DistrictState } from "@/lib/varuna/state";
 import { varunaStore } from "@/lib/varuna/store";
 import { useI18n } from "@/lib/i18n";
+import { getMyRoles } from "@/lib/admin.functions";
 
 type NavItem = { icon: React.ReactNode; key: string; to: string };
 

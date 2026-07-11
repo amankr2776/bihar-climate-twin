@@ -24,14 +24,11 @@ export const Route = createFileRoute("/api/public/hooks/ingest-forecast")({
     handlers: {
       POST: async ({ request }) => {
         const startedAt = new Date().toISOString();
-        const apikey = request.headers.get("apikey");
         const provided = request.headers.get("x-ingest-secret");
         const secret = process.env.CLIMATE_INGEST_SECRET;
-        const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const authorized =
-          (apikey && anon && apikey === anon) ||
-          (provided && secret && provided === secret);
-        if (!authorized) return json({ error: "unauthorized" }, 401);
+        if (!secret || !provided || provided !== secret) {
+          return json({ error: "unauthorized" }, 401);
+        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
