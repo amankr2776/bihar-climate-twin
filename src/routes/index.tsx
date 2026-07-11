@@ -125,11 +125,16 @@ function Landing() {
         src={heroPoster}
         alt=""
         aria-hidden="true"
+        width={1920}
+        height={1080}
+        fetchPriority="high"
+        decoding="async"
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-out ${
           videoReady && sources ? "opacity-0" : "opacity-100"
         }`}
         style={{ animation: "heroKenBurns 30s ease-in-out infinite alternate" }}
       />
+
 
       {/* Cinematic looping video background — only mounted when tier allows */}
       {sources && (
