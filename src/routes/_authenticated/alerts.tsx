@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { sendTestSms } from "@/lib/sms.functions";
 import { toast } from "sonner";
 import { Check, ArrowUp, Search, Download, Clock } from "lucide-react";
@@ -43,12 +43,11 @@ export const Route = createFileRoute("/_authenticated/alerts")({
   component: AlertsPage,
 });
 
-type LiveAlert = AlertItem & { flash?: boolean };
+type LiveAlert = AlertItem;
 
 function AlertsPage() {
   const { t } = useI18n();
   const { data: base = [] } = useAlerts();
-  const [alerts, setAlerts] = useState<LiveAlert[]>([]);
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"severity" | "time" | "district">("severity");
@@ -59,31 +58,12 @@ function AlertsPage() {
   const ack = useVarunaStore((s) => s.ackAlerts);
   const dismissed = useVarunaStore((s) => s.dismissedAlerts);
   const config = useVarunaStore((s) => s.alertConfig);
-  const flashTimer = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  // Sync live alert list with the shared, real-data-backed feed.
-  useEffect(() => {
-    setAlerts((prev) => {
-      const localOnly = prev.filter((a) => a.id.startsWith("live-"));
-      return [...localOnly, ...base];
-    });
-  }, [base]);
+  // Alert feed is exclusively the shared, real-data-backed queue from
+  // useAlerts() — no synthetic injection. Threshold-based derivations happen
+  // upstream in the API layer from live climate observations.
+  const alerts: LiveAlert[] = base;
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      const d = DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)];
-      const sev = (["critical", "high", "moderate"] as const)[Math.floor(Math.random() * 3)];
-      const newA: LiveAlert = {
-        id: `live-${Date.now()}`, timestamp: new Date().toISOString(), severity: sev,
-        district: d.name, message: `${sev === "critical" ? "Compound risk" : sev === "high" ? "Flood risk" : "Heat stress"} elevated in ${d.name}`,
-        flash: true,
-      };
-      setAlerts((prev) => [newA, ...prev].slice(0, 40));
-      const t = setTimeout(() => setAlerts((prev) => prev.map((a) => a.id === newA.id ? { ...a, flash: false } : a)), 1200);
-      flashTimer.current.set(newA.id, t);
-    }, 45000);
-    return () => clearInterval(id);
-  }, []);
 
 
   const acknowledge = (id: string) => {
@@ -193,7 +173,7 @@ function AlertsPage() {
               return (
                 <li
                   key={a.id}
-                  className={`border-l-4 border-b border-border/50 px-3 py-2 transition-colors ${a.flash ? "bg-[color:var(--risk-heat)]/15" : ""}`}
+                  className="border-l-4 border-b border-border/50 px-3 py-2 transition-colors"
                   style={{ borderLeftColor: sevColor(a.severity) }}
                 >
                   <div className="flex items-start gap-3">

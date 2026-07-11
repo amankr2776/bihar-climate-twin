@@ -274,7 +274,11 @@ function PhoneForm({
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "OTP verification failed");
-      const { error } = await supabase.auth.signInWithPassword({ email: body.email, password: body.password });
+      if (!body.token_hash) throw new Error("Missing session token");
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: body.token_hash,
+        type: "magiclink",
+      });
       if (error) throw error;
       toast.success("Signed in");
       onDone();

@@ -56,7 +56,6 @@ function SettingsPage() {
   const [prefs, setPrefs] = useState(varunaStore.getState().displayPrefs);
   const config = useVarunaStore((s) => s.alertConfig);
   const sources = useVarunaStore((s) => s.dataSources);
-  const apiKey = useVarunaStore((s) => s.apiKey);
   const systemStatus = useVarunaStore((s) => s.systemStatus);
   // tick every 15s so "3 min ago" refreshes
   const [, force] = useState(0);
@@ -65,38 +64,17 @@ function SettingsPage() {
     return () => clearInterval(id);
   }, []);
 
-  const sync = (name: string) => {
-    varunaStore.set((s) => ({
-      dataSources: s.dataSources.map((d) => (d.name === name ? { ...d, status: "syncing" } : d)),
-    }));
-    toast.loading(`Syncing ${name}…`, { id: `sync-${name}` });
-    setTimeout(() => {
-      varunaStore.set((s) => ({
-        dataSources: s.dataSources.map((d) =>
-          d.name === name ? { ...d, status: "connected", lastSync: Date.now() } : d,
-        ),
-        systemStatus: { ...s.systemStatus, lastInference: Date.now() },
-      }));
-      toast.success(`${name} synced successfully`, { id: `sync-${name}` });
-    }, 1100 + Math.random() * 600);
-  };
   const saveProfile = () => {
     varunaStore.set({ userProfile: profile });
-    toast.success("Profile saved");
+    toast.success("Profile saved to this browser");
   };
   const savePrefs = () => {
     varunaStore.set({ displayPrefs: prefs });
-    toast.success("Preferences saved");
+    toast.success("Preferences saved to this browser");
   };
   const saveAlertConfig = () => {
     // config already lives in store via onCheckedChange; just confirm
-    toast.success("Alert configuration saved");
-  };
-  const regenKey = () => {
-    const hex = () => Math.random().toString(16).slice(2, 6);
-    const newKey = `vk_${hex()}${hex()}${hex()}${hex()}`;
-    varunaStore.set({ apiKey: newKey });
-    toast.success("New API key generated");
+    toast.success("Alert configuration saved to this browser");
   };
 
   return (
@@ -119,11 +97,13 @@ function SettingsPage() {
               <div className="mb-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-3 text-[11px] text-muted-foreground">
                 <span className="font-semibold text-[color:var(--brand-cyan)]">Transparency:</span>{" "}
                 Every source below is labelled with its live/cached/planned mode and endpoint URL so
-                you can trace exactly where each number on the dashboard comes from.
+                you can trace exactly where each number on the dashboard comes from. Ingest runs on
+                an automated schedule — <span className="font-mono">04:00 UTC</span> for historical
+                observations and <span className="font-mono">04:15 UTC</span> for the 7-day forecast
+                — and cannot be triggered from this browser.
               </div>
               <div className="space-y-2">
                 {sources.map((s) => {
-                  const syncing = s.status === "syncing";
                   const mode = s.mode ?? "live";
                   const modeColor: Record<string, string> = {
                     live: "var(--risk-drought)",
@@ -159,7 +139,7 @@ function SettingsPage() {
                             <span className="uppercase tracking-widest">Cadence:</span> {s.cadence}
                             <span className="mx-1.5 text-border">·</span>
                             <span className="uppercase tracking-widest">Last sync:</span>{" "}
-                            {syncing ? "syncing…" : relTime(s.lastSync)}
+                            {relTime(s.lastSync)}
                           </div>
                           {s.note && (
                             <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
@@ -172,35 +152,16 @@ function SettingsPage() {
                             className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                               s.status === "connected"
                                 ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
-                                : syncing
-                                  ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
-                                  : "bg-muted text-muted-foreground"
+                                : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {s.status.toUpperCase()}
                           </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={syncing}
-                            onClick={() => sync(s.name)}
-                            className="gap-1 text-xs disabled:opacity-60"
-                          >
-                            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
-                          </Button>
                         </div>
                       </div>
                     </div>
                   );
                 })}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => sources.forEach((s) => sync(s.name))}
-                  className="mt-2 gap-1 text-xs"
-                >
-                  <RefreshCw className="h-3 w-3" /> Sync All Sources
-                </Button>
               </div>
               <LiveFetchProbe />
             </>
@@ -266,10 +227,21 @@ function SettingsPage() {
           {cat === "api" && (
             <>
               <SectionTitle>API Configuration</SectionTitle>
-              <div className="space-y-3 text-sm">
-                <Row label="API Base URL"><Input readOnly value="https://api.varuna.gov.in/v1" /></Row>
-                <Row label="API Key"><Input readOnly value={apiKey} /></Row>
-                <Button onClick={regenKey} variant="outline">Regenerate Key</Button>
+              <div className="rounded border border-border bg-background/40 p-4 text-sm">
+                <div className="flex items-start gap-3">
+                  <Key className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <div className="font-semibold text-foreground">Public API — not yet exposed</div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      VARUNA does not currently issue outbound API keys or expose a
+                      public REST endpoint. Programmatic access is available through
+                      internal server functions only, authenticated via the same
+                      sign-in session used by this dashboard. A signed public API
+                      with per-tenant keys will land alongside the operational
+                      rollout after the PI-GNN model reaches CSI ≥ 0.80.
+                    </p>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -293,16 +265,10 @@ function SettingsPage() {
                 <StatusItem label="Ingestion job" value={`in ${systemStatus.ingestionMin}m`} />
                 <StatusItem label="Queue depth" value={`${systemStatus.queueDepth} tasks`} />
               </div>
-              <Button
-                onClick={() => {
-                  varunaStore.set((s) => ({ systemStatus: { ...s.systemStatus, lastInference: Date.now(), queueDepth: 0 } }));
-                  toast.success("System status refreshed");
-                }}
-                variant="outline"
-                className="mt-4 gap-1 text-xs"
-              >
-                <RefreshCw className="h-3 w-3" /> Refresh Status
-              </Button>
+              <div className="mt-4 text-[11px] text-muted-foreground">
+                System counters refresh automatically alongside the shared climate query
+                (~3 minute cadence). No manual refresh needed.
+              </div>
             </>
           )}
         </section>
