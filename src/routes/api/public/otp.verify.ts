@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createHash, randomBytes, timingSafeEqual } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -76,9 +76,10 @@ export const Route = createFileRoute("/api/public/otp/verify")({
           );
         }
 
-        // Successful verification — find or create user, rotate password, return credentials
+        // Successful verification — find or create user, then mint a
+        // one-time magiclink token hash that the client exchanges for a
+        // Supabase session. No password is ever transmitted.
         const email = syntheticEmail(phone);
-        const password = randomBytes(24).toString("base64url");
 
         // Find existing mapping first
         const { data: mapping } = await supabaseAdmin
@@ -92,7 +93,6 @@ export const Route = createFileRoute("/api/public/otp/verify")({
         if (!userId) {
           const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
             email,
-            password,
             email_confirm: true,
             phone,
             phone_confirm: true,
@@ -107,21 +107,27 @@ export const Route = createFileRoute("/api/public/otp/verify")({
             .from("phone_identities")
             .upsert({ phone, user_id: userId }, { onConflict: "phone" });
           if (mapErr) console.error("[otp.verify] mapping upsert error:", mapErr.message);
-        } else {
-          const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-            password,
-            email_confirm: true,
-          });
-          if (updErr) {
-            console.error("[otp.verify] updateUser error:", updErr.message);
-            return new Response(JSON.stringify({ error: "Could not refresh session" }), { status: 500, headers: cors });
-          }
+        }
+
+        // Generate a magiclink token hash for this user. The client will
+        // verify it via supabase.auth.verifyOtp({ token_hash, type: 'magiclink' })
+        // to establish a session.
+        const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email,
+        });
+        if (linkErr || !linkData?.properties?.hashed_token) {
+          console.error("[otp.verify] generateLink error:", linkErr?.message);
+          return new Response(JSON.stringify({ error: "Could not issue session token" }), { status: 500, headers: cors });
         }
 
         // Invalidate the OTP row so the same code cannot be reused
         await supabaseAdmin.from("phone_otps").delete().eq("phone", phone);
 
-        return new Response(JSON.stringify({ ok: true, email, password }), { headers: cors });
+        return new Response(
+          JSON.stringify({ ok: true, token_hash: linkData.properties.hashed_token }),
+          { headers: cors },
+        );
       },
     },
   },
