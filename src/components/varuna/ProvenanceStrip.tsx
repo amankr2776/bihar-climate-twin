@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, AlertCircle, Clock } from "lucide-react";
 import { SourceChip } from "./SourceChip";
+import { formatExactUtc, relTime } from "@/lib/varuna/format-time";
+
+
+
 
 
 type IngestRow = {
@@ -31,17 +35,6 @@ function useLatestIngest() {
   });
 }
 
-function relative(ts: string): string {
-  const diffMs = Date.now() - new Date(ts).getTime();
-  const m = Math.round(diffMs / 60_000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.round(h / 24);
-  return `${d}d ago`;
-}
-
 function FreshnessPill({
   row,
   label,
@@ -64,10 +57,9 @@ function FreshnessPill({
   }
   const ok = row.status === "ok";
   const color = ok ? "var(--risk-drought)" : "var(--risk-heat)";
-  const suffix = archive ? "ARCHIVE" : relative(row.finished_at);
-  const titleSuffix = archive
-    ? ` · historical one-shot ingest (last loaded ${relative(row.finished_at)})`
-    : "";
+  const exact = formatExactUtc(row.finished_at);
+  const rel = relTime(row.finished_at);
+  const prefix = archive ? "ARCHIVE · " : "";
   return (
     <span
       className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
@@ -76,10 +68,10 @@ function FreshnessPill({
         borderColor: `color-mix(in oklch, ${color} 50%, transparent)`,
         backgroundColor: `color-mix(in oklch, ${color} 10%, transparent)`,
       }}
-      title={`Source: ${row.source}${row.dataset_version ? ` · ${row.dataset_version}` : ""} · ${row.rows_upserted.toLocaleString()} rows · ${row.status}${titleSuffix}`}
+      title={`Source: ${row.source}${row.dataset_version ? ` · ${row.dataset_version}` : ""} · ${row.rows_upserted.toLocaleString()} rows · ${row.status} · last updated ${exact} (${rel})${archive ? " · historical one-shot ingest" : ""}`}
     >
       {ok ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-      {label}: {suffix}
+      {label}: {prefix}{exact}
     </span>
   );
 }

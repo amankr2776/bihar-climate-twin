@@ -41,14 +41,7 @@ const CATEGORIES = [
 ];
 
 
-function relTime(ts: number): string {
-  const s = Math.max(1, Math.round((Date.now() - ts) / 1000));
-  if (s < 60) return `${s}s ago`;
-  const m = Math.round(s / 60);
-  if (m < 60) return `${m} min ago`;
-  const h = Math.round(m / 60);
-  return `${h}h ago`;
-}
+import { formatExactUtc, relTime } from "@/lib/varuna/format-time";
 
 function SettingsPage() {
   const [cat, setCat] = useState("data");
@@ -139,7 +132,8 @@ function SettingsPage() {
                             <span className="uppercase tracking-widest">Cadence:</span> {s.cadence}
                             <span className="mx-1.5 text-border">·</span>
                             <span className="uppercase tracking-widest">Last sync:</span>{" "}
-                            {relTime(s.lastSync)}
+                            <span className="font-mono text-foreground">{formatExactUtc(s.lastSync)}</span>
+                            <span className="ml-1 text-muted-foreground">({relTime(s.lastSync)})</span>
                           </div>
                           {s.note && (
                             <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
