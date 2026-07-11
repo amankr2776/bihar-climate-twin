@@ -252,8 +252,11 @@ function Landing() {
         </div>
 
         <h1
-          className="font-display max-w-4xl text-6xl font-black leading-[0.95] tracking-tight text-white drop-shadow-2xl md:text-8xl lg:text-9xl animate-fade-in"
-          style={{ animationDuration: "900ms" }}
+          className="font-display max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl md:text-8xl lg:text-9xl animate-fade-in"
+          style={{
+            animationDuration: "900ms",
+            textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.6)",
+          }}
         >
           See the flood
           <br />
@@ -261,6 +264,7 @@ function Landing() {
             before it arrives.
           </span>
         </h1>
+
 
         <div className="mt-10 flex flex-wrap items-center gap-4 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "backwards" }}>
           <Button
