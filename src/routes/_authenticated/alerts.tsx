@@ -293,6 +293,7 @@ function TestSmsButton() {
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState("+91");
   const [sending, setSending] = useState(false);
+  const sendFn = useServerFn(sendTestSms);
   const send = async () => {
     if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
       toast.error("Enter phone in E.164 format (e.g. +919876543210)");
@@ -300,13 +301,7 @@ function TestSmsButton() {
     }
     setSending(true);
     try {
-      const res = await fetch("/api/public/sms/test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      const body = await sendFn({ data: { phone } });
       toast.success(`Test SMS sent via Twilio${body.sid ? ` · ${String(body.sid).slice(0, 10)}…` : ""}`);
       setOpen(false);
     } catch (err) {
