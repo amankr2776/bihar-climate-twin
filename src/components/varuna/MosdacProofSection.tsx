@@ -10,7 +10,7 @@ const FACTS: Array<[string, string]> = [
   ["MOSDAC Order IDs", "Jul2026_185758 · Jul2026_185756 · Jul2026_185754"],
   ["Account", "Aman Kumar (mosdac.gov.in)"],
   ["Coverage window", "2024-06-01 → 2024-09-30 (SW monsoon holdout)"],
-  ["Ingestion method", "PowerShell driver → Python + Rasterio/GDAL → Bihar bbox clip → 38 district centroid sampling → 500-row batch upsert to Supabase climate_observations"],
+  ["Ingestion method", "PowerShell driver → Python + Rasterio/GDAL → Bihar bbox clip → 38 district centroid sampling → 500-row batch upsert into the VARUNA climate observations store"],
 ];
 
 export function MosdacProofSection() {

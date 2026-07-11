@@ -137,6 +137,33 @@ function CompoundPage() {
         </select>
       </div>
 
+      {scenario !== "current" && (
+        <div
+          role="alert"
+          className="mb-4 flex flex-wrap items-start gap-3 rounded-lg border-2 border-dashed border-[color:var(--risk-compound)] bg-[color:var(--risk-compound)]/10 px-4 py-3"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--risk-compound)]" />
+          <div className="flex-1 text-xs">
+            <div className="font-display font-semibold uppercase tracking-widest text-[color:var(--risk-compound)]">
+              Scenario replay mode · not live
+            </div>
+            <div className="mt-1 text-muted-foreground">
+              The metrics, map markers and severity indices below are a
+              deterministic overlay of <strong className="text-foreground">{scen.label}</strong> on top
+              of today&apos;s live block state — for demonstration and drills only. Switch back to
+              &ldquo;Current&rdquo; for actual operational values.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setScenario("current")}
+            className="rounded border border-[color:var(--risk-compound)] px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--risk-compound)] hover:bg-[color:var(--risk-compound)]/20"
+          >
+            Exit replay
+          </button>
+        </div>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[color:var(--risk-heat)]/40 to-[color:var(--risk-compound)]/30 p-5">
         <div>
           <div className="font-display text-2xl font-bold uppercase tracking-widest">Compound Risk Analysis</div>

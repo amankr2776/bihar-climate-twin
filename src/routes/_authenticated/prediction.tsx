@@ -172,9 +172,9 @@ function PredictionPage() {
 
       {/* Top row */}
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
-        <StatusCard title="Model Status" badge="ACTIVE" badgeColor="var(--risk-drought)" icon={<Cpu />}>
-          <div className="text-sm">PI-GNN v1.0</div>
-          <div className="text-[11px] text-muted-foreground">Trained 2026-06-30</div>
+        <StatusCard title="Model Status" badge="RULE-BASED · PI-GNN PENDING" badgeColor="var(--risk-heat)" icon={<Cpu />}>
+          <div className="text-sm">Rule-based digital twin · v1.0</div>
+          <div className="text-[11px] text-muted-foreground">PI-GNN scaffold wired · training pending CWC discharge + GPU cycle</div>
         </StatusCard>
         <StatusCard
           title="GFS Forecast Feed"
