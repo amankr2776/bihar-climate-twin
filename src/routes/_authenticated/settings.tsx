@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Database, Monitor, Bell, User, Key, Activity } from "lucide-react";
+import { Database, Monitor, Bell, User, Key, Activity, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -97,11 +97,13 @@ function SettingsPage() {
               <div className="mb-3 rounded border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/10 p-3 text-[11px] text-muted-foreground">
                 <span className="font-semibold text-[color:var(--brand-cyan)]">Transparency:</span>{" "}
                 Every source below is labelled with its live/cached/planned mode and endpoint URL so
-                you can trace exactly where each number on the dashboard comes from.
+                you can trace exactly where each number on the dashboard comes from. Ingest runs on
+                an automated schedule — <span className="font-mono">04:00 UTC</span> for historical
+                observations and <span className="font-mono">04:15 UTC</span> for the 7-day forecast
+                — and cannot be triggered from this browser.
               </div>
               <div className="space-y-2">
                 {sources.map((s) => {
-                  const syncing = s.status === "syncing";
                   const mode = s.mode ?? "live";
                   const modeColor: Record<string, string> = {
                     live: "var(--risk-drought)",
@@ -137,7 +139,7 @@ function SettingsPage() {
                             <span className="uppercase tracking-widest">Cadence:</span> {s.cadence}
                             <span className="mx-1.5 text-border">·</span>
                             <span className="uppercase tracking-widest">Last sync:</span>{" "}
-                            {syncing ? "syncing…" : relTime(s.lastSync)}
+                            {relTime(s.lastSync)}
                           </div>
                           {s.note && (
                             <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
@@ -150,35 +152,16 @@ function SettingsPage() {
                             className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                               s.status === "connected"
                                 ? "bg-[color:var(--risk-drought)]/20 text-[color:var(--risk-drought)]"
-                                : syncing
-                                  ? "bg-[color:var(--risk-heat)]/20 text-[color:var(--risk-heat)]"
-                                  : "bg-muted text-muted-foreground"
+                                : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {s.status.toUpperCase()}
                           </span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={syncing}
-                            onClick={() => sync(s.name)}
-                            className="gap-1 text-xs disabled:opacity-60"
-                          >
-                            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin" : ""}`} /> Sync Now
-                          </Button>
                         </div>
                       </div>
                     </div>
                   );
                 })}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => sources.forEach((s) => sync(s.name))}
-                  className="mt-2 gap-1 text-xs"
-                >
-                  <RefreshCw className="h-3 w-3" /> Sync All Sources
-                </Button>
               </div>
               <LiveFetchProbe />
             </>
