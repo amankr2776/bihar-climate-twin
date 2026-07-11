@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
+import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/reports")({
@@ -43,6 +44,7 @@ const TEMPLATES = [
 
 function ReportsPage() {
   const { t } = useI18n();
+  const { data: liveState } = useCurrentState();
 
 
 
@@ -224,34 +226,53 @@ function ReportsPage() {
                 </div>
 
                 {(() => {
-                  // Deterministic per-district risk snapshot for the preview.
-                  const hash = (s: string, salt: string) => {
-                    let h = 2166136261;
-                    for (let i = 0; i < (s + salt).length; i++) h = Math.imul(h ^ (s + salt).charCodeAt(i), 16777619);
-                    return ((h >>> 0) % 10000) / 10000;
-                  };
+                  // Live risk snapshot — reads from useCurrentState() so the
+                  // Executive Summary and Top 5 table reflect the same values
+                  // shown on Dashboard/Map/Compound. Falls back gracefully to
+                  // zeros while the shared query is still resolving.
                   const ids = preview.districts?.length ? preview.districts : districts;
-                  const rows = DISTRICTS.filter((d) => ids.includes(d.id)).map((d) => {
-                    const kosi = d.kosiBasin ? 0.25 : 0;
-                    const flood = Math.min(0.99, 0.35 + kosi + hash(d.id, "f") * 0.55);
-                    const drought = Math.min(0.99, 0.25 + (d.region === "south" ? 0.35 : 0.1) + hash(d.id, "d") * 0.5);
-                    const heat = Math.min(0.99, 0.3 + (d.region === "south" || d.region === "central" ? 0.25 : 0.05) + hash(d.id, "h") * 0.45);
-                    return { d, flood, drought, heat, composite: flood + drought + heat };
-                  });
+                  const idSet = new Set(ids);
+                  const liveDistricts = liveState?.districts ?? [];
+                  const rows = liveDistricts
+                    .filter((s) => idSet.has(s.district.id))
+                    .map((s) => {
+                      const heatRet = s.blocks.length
+                        ? s.blocks.reduce((a, b) => a + b.heat_retention_score, 0) / s.blocks.length
+                        : 0;
+                      return {
+                        d: s.district,
+                        flood: s.flood_risk,
+                        drought: s.drought_risk,
+                        heat: heatRet,
+                        composite: s.flood_risk + s.drought_risk + heatRet,
+                      };
+                    });
                   const top5 = [...rows].sort((a, b) => b.composite - a.composite).slice(0, 5);
-                  const districtNames = DISTRICTS.filter((d) => ids.includes(d.id)).map((d) => d.name);
+                  const districtNames = rows.length
+                    ? rows.map((r) => r.d.name)
+                    : DISTRICTS.filter((d) => ids.includes(d.id)).map((d) => d.name);
                   const avgFlood = rows.length ? rows.reduce((s, r) => s + r.flood, 0) / rows.length : 0;
                   const kosiCount = rows.filter((r) => r.d.kosiBasin).length;
+                  const dataMode = liveState ? "Live" : "Loading…";
                   return (
                     <>
-                      <h3 className="mt-1 text-sm font-bold">Executive Summary</h3>
+                      <div className="mt-1 inline-block rounded border border-slate-300 bg-slate-50 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-slate-500">
+                        {dataMode} data · shared query
+                      </div>
+                      <h3 className="mt-2 text-sm font-bold">Executive Summary</h3>
                       <p className="mt-1 text-xs leading-relaxed">
-                        Across {rows.length} selected districts ({kosiCount} in the Kosi basin), the composite flood exposure
-                        averages {(avgFlood * 100).toFixed(0)}% with the highest concentration in
-                        {" "}{top5.slice(0, 3).map((r) => r.d.name).join(", ")}. Active-monsoon soil saturation combined with
-                        upstream inflows keeps north-Bihar districts on elevated watch, while south-Bihar districts continue
-                        to show a drought-heat compound signature. Recommend NDRF pre-positioning in the top three flood
-                        districts and cooling-shelter activation in south-central belt.
+                        {rows.length === 0 ? (
+                          "Loading live district state…"
+                        ) : (
+                          <>
+                            Across {rows.length} selected districts ({kosiCount} in the Kosi basin), the composite flood exposure
+                            averages {(avgFlood * 100).toFixed(0)}% with the highest concentration in
+                            {" "}{top5.slice(0, 3).map((r) => r.d.name).join(", ") || "—"}. Values here are read from the same
+                            live climate query powering the Dashboard, Map and Compound pages — no synthetic overlay.
+                            Recommend NDRF pre-positioning in the top three flood districts and cooling-shelter activation in
+                            the highest heat-retention belt.
+                          </>
+                        )}
                       </p>
 
                       <h3 className="mt-4 text-sm font-bold">Selected Districts ({districtNames.length})</h3>
@@ -269,15 +290,23 @@ function ReportsPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {top5.map((r, i) => (
-                            <tr key={r.d.id} className="border-b border-slate-100">
-                              <td className="p-1">{i + 1}</td>
-                              <td className="p-1">{r.d.name}</td>
-                              <td className="p-1 text-right font-mono">{r.flood.toFixed(2)}</td>
-                              <td className="p-1 text-right font-mono">{r.drought.toFixed(2)}</td>
-                              <td className="p-1 text-right font-mono">{r.heat.toFixed(2)}</td>
+                          {top5.length === 0 ? (
+                            <tr>
+                              <td colSpan={5} className="p-2 text-center text-slate-400">
+                                Waiting for live climate state…
+                              </td>
                             </tr>
-                          ))}
+                          ) : (
+                            top5.map((r, i) => (
+                              <tr key={r.d.id} className="border-b border-slate-100">
+                                <td className="p-1">{i + 1}</td>
+                                <td className="p-1">{r.d.name}</td>
+                                <td className="p-1 text-right font-mono">{r.flood.toFixed(2)}</td>
+                                <td className="p-1 text-right font-mono">{r.drought.toFixed(2)}</td>
+                                <td className="p-1 text-right font-mono">{r.heat.toFixed(2)}</td>
+                              </tr>
+                            ))
+                          )}
                         </tbody>
                       </table>
                     </>
