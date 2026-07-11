@@ -173,7 +173,7 @@ function AlertsPage() {
               return (
                 <li
                   key={a.id}
-                  className={`border-l-4 border-b border-border/50 px-3 py-2 transition-colors ${a.flash ? "bg-[color:var(--risk-heat)]/15" : ""}`}
+                  className="border-l-4 border-b border-border/50 px-3 py-2 transition-colors"
                   style={{ borderLeftColor: sevColor(a.severity) }}
                 >
                   <div className="flex items-start gap-3">
