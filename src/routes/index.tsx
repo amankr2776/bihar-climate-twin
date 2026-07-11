@@ -7,7 +7,9 @@ import heroVideoHQ from "@/assets/landing-hero.mp4.asset.json";
 import heroVideo720 from "@/assets/landing-hero-720.mp4.asset.json";
 import heroVideo480 from "@/assets/landing-hero-480.mp4.asset.json";
 import heroVideoWebm from "@/assets/landing-hero-720.webm.asset.json";
-import heroPoster from "@/assets/landing-poster.jpg";
+import heroPoster from "@/assets/landing-poster.webp";
+
+const SITE_URL = "https://varuna-digital-twin.lovable.app";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -19,13 +21,25 @@ export const Route = createFileRoute("/")({
         content:
           "A cinematic, real-time digital twin of Bihar's climate — physics-informed AI predicting floods, heat, and compound risk at block level.",
       },
+      { property: "og:title", content: "VARUNA · AI Digital Twin for Climate Resilience" },
+      {
+        property: "og:description",
+        content:
+          "A cinematic, real-time digital twin of Bihar's climate — physics-informed AI predicting floods, heat, and compound risk at block level.",
+      },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: `${SITE_URL}${heroPoster}` },
+      { name: "twitter:image", content: `${SITE_URL}${heroPoster}` },
     ],
     links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
       { rel: "preload", as: "image", href: heroPoster, fetchpriority: "high" } as any,
+      { rel: "preload", as: "video", href: heroVideo720.url, type: "video/mp4" } as any,
     ],
   }),
   component: Landing,
 });
+
 
 
 type Tier = "hq" | "720" | "480" | "off";
