@@ -227,10 +227,21 @@ function SettingsPage() {
           {cat === "api" && (
             <>
               <SectionTitle>API Configuration</SectionTitle>
-              <div className="space-y-3 text-sm">
-                <Row label="API Base URL"><Input readOnly value="https://api.varuna.gov.in/v1" /></Row>
-                <Row label="API Key"><Input readOnly value={apiKey} /></Row>
-                <Button onClick={regenKey} variant="outline">Regenerate Key</Button>
+              <div className="rounded border border-border bg-background/40 p-4 text-sm">
+                <div className="flex items-start gap-3">
+                  <Key className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <div className="font-semibold text-foreground">Public API — not yet exposed</div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      VARUNA does not currently issue outbound API keys or expose a
+                      public REST endpoint. Programmatic access is available through
+                      internal server functions only, authenticated via the same
+                      sign-in session used by this dashboard. A signed public API
+                      with per-tenant keys will land alongside the operational
+                      rollout after the PI-GNN model reaches CSI ≥ 0.80.
+                    </p>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -254,16 +265,10 @@ function SettingsPage() {
                 <StatusItem label="Ingestion job" value={`in ${systemStatus.ingestionMin}m`} />
                 <StatusItem label="Queue depth" value={`${systemStatus.queueDepth} tasks`} />
               </div>
-              <Button
-                onClick={() => {
-                  varunaStore.set((s) => ({ systemStatus: { ...s.systemStatus, lastInference: Date.now(), queueDepth: 0 } }));
-                  toast.success("System status refreshed");
-                }}
-                variant="outline"
-                className="mt-4 gap-1 text-xs"
-              >
-                <RefreshCw className="h-3 w-3" /> Refresh Status
-              </Button>
+              <div className="mt-4 text-[11px] text-muted-foreground">
+                System counters refresh automatically alongside the shared climate query
+                (~3 minute cadence). No manual refresh needed.
+              </div>
             </>
           )}
         </section>
