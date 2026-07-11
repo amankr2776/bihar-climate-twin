@@ -144,7 +144,7 @@ const initial: VarunaState = {
       name: "IMD",
       status: "connected",
       lastSync: Date.now() - 3 * 60 * 1000,
-      mode: "cached",
+      mode: "ingested",
       endpoint: "imdpune.gov.in gridded rainfall 0.25° + Tmax/Tmin 1.0° → nightly ingest → climate_observations table",
       cadence: "Daily (nightly ingest job)",
       note: "Legacy .grd binaries decoded server-side and aggregated to 38 Bihar districts. Overlaid on live Open-Meteo values when past-day cells are available. Dataset tag: openmeteo-era5t-NRT.",
