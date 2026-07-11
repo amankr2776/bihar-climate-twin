@@ -808,7 +808,7 @@ function BhagalpurLineageSection() {
         `IMD rainfall ${rainToday != null ? rainToday.toFixed(2) : "—"} mm/day · ` +
         `MOSDAC IMC rainfall ${rainToday != null ? rainToday.toFixed(2) : "—"} mm/day · ` +
         `INSAT-3DR LST ${tmaxToday != null ? tmaxToday.toFixed(2) : "—"} °C — all sourced from ` +
-        `Supabase climate_observations, 4,636 real satellite observations ingested from 7,508 ` +
+        `the VARUNA climate observations store, 4,636 real satellite observations ingested from 7,508 ` +
         `GeoTIFF scenes ordered via MOSDAC UOPS ` +
         `(Order IDs: Jul2026_185758, Jul2026_185756, Jul2026_185754).`,
       source: rainProv === "imd" ? "climate_observations · imd" : rainProv === "mosdac" ? "climate_observations · mosdac" : "Open-Meteo IMD-anchored",

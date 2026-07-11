@@ -39,8 +39,8 @@ export function MosdacProofSection() {
         <>
           <p className="mt-2 text-xs text-muted-foreground">
             Evidence that VARUNA is powered by real ISRO INSAT-3DR satellite data — not fabricated or
-            mocked. Each figure below is verifiable against the Supabase <code>climate_observations</code>
-            table (source = <code>mosdac</code>) and against the MOSDAC UOPS order history.
+            mocked. Each figure below is verifiable against VARUNA&rsquo;s climate observations store
+            (source = <code>mosdac</code>) and against the MOSDAC UOPS order history.
           </p>
           <dl className="mt-4 divide-y divide-border rounded border border-border bg-background/40">
             {FACTS.map(([k, v]) => (

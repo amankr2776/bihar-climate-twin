@@ -156,7 +156,7 @@ const initial: VarunaState = {
       mode: "ingested",
       endpoint: "mosdac.gov.in/uops + FTP delivery — 3RIMG_L2B_LST · 3RIMG_L2B_IMC",
       cadence: "3-hourly INSAT-3DR product · one-shot ingest (Jul 2026)",
-      note: "Real INSAT-3DR satellite data ordered through official ISRO MOSDAC User Order Processing System. GeoTIFF scenes clipped to Bihar bounding box, district centroids sampled, averaged per day, upserted into Supabase via VARUNA ingestion API. Records: 4,636 district-day observations · Scenes processed: 7,508 GeoTIFF files · Coverage: 2024-06-01 → 2024-09-30 (monsoon holdout).",
+      note: "Real INSAT-3DR satellite data ordered through official ISRO MOSDAC User Order Processing System. GeoTIFF scenes clipped to Bihar bounding box, district centroids sampled, averaged per day, upserted via the VARUNA ingestion API. Records: 4,636 district-day observations · Scenes processed: 7,508 GeoTIFF files · Coverage: 2024-06-01 → 2024-09-30 (monsoon holdout).",
     },
     {
       name: "Bhuvan (WMS + GADM fallback)",
