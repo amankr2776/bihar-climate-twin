@@ -20,9 +20,13 @@ export const Route = createFileRoute("/")({
           "A cinematic, real-time digital twin of Bihar's climate — physics-informed AI predicting floods, heat, and compound risk at block level.",
       },
     ],
+    links: [
+      { rel: "preload", as: "image", href: heroPoster, fetchpriority: "high" } as any,
+    ],
   }),
   component: Landing,
 });
+
 
 type Tier = "hq" | "720" | "480" | "off";
 
