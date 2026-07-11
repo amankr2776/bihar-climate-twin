@@ -7,7 +7,9 @@ import heroVideoHQ from "@/assets/landing-hero.mp4.asset.json";
 import heroVideo720 from "@/assets/landing-hero-720.mp4.asset.json";
 import heroVideo480 from "@/assets/landing-hero-480.mp4.asset.json";
 import heroVideoWebm from "@/assets/landing-hero-720.webm.asset.json";
-import heroPoster from "@/assets/landing-poster.jpg";
+import heroPoster from "@/assets/landing-poster.webp";
+
+const SITE_URL = "https://varuna-digital-twin.lovable.app";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -19,13 +21,25 @@ export const Route = createFileRoute("/")({
         content:
           "A cinematic, real-time digital twin of Bihar's climate — physics-informed AI predicting floods, heat, and compound risk at block level.",
       },
+      { property: "og:title", content: "VARUNA · AI Digital Twin for Climate Resilience" },
+      {
+        property: "og:description",
+        content:
+          "A cinematic, real-time digital twin of Bihar's climate — physics-informed AI predicting floods, heat, and compound risk at block level.",
+      },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: `${SITE_URL}${heroPoster}` },
+      { name: "twitter:image", content: `${SITE_URL}${heroPoster}` },
     ],
     links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
       { rel: "preload", as: "image", href: heroPoster, fetchpriority: "high" } as any,
+      { rel: "preload", as: "video", href: heroVideo720.url, type: "video/mp4" } as any,
     ],
   }),
   component: Landing,
 });
+
 
 
 type Tier = "hq" | "720" | "480" | "off";
@@ -164,14 +178,14 @@ function Landing() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,transparent_20%,rgba(0,0,0,0.35)_90%)]" />
 
-      {/* Animated cyan/amber data-grid overlay */}
+      {/* Animated cyan/amber data-grid overlay (paused on reduce-motion / off tier) */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-screen"
         style={{
           backgroundImage:
             "linear-gradient(rgba(34,211,238,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(251,191,36,0.25) 1px, transparent 1px)",
           backgroundSize: "60px 60px, 60px 60px",
-          animation: "heroGridDrift 25s linear infinite",
+          animation: tier === "off" ? undefined : "heroGridDrift 25s linear infinite",
         }}
       />
 
@@ -194,7 +208,11 @@ function Landing() {
           0% { background-position: 0 0, 0 0; }
           100% { background-position: 60px 60px, -60px 60px; }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-anim { animation: none !important; }
+        }
       `}</style>
+
 
 
       {/* Nav */}
@@ -234,8 +252,11 @@ function Landing() {
         </div>
 
         <h1
-          className="font-display max-w-4xl text-6xl font-black leading-[0.95] tracking-tight text-white drop-shadow-2xl md:text-8xl lg:text-9xl animate-fade-in"
-          style={{ animationDuration: "900ms" }}
+          className="font-display max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl md:text-8xl lg:text-9xl animate-fade-in"
+          style={{
+            animationDuration: "900ms",
+            textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.6)",
+          }}
         >
           See the flood
           <br />
@@ -243,6 +264,7 @@ function Landing() {
             before it arrives.
           </span>
         </h1>
+
 
         <div className="mt-10 flex flex-wrap items-center gap-4 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "backwards" }}>
           <Button
