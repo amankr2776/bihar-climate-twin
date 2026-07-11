@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Database, Monitor, Bell, User, Key, Activity, RefreshCw } from "lucide-react";
+import { Database, Monitor, Bell, User, Key, Activity } from "lucide-react";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,6 @@ function SettingsPage() {
   const [prefs, setPrefs] = useState(varunaStore.getState().displayPrefs);
   const config = useVarunaStore((s) => s.alertConfig);
   const sources = useVarunaStore((s) => s.dataSources);
-  const apiKey = useVarunaStore((s) => s.apiKey);
   const systemStatus = useVarunaStore((s) => s.systemStatus);
   // tick every 15s so "3 min ago" refreshes
   const [, force] = useState(0);
@@ -65,38 +64,17 @@ function SettingsPage() {
     return () => clearInterval(id);
   }, []);
 
-  const sync = (name: string) => {
-    varunaStore.set((s) => ({
-      dataSources: s.dataSources.map((d) => (d.name === name ? { ...d, status: "syncing" } : d)),
-    }));
-    toast.loading(`Syncing ${name}…`, { id: `sync-${name}` });
-    setTimeout(() => {
-      varunaStore.set((s) => ({
-        dataSources: s.dataSources.map((d) =>
-          d.name === name ? { ...d, status: "connected", lastSync: Date.now() } : d,
-        ),
-        systemStatus: { ...s.systemStatus, lastInference: Date.now() },
-      }));
-      toast.success(`${name} synced successfully`, { id: `sync-${name}` });
-    }, 1100 + Math.random() * 600);
-  };
   const saveProfile = () => {
     varunaStore.set({ userProfile: profile });
-    toast.success("Profile saved");
+    toast.success("Profile saved to this browser");
   };
   const savePrefs = () => {
     varunaStore.set({ displayPrefs: prefs });
-    toast.success("Preferences saved");
+    toast.success("Preferences saved to this browser");
   };
   const saveAlertConfig = () => {
     // config already lives in store via onCheckedChange; just confirm
-    toast.success("Alert configuration saved");
-  };
-  const regenKey = () => {
-    const hex = () => Math.random().toString(16).slice(2, 6);
-    const newKey = `vk_${hex()}${hex()}${hex()}${hex()}`;
-    varunaStore.set({ apiKey: newKey });
-    toast.success("New API key generated");
+    toast.success("Alert configuration saved to this browser");
   };
 
   return (
