@@ -178,14 +178,14 @@ function Landing() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/20" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,transparent_20%,rgba(0,0,0,0.35)_90%)]" />
 
-      {/* Animated cyan/amber data-grid overlay */}
+      {/* Animated cyan/amber data-grid overlay (paused on reduce-motion / off tier) */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-screen"
         style={{
           backgroundImage:
             "linear-gradient(rgba(34,211,238,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(251,191,36,0.25) 1px, transparent 1px)",
           backgroundSize: "60px 60px, 60px 60px",
-          animation: "heroGridDrift 25s linear infinite",
+          animation: tier === "off" ? undefined : "heroGridDrift 25s linear infinite",
         }}
       />
 
@@ -208,7 +208,11 @@ function Landing() {
           0% { background-position: 0 0, 0 0; }
           100% { background-position: 60px 60px, -60px 60px; }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-anim { animation: none !important; }
+        }
       `}</style>
+
 
 
       {/* Nav */}
