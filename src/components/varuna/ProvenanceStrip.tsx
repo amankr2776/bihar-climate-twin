@@ -42,7 +42,15 @@ function relative(ts: string): string {
   return `${d}d ago`;
 }
 
-function FreshnessPill({ row, label }: { row: IngestRow | null; label: string }) {
+function FreshnessPill({
+  row,
+  label,
+  archive = false,
+}: {
+  row: IngestRow | null;
+  label: string;
+  archive?: boolean;
+}) {
   if (!row) {
     return (
       <span
@@ -56,6 +64,10 @@ function FreshnessPill({ row, label }: { row: IngestRow | null; label: string })
   }
   const ok = row.status === "ok";
   const color = ok ? "var(--risk-drought)" : "var(--risk-heat)";
+  const suffix = archive ? "ARCHIVE" : relative(row.finished_at);
+  const titleSuffix = archive
+    ? ` · historical one-shot ingest (last loaded ${relative(row.finished_at)})`
+    : "";
   return (
     <span
       className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest"
@@ -64,10 +76,10 @@ function FreshnessPill({ row, label }: { row: IngestRow | null; label: string })
         borderColor: `color-mix(in oklch, ${color} 50%, transparent)`,
         backgroundColor: `color-mix(in oklch, ${color} 10%, transparent)`,
       }}
-      title={`Source: ${row.source}${row.dataset_version ? ` · ${row.dataset_version}` : ""} · ${row.rows_upserted.toLocaleString()} rows · ${row.status}`}
+      title={`Source: ${row.source}${row.dataset_version ? ` · ${row.dataset_version}` : ""} · ${row.rows_upserted.toLocaleString()} rows · ${row.status}${titleSuffix}`}
     >
       {ok ? <CheckCircle2 className="h-2.5 w-2.5" /> : <AlertCircle className="h-2.5 w-2.5" />}
-      {label}: {relative(row.finished_at)}
+      {label}: {suffix}
     </span>
   );
 }
@@ -87,7 +99,7 @@ export function IngestFreshness({ compact: _compact = false }: { compact?: boole
   return (
     <>
       <FreshnessPill row={data?.imd ?? null} label="IMD" />
-      <FreshnessPill row={data?.mosdac ?? null} label="MOSDAC" />
+      <FreshnessPill row={data?.mosdac ?? null} label="MOSDAC" archive />
     </>
   );
 }
