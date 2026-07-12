@@ -31,6 +31,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/api/public/ingest/climate", changefreq: "hourly", priority: "0.3" },
           { path: "/api/public/hooks/ingest-forecast", changefreq: "hourly", priority: "0.3" },
           { path: "/api/public/hooks/ingest-imd", changefreq: "hourly", priority: "0.3" },
+          { path: "/api/public/otp/send", changefreq: "hourly", priority: "0.3" },
+          { path: "/api/public/otp/verify", changefreq: "hourly", priority: "0.3" },
         ];
 
         const urls = entries.map((e) =>
