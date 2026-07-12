@@ -217,3 +217,35 @@ function AdminPage() {
     </div>
   );
 }
+
+function BootstrapForm({
+  onSubmit,
+  pending,
+}: {
+  onSubmit: (secret: string) => void;
+  pending: boolean;
+}) {
+  const [secret, setSecret] = useState("");
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (secret.trim().length > 0) onSubmit(secret.trim());
+      }}
+      className="mt-4 flex flex-col gap-2 sm:flex-row"
+    >
+      <input
+        type="password"
+        autoComplete="off"
+        value={secret}
+        onChange={(e) => setSecret(e.target.value)}
+        placeholder="Deployer setup secret"
+        className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[color:var(--brand-cyan)]"
+      />
+      <Button type="submit" disabled={pending || secret.trim().length === 0} className="gap-2">
+        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+        Claim first-admin seat
+      </Button>
+    </form>
+  );
+}
