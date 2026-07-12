@@ -100,17 +100,15 @@ function AdminPage() {
             <div className="flex-1">
               <h2 className="font-display text-lg font-semibold">Restricted area</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                This console is for VARUNA administrators only. If no admin exists yet, you can claim the first admin
-                seat below (this is a one-time operation).
+                This console is for VARUNA administrators only. To claim the first-admin seat, enter the deployer
+                setup secret (configured server-side as{" "}
+                <code className="font-mono text-[11px]">ADMIN_BOOTSTRAP_SECRET</code>). If no secret is set, the
+                initial admin must be seeded via SQL migration.
               </p>
-              <Button
-                onClick={() => bootstrap.mutate()}
-                disabled={bootstrap.isPending}
-                className="mt-4 gap-2"
-              >
-                {bootstrap.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Claim first-admin seat
-              </Button>
+              <BootstrapForm
+                onSubmit={(secret) => bootstrap.mutate(secret)}
+                pending={bootstrap.isPending}
+              />
             </div>
           </div>
         </div>
