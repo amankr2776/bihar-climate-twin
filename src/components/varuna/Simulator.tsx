@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { runSimulation, type SimulationInput, type SimulationResult } from "@/lib/varuna/api";
 
 const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string; hint: string }> = [
