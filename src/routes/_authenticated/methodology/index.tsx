@@ -255,6 +255,20 @@ function MethodologyPage() {
           25 mm/day rain on cropland at soil = 0.5 (non-Kosi) → flood_risk ≈ 0.35 · 100 mm/day rain on
           alluvial fan, soil = 0.9 (Kosi) → flood_risk ≈ 0.95. Reference peak = 260 m³/s.
         </div>
+
+        <div className="mt-4 rounded-lg border border-[color:var(--brand-cyan)]/40 bg-[color:var(--brand-cyan)]/5 p-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Related guide:</strong> how VARUNA's real-time flood risk assessment compares to traditional static maps.
+            </p>
+            <Link
+              to="/methodology/flood-risk-assessment"
+              className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
+            >
+              Read the guide <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
       </section>
 
       <section className="mt-6 rounded-xl border border-border bg-panel p-5">
