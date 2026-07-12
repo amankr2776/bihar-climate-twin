@@ -44,9 +44,9 @@ function AdminPage() {
     enabled: isAdmin,
   });
 
-  // First-time bootstrap: if no admins exist, offer to seed self.
+  // First-time bootstrap: requires a deployer-only setup secret.
   const bootstrap = useMutation({
-    mutationFn: () => bootstrapFn(),
+    mutationFn: (setupSecret: string) => bootstrapFn({ data: { setupSecret } }),
     onSuccess: (r) => {
       if (r?.seeded) {
         toast.success("You are now the first admin");
