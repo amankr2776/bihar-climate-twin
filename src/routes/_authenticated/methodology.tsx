@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/methodology")({
   head: () => ({
     meta: [
       { title: "PI-GNN Methodology · VARUNA" },
-      { name: "description", content: "How VARUNA's Physics-Informed Graph Neural Network models Bihar's climate — 534-block spatial graph, spatio-temporal transformer, IMD ground-truth validation loop." },
+      { name: "description", content: "How VARUNA's Physics-Informed Graph Neural Network models Bihar's climate — 534-block spatial graph, spatio-temporal transformer, IMD validation." },
       { property: "og:title", content: "VARUNA PI-GNN Methodology" },
       { property: "og:description", content: "Physics-Informed Graph Neural Network + Spatio-Temporal Transformer digital twin — architecture, features, training, validation." },
       { property: "og:url", content: "https://varuna-digital-twin.lovable.app/methodology" },
