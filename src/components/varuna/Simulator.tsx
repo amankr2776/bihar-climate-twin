@@ -8,6 +8,11 @@ const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string;
 ];
 
 export function Simulator({ busy = false }: { busy?: boolean } = {}) {
+  const baseId = useId();
+  const rainId = `${baseId}-rain`;
+  const tempId = `${baseId}-temp`;
+  const soilId = `${baseId}-soil`;
+
   const [rain, setRain] = useState(15);
   const [temp, setTemp] = useState(2);
   const [soil, setSoil] = useState<SimulationInput["soil_condition"]>("drought-baked");
