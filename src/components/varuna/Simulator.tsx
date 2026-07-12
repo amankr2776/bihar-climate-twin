@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { runSimulation, type SimulationInput, type SimulationResult } from "@/lib/varuna/api";
 
 const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string; hint: string }> = [
@@ -8,6 +8,11 @@ const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string;
 ];
 
 export function Simulator({ busy = false }: { busy?: boolean } = {}) {
+  const baseId = useId();
+  const rainId = `${baseId}-rain`;
+  const tempId = `${baseId}-temp`;
+  const soilId = `${baseId}-soil`;
+
   const [rain, setRain] = useState(15);
   const [temp, setTemp] = useState(2);
   const [soil, setSoil] = useState<SimulationInput["soil_condition"]>("drought-baked");
@@ -50,12 +55,13 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
-        <label className="space-y-2 text-xs">
+        <label htmlFor={rainId} className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Rainfall anomaly</span>
             <span className="font-mono text-primary">{rain > 0 ? "+" : ""}{rain}%</span>
           </div>
           <input
+            id={rainId}
             type="range"
             min={-50}
             max={50}
@@ -66,12 +72,13 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             className="w-full accent-[color:var(--risk-flood)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
-        <label className="space-y-2 text-xs">
+        <label htmlFor={tempId} className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Temperature anomaly</span>
             <span className="font-mono text-primary">{temp > 0 ? "+" : ""}{temp} °C</span>
           </div>
           <input
+            id={tempId}
             type="range"
             min={-5}
             max={5}
@@ -82,9 +89,10 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             className="w-full accent-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
-        <label className="space-y-2 text-xs">
+        <label htmlFor={soilId} className="space-y-2 text-xs">
           <span className="text-muted-foreground">Baseline soil condition</span>
           <select
+            id={soilId}
             value={soil}
             disabled={disabled}
             onChange={(e) => setSoil(e.target.value as SimulationInput["soil_condition"])}
