@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, UserPlus, UserMinus, Sparkles } from "lucide-react";
 import {
@@ -44,9 +44,9 @@ function AdminPage() {
     enabled: isAdmin,
   });
 
-  // First-time bootstrap: if no admins exist, offer to seed self.
+  // First-time bootstrap: requires a deployer-only setup secret.
   const bootstrap = useMutation({
-    mutationFn: () => bootstrapFn(),
+    mutationFn: (setupSecret: string) => bootstrapFn({ data: { setupSecret } }),
     onSuccess: (r) => {
       if (r?.seeded) {
         toast.success("You are now the first admin");
@@ -100,17 +100,15 @@ function AdminPage() {
             <div className="flex-1">
               <h2 className="font-display text-lg font-semibold">Restricted area</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                This console is for VARUNA administrators only. If no admin exists yet, you can claim the first admin
-                seat below (this is a one-time operation).
+                This console is for VARUNA administrators only. To claim the first-admin seat, enter the deployer
+                setup secret (configured server-side as{" "}
+                <code className="font-mono text-[11px]">ADMIN_BOOTSTRAP_SECRET</code>). If no secret is set, the
+                initial admin must be seeded via SQL migration.
               </p>
-              <Button
-                onClick={() => bootstrap.mutate()}
-                disabled={bootstrap.isPending}
-                className="mt-4 gap-2"
-              >
-                {bootstrap.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Claim first-admin seat
-              </Button>
+              <BootstrapForm
+                onSubmit={(secret) => bootstrap.mutate(secret)}
+                pending={bootstrap.isPending}
+              />
             </div>
           </div>
         </div>
@@ -217,5 +215,37 @@ function AdminPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function BootstrapForm({
+  onSubmit,
+  pending,
+}: {
+  onSubmit: (secret: string) => void;
+  pending: boolean;
+}) {
+  const [secret, setSecret] = useState("");
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (secret.trim().length > 0) onSubmit(secret.trim());
+      }}
+      className="mt-4 flex flex-col gap-2 sm:flex-row"
+    >
+      <input
+        type="password"
+        autoComplete="off"
+        value={secret}
+        onChange={(e) => setSecret(e.target.value)}
+        placeholder="Deployer setup secret"
+        className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[color:var(--brand-cyan)]"
+      />
+      <Button type="submit" disabled={pending || secret.trim().length === 0} className="gap-2">
+        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+        Claim first-admin seat
+      </Button>
+    </form>
   );
 }

@@ -87,10 +87,32 @@ export const getMyRoles = createServerFn({ method: "GET" })
     return (data ?? []).map((r) => r.role as string);
   });
 
-/** Seed self as first admin if there are no admins yet. Safe to call from admin console bootstrap. */
+/**
+ * Seed self as first admin. Requires a pre-shared deployer secret
+ * (ADMIN_BOOTSTRAP_SECRET) known only to the operator, to prevent any
+ * self-registered user from racing to claim the admin seat.
+ *
+ * If the secret env var is not set, bootstrap is disabled entirely —
+ * the initial admin must be seeded out-of-band via SQL migration.
+ */
 export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((raw) => z.object({ setupSecret: z.string().min(1) }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const expected = process.env.ADMIN_BOOTSTRAP_SECRET;
+    if (!expected || expected.length < 8) {
+      throw new Error(
+        "First-admin bootstrap is disabled. Seed the initial admin via SQL migration.",
+      );
+    }
+    // Timing-safe-ish compare via hashed digests of equal length.
+    const { createHash, timingSafeEqual } = await import("node:crypto");
+    const a = createHash("sha256").update(data.setupSecret, "utf8").digest();
+    const b = createHash("sha256").update(expected, "utf8").digest();
+    if (!timingSafeEqual(a, b)) {
+      throw new Error("Invalid setup secret");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { count, error: cErr } = await supabaseAdmin
       .from("user_roles")
