@@ -55,12 +55,13 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
-        <label className="space-y-2 text-xs">
+        <label htmlFor={rainId} className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Rainfall anomaly</span>
             <span className="font-mono text-primary">{rain > 0 ? "+" : ""}{rain}%</span>
           </div>
           <input
+            id={rainId}
             type="range"
             min={-50}
             max={50}
@@ -71,12 +72,13 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             className="w-full accent-[color:var(--risk-flood)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
-        <label className="space-y-2 text-xs">
+        <label htmlFor={tempId} className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Temperature anomaly</span>
             <span className="font-mono text-primary">{temp > 0 ? "+" : ""}{temp} °C</span>
           </div>
           <input
+            id={tempId}
             type="range"
             min={-5}
             max={5}
