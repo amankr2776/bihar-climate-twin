@@ -89,9 +89,10 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             className="w-full accent-[color:var(--risk-heat)] disabled:cursor-not-allowed disabled:opacity-50"
           />
         </label>
-        <label className="space-y-2 text-xs">
+        <label htmlFor={soilId} className="space-y-2 text-xs">
           <span className="text-muted-foreground">Baseline soil condition</span>
           <select
+            id={soilId}
             value={soil}
             disabled={disabled}
             onChange={(e) => setSoil(e.target.value as SimulationInput["soil_condition"])}
