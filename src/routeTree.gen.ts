@@ -23,6 +23,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCompoundRouteImport } from './routes/_authenticated/compound'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedMethodologyIndexRouteImport } from './routes/_authenticated/methodology/index'
+import { Route as AuthenticatedMethodologyFloodRiskAssessmentRouteImport } from './routes/_authenticated/methodology/flood-risk-assessment'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
@@ -100,6 +102,18 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMethodologyIndexRoute =
+  AuthenticatedMethodologyIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMethodologyRoute,
+  } as any)
+const AuthenticatedMethodologyFloodRiskAssessmentRoute =
+  AuthenticatedMethodologyFloodRiskAssessmentRouteImport.update({
+    id: '/flood-risk-assessment',
+    path: '/flood-risk-assessment',
+    getParentRoute: () => AuthenticatedMethodologyRoute,
+  } as any)
 const ApiPublicOtpVerifyRoute = ApiPublicOtpVerifyRouteImport.update({
   id: '/api/public/otp/verify',
   path: '/api/public/otp/verify',
@@ -141,11 +155,13 @@ export interface FileRoutesByFullPath {
   '/compound': typeof AuthenticatedCompoundRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/map': typeof AuthenticatedMapRoute
-  '/methodology': typeof AuthenticatedMethodologyRoute
+  '/methodology': typeof AuthenticatedMethodologyRouteWithChildren
   '/prediction': typeof AuthenticatedPredictionRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
+  '/methodology/': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -162,11 +178,12 @@ export interface FileRoutesByTo {
   '/compound': typeof AuthenticatedCompoundRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/map': typeof AuthenticatedMapRoute
-  '/methodology': typeof AuthenticatedMethodologyRoute
   '/prediction': typeof AuthenticatedPredictionRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
+  '/methodology': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -185,11 +202,13 @@ export interface FileRoutesById {
   '/_authenticated/compound': typeof AuthenticatedCompoundRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
-  '/_authenticated/methodology': typeof AuthenticatedMethodologyRoute
+  '/_authenticated/methodology': typeof AuthenticatedMethodologyRouteWithChildren
   '/_authenticated/prediction': typeof AuthenticatedPredictionRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
+  '/_authenticated/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
+  '/_authenticated/methodology/': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
   '/api/public/hooks/ingest-imd': typeof ApiPublicHooksIngestImdRoute
   '/api/public/ingest/climate': typeof ApiPublicIngestClimateRoute
@@ -213,6 +232,8 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/methodology/flood-risk-assessment'
+    | '/methodology/'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -229,11 +250,12 @@ export interface FileRouteTypes {
     | '/compound'
     | '/dashboard'
     | '/map'
-    | '/methodology'
     | '/prediction'
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/methodology/flood-risk-assessment'
+    | '/methodology'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -256,6 +278,8 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/simulator'
+    | '/_authenticated/methodology/flood-risk-assessment'
+    | '/_authenticated/methodology/'
     | '/api/public/hooks/ingest-forecast'
     | '/api/public/hooks/ingest-imd'
     | '/api/public/ingest/climate'
@@ -377,6 +401,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/methodology/': {
+      id: '/_authenticated/methodology/'
+      path: '/'
+      fullPath: '/methodology/'
+      preLoaderRoute: typeof AuthenticatedMethodologyIndexRouteImport
+      parentRoute: typeof AuthenticatedMethodologyRoute
+    }
+    '/_authenticated/methodology/flood-risk-assessment': {
+      id: '/_authenticated/methodology/flood-risk-assessment'
+      path: '/flood-risk-assessment'
+      fullPath: '/methodology/flood-risk-assessment'
+      preLoaderRoute: typeof AuthenticatedMethodologyFloodRiskAssessmentRouteImport
+      parentRoute: typeof AuthenticatedMethodologyRoute
+    }
     '/api/public/otp/verify': {
       id: '/api/public/otp/verify'
       path: '/api/public/otp/verify'
@@ -422,13 +460,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedMethodologyRouteChildren {
+  AuthenticatedMethodologyFloodRiskAssessmentRoute: typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
+  AuthenticatedMethodologyIndexRoute: typeof AuthenticatedMethodologyIndexRoute
+}
+
+const AuthenticatedMethodologyRouteChildren: AuthenticatedMethodologyRouteChildren =
+  {
+    AuthenticatedMethodologyFloodRiskAssessmentRoute:
+      AuthenticatedMethodologyFloodRiskAssessmentRoute,
+    AuthenticatedMethodologyIndexRoute: AuthenticatedMethodologyIndexRoute,
+  }
+
+const AuthenticatedMethodologyRouteWithChildren =
+  AuthenticatedMethodologyRoute._addFileChildren(
+    AuthenticatedMethodologyRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedCompoundRoute: typeof AuthenticatedCompoundRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
-  AuthenticatedMethodologyRoute: typeof AuthenticatedMethodologyRoute
+  AuthenticatedMethodologyRoute: typeof AuthenticatedMethodologyRouteWithChildren
   AuthenticatedPredictionRoute: typeof AuthenticatedPredictionRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -441,7 +496,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompoundRoute: AuthenticatedCompoundRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
-  AuthenticatedMethodologyRoute: AuthenticatedMethodologyRoute,
+  AuthenticatedMethodologyRoute: AuthenticatedMethodologyRouteWithChildren,
   AuthenticatedPredictionRoute: AuthenticatedPredictionRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
