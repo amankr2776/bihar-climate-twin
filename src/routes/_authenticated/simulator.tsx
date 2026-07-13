@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
@@ -15,9 +17,13 @@ import { runSimulation, type SimulationResult } from "@/lib/varuna/api";
 import { varunaStore, useVarunaStore, type SavedScenario } from "@/lib/varuna/store";
 import { useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 
+const simulatorSearchSchema = z.object({
+  districts: fallback(z.string(), "all").default("all"),
+});
 
 export const Route = createFileRoute("/_authenticated/simulator")({
   ssr: false,
+  validateSearch: zodValidator(simulatorSearchSchema),
   head: () => ({
     meta: [
       { title: "What-If Simulator · VARUNA" },
