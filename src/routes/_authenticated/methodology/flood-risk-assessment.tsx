@@ -230,7 +230,7 @@ function FloodRiskAssessmentPage() {
             Explore the twin
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Run what-if rainfall and soil scenarios, or inspect the live prediction engine validation panel.
+            Drill into the prototype: run what-if scenarios, inspect the live digital-twin state machine, or view the dashboard where scenarios play out block by block.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -238,13 +238,19 @@ function FloodRiskAssessmentPage() {
             to="/simulator"
             className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
           >
-            Open Simulator <ArrowRight className="h-3.5 w-3.5" />
+            Simulator <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <Link
-            to="/prediction"
+            to="/methodology"
             className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
           >
-            Validation Panel <ArrowRight className="h-3.5 w-3.5" />
+            State Machine <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
+          >
+            What-If Dashboard <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </section>
