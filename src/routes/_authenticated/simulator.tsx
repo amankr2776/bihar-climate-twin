@@ -45,6 +45,7 @@ export const Route = createFileRoute("/_authenticated/simulator")({
 
 function SimulatorPage() {
   const { t } = useI18n();
+  const { districts: districtsParam } = Route.useSearch();
   const [name, setName] = useState("Scenario 1");
   const [rainfall, setRainfall] = useState(0);
   const [temperature, setTemperature] = useState(0);
@@ -52,7 +53,12 @@ function SimulatorPage() {
   const [soil, setSoil] = useState<"normal" | "drought-baked" | "saturated">("normal");
   const [antecedent, setAntecedent] = useState("normal");
   const [season, setSeason] = useState("active-monsoon");
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>(DISTRICTS.map((d) => d.id));
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>(() => {
+    if (districtsParam === "all") return DISTRICTS.map((d) => d.id);
+    const requested = districtsParam.split(",").map((id) => id.trim()).filter(Boolean);
+    const valid = requested.filter((id) => DISTRICTS.some((d) => d.id === id));
+    return valid.length > 0 ? valid : DISTRICTS.map((d) => d.id);
+  });
   const [cascadeDepth, setCascadeDepth] = useState(3);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
