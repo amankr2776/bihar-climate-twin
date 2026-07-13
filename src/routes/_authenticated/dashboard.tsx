@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { CloudRain, Zap, Droplets, X } from "lucide-react";
 import type { BlockState, DistrictState } from "@/lib/varuna/state";
@@ -19,9 +21,14 @@ import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
 import { useI18n } from "@/lib/i18n";
 
+const dashboardSearchSchema = z.object({
+  district: fallback(z.string(), "").default(""),
+  block: fallback(z.string(), "").default(""),
+});
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: false,
+  validateSearch: zodValidator(dashboardSearchSchema),
   head: () => ({
     meta: [
       { title: "Dashboard · VARUNA" },
