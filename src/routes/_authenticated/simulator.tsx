@@ -55,8 +55,8 @@ function SimulatorPage() {
   const [season, setSeason] = useState("active-monsoon");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>(() => {
     if (districtsParam === "all") return DISTRICTS.map((d) => d.id);
-    const requested = districtsParam.split(",").map((id) => id.trim()).filter(Boolean);
-    const valid = requested.filter((id) => DISTRICTS.some((d) => d.id === id));
+    const requested = districtsParam.split(",").map((id: string) => id.trim()).filter(Boolean);
+    const valid = requested.filter((id: string) => DISTRICTS.some((d) => d.id === id));
     return valid.length > 0 ? valid : DISTRICTS.map((d) => d.id);
   });
   const [cascadeDepth, setCascadeDepth] = useState(3);
