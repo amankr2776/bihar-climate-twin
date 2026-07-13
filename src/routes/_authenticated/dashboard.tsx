@@ -52,13 +52,32 @@ function VarunaDashboard() {
   const { data: state } = useCurrentState();
   const { data: alerts = [] } = useAlerts();
   const { data: imdNormals } = useImdNormals();
+  const { district: districtParam, block: blockParam } = Route.useSearch();
   const refresh = useVarunaRefresh();
   const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(districtParam || null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [showKosiCallout, setShowKosiCallout] = useState(true);
   const { t } = useI18n();
+
+  // When state loads, resolve deep-linked district/block from the URL.
+  useEffect(() => {
+    if (!state) return;
+    const districts = state.districts ?? [];
+    const blocks = state.blocks ?? [];
+
+    if (districtParam) {
+      const district = districts.find((d) => d.district.id === districtParam) ?? null;
+      if (district) {
+        setSelectedDistrict(district.district.id);
+        if (blockParam) {
+          const block = blocks.find((b) => b.block_id === blockParam && b.district_id === districtParam) ?? null;
+          if (block) setSelectedBlock(block);
+        }
+      }
+    }
+  }, [state, districtParam, blockParam]);
 
   useEffect(() => {
     if (selectedDistrict === null) return;
