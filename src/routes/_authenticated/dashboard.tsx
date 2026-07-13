@@ -23,12 +23,15 @@ import { useI18n } from "@/lib/i18n";
 
 const dashboardSearchSchema = z.object({
   district: fallback(z.string(), "").default(""),
-  block: fallback(z.string(), "").default(""),
+  block: z.string().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: false,
   validateSearch: zodValidator(dashboardSearchSchema),
+  search: {
+    middlewares: [stripSearchParams({ district: "", block: undefined })],
+  },
   head: () => ({
     meta: [
       { title: "Dashboard · VARUNA" },
