@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Play, Save, Trash2, RotateCcw, Download, Zap, PowerOff } from "lucide-react";
@@ -15,9 +17,13 @@ import { runSimulation, type SimulationResult } from "@/lib/varuna/api";
 import { varunaStore, useVarunaStore, type SavedScenario } from "@/lib/varuna/store";
 import { useVarunaRefresh } from "@/lib/varuna/useCurrentState";
 
+const simulatorSearchSchema = z.object({
+  districts: fallback(z.string(), "all").default("all"),
+});
 
 export const Route = createFileRoute("/_authenticated/simulator")({
   ssr: false,
+  validateSearch: zodValidator(simulatorSearchSchema),
   head: () => ({
     meta: [
       { title: "What-If Simulator · VARUNA" },
@@ -39,6 +45,7 @@ export const Route = createFileRoute("/_authenticated/simulator")({
 
 function SimulatorPage() {
   const { t } = useI18n();
+  const { districts: districtsParam } = Route.useSearch();
   const [name, setName] = useState("Scenario 1");
   const [rainfall, setRainfall] = useState(0);
   const [temperature, setTemperature] = useState(0);
@@ -46,7 +53,12 @@ function SimulatorPage() {
   const [soil, setSoil] = useState<"normal" | "drought-baked" | "saturated">("normal");
   const [antecedent, setAntecedent] = useState("normal");
   const [season, setSeason] = useState("active-monsoon");
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>(DISTRICTS.map((d) => d.id));
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>(() => {
+    if (districtsParam === "all") return DISTRICTS.map((d) => d.id);
+    const requested = districtsParam.split(",").map((id: string) => id.trim()).filter(Boolean);
+    const valid = requested.filter((id: string) => DISTRICTS.some((d) => d.id === id));
+    return valid.length > 0 ? valid : DISTRICTS.map((d) => d.id);
+  });
   const [cascadeDepth, setCascadeDepth] = useState(3);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);

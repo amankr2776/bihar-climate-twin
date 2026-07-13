@@ -236,18 +236,21 @@ function FloodRiskAssessmentPage() {
         <div className="flex flex-wrap gap-2">
           <Link
             to="/simulator"
+            search={{ districts: "all" }}
             className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
           >
             Simulator <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <Link
             to="/methodology"
+            hash="graph-topology"
             className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
           >
             State Machine <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <Link
             to="/dashboard"
+            search={{ district: "supaul" }}
             className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--brand-cyan)]/20 px-3 py-1.5 text-xs font-semibold text-[color:var(--brand-cyan)] hover:bg-[color:var(--brand-cyan)]/30"
           >
             What-If Dashboard <ArrowRight className="h-3.5 w-3.5" />

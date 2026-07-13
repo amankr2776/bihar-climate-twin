@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { CloudRain, Zap, Droplets, X } from "lucide-react";
 import type { BlockState, DistrictState } from "@/lib/varuna/state";
@@ -19,9 +21,17 @@ import { useVarunaStore, varunaStore } from "@/lib/varuna/store";
 import { useImdNormals, stateWideNormal } from "@/lib/varuna/imd-normals";
 import { useI18n } from "@/lib/i18n";
 
+const dashboardSearchSchema = z.object({
+  district: fallback(z.string(), "").default(""),
+  block: z.string().optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: false,
+  validateSearch: zodValidator(dashboardSearchSchema),
+  search: {
+    middlewares: [stripSearchParams({ district: "", block: undefined })],
+  },
   head: () => ({
     meta: [
       { title: "Dashboard · VARUNA" },
@@ -45,13 +55,32 @@ function VarunaDashboard() {
   const { data: state } = useCurrentState();
   const { data: alerts = [] } = useAlerts();
   const { data: imdNormals } = useImdNormals();
+  const { district: districtParam, block: blockParam } = Route.useSearch();
   const refresh = useVarunaRefresh();
   const activeScenarioName = useVarunaStore((s) => s.activeScenarioName);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(districtParam || null);
   const [selectedBlock, setSelectedBlock] = useState<BlockState | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [showKosiCallout, setShowKosiCallout] = useState(true);
   const { t } = useI18n();
+
+  // When state loads, resolve deep-linked district/block from the URL.
+  useEffect(() => {
+    if (!state) return;
+    const districts = state.districts ?? [];
+    const blocks = state.blocks ?? [];
+
+    if (districtParam) {
+      const district = districts.find((d) => d.district.id === districtParam) ?? null;
+      if (district) {
+        setSelectedDistrict(district.district.id);
+        if (blockParam) {
+          const block = blocks.find((b) => b.block_id === blockParam && b.district_id === districtParam) ?? null;
+          if (block) setSelectedBlock(block);
+        }
+      }
+    }
+  }, [state, districtParam, blockParam]);
 
   useEffect(() => {
     if (selectedDistrict === null) return;
