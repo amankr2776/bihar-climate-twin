@@ -5,9 +5,9 @@ import { ArrowRight, BarChart3, Clock, Map, Radar, ShieldAlert, Waves } from "lu
 export const Route = createFileRoute("/_authenticated/methodology/flood-risk-assessment")({
   head: () => ({
     meta: [
-      { title: "Bihar Flood Risk Assessment: AI Digital Twin vs. Traditional Maps · VARUNA" },
+      { title: "Bihar Flood Risk: Digital Twin vs. Static Maps · VARUNA" },
       { name: "description", content: "How VARUNA's PI-GNN digital twin changes Bihar flood risk assessment compared to FEMA flood maps and CWC static models: real-time forecasts, 534-block resolution, and lower RMSE." },
-      { property: "og:title", content: "Bihar Flood Risk Assessment: AI Digital Twin vs. Traditional Maps · VARUNA" },
+      { property: "og:title", content: "Bihar Flood Risk: Digital Twin vs. Static Maps · VARUNA" },
       { property: "og:description", content: "How VARUNA's PI-GNN digital twin changes Bihar flood risk assessment compared to FEMA flood maps and CWC static models: real-time forecasts, 534-block resolution, and lower RMSE." },
       { property: "og:url", content: "https://varuna-digital-twin.lovable.app/methodology/flood-risk-assessment" },
       { property: "og:type", content: "article" },
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/methodology/flood-risk-ass
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "TechArticle",
-          headline: "Bihar Flood Risk Assessment: AI Digital Twin vs. Traditional Maps",
+          headline: "Bihar Flood Risk: Digital Twin vs. Static Maps",
           description:
             "How VARUNA's PI-GNN digital twin changes Bihar flood risk assessment compared to FEMA flood maps and CWC static models: real-time forecasts, 534-block resolution, and lower RMSE.",
           author: {
