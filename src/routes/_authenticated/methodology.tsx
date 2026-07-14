@@ -10,7 +10,6 @@ export const Route = createFileRoute("/_authenticated/methodology")({
       { property: "og:url", content: "https://varuna-digital-twin.lovable.app/methodology" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "https://varuna-digital-twin.lovable.app/methodology" }],
   }),
   component: () => <Outlet />,
 });
