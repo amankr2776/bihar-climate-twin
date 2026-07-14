@@ -25,6 +25,7 @@ import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedMethodologyIndexRouteImport } from './routes/_authenticated/methodology/index'
 import { Route as AuthenticatedMethodologyFloodRiskAssessmentRouteImport } from './routes/_authenticated/methodology/flood-risk-assessment'
+import { Route as AuthenticatedMethodologyDigitalTwinVsFemaMapsRouteImport } from './routes/_authenticated/methodology/digital-twin-vs-fema-maps'
 import { Route as ApiPublicOtpVerifyRouteImport } from './routes/api/public/otp.verify'
 import { Route as ApiPublicOtpSendRouteImport } from './routes/api/public/otp.send'
 import { Route as ApiPublicIngestLatestRouteImport } from './routes/api/public/ingest.latest'
@@ -114,6 +115,12 @@ const AuthenticatedMethodologyFloodRiskAssessmentRoute =
     path: '/flood-risk-assessment',
     getParentRoute: () => AuthenticatedMethodologyRoute,
   } as any)
+const AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute =
+  AuthenticatedMethodologyDigitalTwinVsFemaMapsRouteImport.update({
+    id: '/digital-twin-vs-fema-maps',
+    path: '/digital-twin-vs-fema-maps',
+    getParentRoute: () => AuthenticatedMethodologyRoute,
+  } as any)
 const ApiPublicOtpVerifyRoute = ApiPublicOtpVerifyRouteImport.update({
   id: '/api/public/otp/verify',
   path: '/api/public/otp/verify',
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/methodology/digital-twin-vs-fema-maps': typeof AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute
   '/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
   '/methodology/': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
@@ -182,6 +190,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/methodology/digital-twin-vs-fema-maps': typeof AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute
   '/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
   '/methodology': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
+  '/_authenticated/methodology/digital-twin-vs-fema-maps': typeof AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute
   '/_authenticated/methodology/flood-risk-assessment': typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
   '/_authenticated/methodology/': typeof AuthenticatedMethodologyIndexRoute
   '/api/public/hooks/ingest-forecast': typeof ApiPublicHooksIngestForecastRoute
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/methodology/digital-twin-vs-fema-maps'
     | '/methodology/flood-risk-assessment'
     | '/methodology/'
     | '/api/public/hooks/ingest-forecast'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/settings'
     | '/simulator'
+    | '/methodology/digital-twin-vs-fema-maps'
     | '/methodology/flood-risk-assessment'
     | '/methodology'
     | '/api/public/hooks/ingest-forecast'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/settings'
     | '/_authenticated/simulator'
+    | '/_authenticated/methodology/digital-twin-vs-fema-maps'
     | '/_authenticated/methodology/flood-risk-assessment'
     | '/_authenticated/methodology/'
     | '/api/public/hooks/ingest-forecast'
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMethodologyFloodRiskAssessmentRouteImport
       parentRoute: typeof AuthenticatedMethodologyRoute
     }
+    '/_authenticated/methodology/digital-twin-vs-fema-maps': {
+      id: '/_authenticated/methodology/digital-twin-vs-fema-maps'
+      path: '/digital-twin-vs-fema-maps'
+      fullPath: '/methodology/digital-twin-vs-fema-maps'
+      preLoaderRoute: typeof AuthenticatedMethodologyDigitalTwinVsFemaMapsRouteImport
+      parentRoute: typeof AuthenticatedMethodologyRoute
+    }
     '/api/public/otp/verify': {
       id: '/api/public/otp/verify'
       path: '/api/public/otp/verify'
@@ -461,12 +481,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedMethodologyRouteChildren {
+  AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute: typeof AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute
   AuthenticatedMethodologyFloodRiskAssessmentRoute: typeof AuthenticatedMethodologyFloodRiskAssessmentRoute
   AuthenticatedMethodologyIndexRoute: typeof AuthenticatedMethodologyIndexRoute
 }
 
 const AuthenticatedMethodologyRouteChildren: AuthenticatedMethodologyRouteChildren =
   {
+    AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute:
+      AuthenticatedMethodologyDigitalTwinVsFemaMapsRoute,
     AuthenticatedMethodologyFloodRiskAssessmentRoute:
       AuthenticatedMethodologyFloodRiskAssessmentRoute,
     AuthenticatedMethodologyIndexRoute: AuthenticatedMethodologyIndexRoute,
