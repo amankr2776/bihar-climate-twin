@@ -252,9 +252,8 @@ function Landing() {
         </div>
 
         <h1
-          className="font-display max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl md:text-8xl lg:text-9xl animate-fade-in"
+          className="font-display max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl md:text-8xl lg:text-9xl"
           style={{
-            animationDuration: "900ms",
             textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.6)",
           }}
         >
