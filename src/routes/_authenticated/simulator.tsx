@@ -286,20 +286,66 @@ function SimulatorPage() {
                 </div>
               </div>
 
-              <div
-                className="rounded-r bg-[color:var(--risk-heat)]/10 p-3"
-                style={{ borderLeft: "4px solid var(--risk-heat)" }}
-              >
-                <div className="mb-1.5 text-xs font-bold uppercase tracking-widest text-[color:var(--risk-heat)]">
-                  AI Recommended Actions
-                </div>
-                <ol className="list-decimal space-y-1 pl-5 text-foreground/90" style={{ fontSize: "13px", lineHeight: 1.4 }}>
-                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
-                  <li>Issue flood warnings for Kosi basin districts.</li>
-                  <li>Monitor soil moisture in southern districts for drought escalation.</li>
-                  <li>Activate cooling shelters in Gaya, Aurangabad.</li>
-                </ol>
-              </div>
+              {(() => {
+                // Build scenario-aware action list ranked by risk in the selected geography.
+                const selSet = new Set(selectedDistricts);
+                const impacted = districtImpact.filter((d) => selSet.has(d.id));
+                const topFlood = [...impacted].sort((a, b) => b.flood - a.flood).slice(0, 3);
+                const topDrought = [...impacted].sort((a, b) => b.drought - a.drought).slice(0, 3);
+                const topHeat = [...impacted].sort((a, b) => b.heat - a.heat).slice(0, 3);
+                const actions: string[] = [];
+                const fs = result.flood_level.score;
+                const ds = result.drought_index.score;
+                const hs = result.heatwave_alert.score;
+                const cs = result.coldwave_alert.score;
+
+                if (fs >= 0.4 && topFlood[0]?.flood >= 0.4) {
+                  const names = topFlood.filter((d) => d.flood >= 0.4).map((d) => `${d.name} (${(d.flood * 100).toFixed(0)}%)`).join(", ");
+                  actions.push(`Pre-position NDRF Stage-${fs >= 0.7 ? "3" : "2"} teams in ${names} within ${fs >= 0.7 ? "3" : "6"}h.`);
+                }
+                if (fs >= 0.35) {
+                  const kosiHit = topFlood.filter((d) => DISTRICTS.find((x) => x.id === d.id)?.kosiBasin).map((d) => d.name);
+                  actions.push(kosiHit.length ? `Issue flood warnings for Kosi-basin districts: ${kosiHit.join(", ")}.` : `Issue flood advisories for ${topFlood.map((d) => d.name).join(", ")}.`);
+                }
+                if (soil === "saturated" && rainfall > 0) {
+                  actions.push(`Soil already saturated — expect near-instant runoff on +${rainfall}% rainfall anomaly. Verify embankment condition on Bagmati/Gandak/Ganga reach.`);
+                } else if (soil === "drought-baked" && rainfall > 0) {
+                  actions.push(`Sun-baked soil rejects infiltration — flash-runoff even on moderate rain. Alert CD volunteers in ${topFlood.map((d) => d.name).slice(0, 2).join(", ")}.`);
+                }
+                if (ds >= 0.4 && topDrought[0]?.drought >= 0.4) {
+                  actions.push(`Monitor soil moisture in ${topDrought.map((d) => `${d.name} (${(d.drought * 100).toFixed(0)}%)`).join(", ")} — drought escalation risk.`);
+                  actions.push(`Agri-extension advisory: shift ${topDrought.map((d) => d.name).slice(0, 2).join(", ")} to short-duration paddy varieties.`);
+                }
+                if (hs >= 0.35 || temperature >= 2) {
+                  actions.push(`Activate cooling shelters in ${topHeat.map((d) => `${d.name} (${(d.heat * 100).toFixed(0)}%)`).join(", ")}${temperature >= 2 ? ` — +${temperature}°C anomaly amplifies exposure.` : "."}`);
+                }
+                if (cs >= 0.4 || temperature <= -2) {
+                  actions.push(`Coldwave signature in projection (${temperature}°C anomaly) — open night shelters in north corridor; distribute blankets via BDOs.`);
+                }
+                const compoundCount = impacted.filter((d) => d.flood >= 0.45 && d.drought >= 0.35).length;
+                if (compoundCount > 0) {
+                  actions.push(`Compound risk in ${compoundCount} district${compoundCount > 1 ? "s" : ""} — coordinate SDRF + agri-extension jointly (single-hazard playbooks under-count impact by ~35%).`);
+                }
+                if (rainfall <= -20) actions.push(`Rainfall deficit ${rainfall}% — activate drinking-water tanker plan for panchayats; monitor tubewell head weekly.`);
+                if (actions.length === 0) actions.push(`Scenario within normal operational bounds — continue routine 3-hour digital-twin refresh; no cross-threshold action required for ${selectedDistricts.length} selected district${selectedDistricts.length > 1 ? "s" : ""}.`);
+
+                return (
+                  <div
+                    className="rounded-r bg-[color:var(--risk-heat)]/10 p-3"
+                    style={{ borderLeft: "4px solid var(--risk-heat)" }}
+                  >
+                    <div className="mb-1.5 flex items-baseline justify-between text-xs font-bold uppercase tracking-widest text-[color:var(--risk-heat)]">
+                      <span>AI Recommended Actions</span>
+                      <span className="text-[9px] font-normal text-muted-foreground normal-case">
+                        for {selectedDistricts.length} district{selectedDistricts.length > 1 ? "s" : ""} · rain {rainfall >= 0 ? "+" : ""}{rainfall}% · temp {temperature >= 0 ? "+" : ""}{temperature}°C · {soil}
+                      </span>
+                    </div>
+                    <ol className="list-decimal space-y-1 pl-5 text-foreground/90" style={{ fontSize: "13px", lineHeight: 1.4 }}>
+                      {actions.map((a, i) => <li key={i}>{a}</li>)}
+                    </ol>
+                  </div>
+                );
+              })()}
 
 
               <div className="flex items-center justify-center gap-3 rounded border border-[color:var(--risk-heat)]/20 bg-[color:var(--risk-heat)]/10 px-3 py-2 text-[11px]">

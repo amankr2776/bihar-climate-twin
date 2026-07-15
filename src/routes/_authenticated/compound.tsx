@@ -313,19 +313,55 @@ function CompoundPage() {
                       ×{e.severity}
                     </span>
                   </button>
-                  {expanded === e.id && (
-                    <div className="border-t border-border px-3 py-2 text-[11px]">
-                      <div className="font-semibold text-muted-foreground">Affected blocks</div>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {e.blocks.slice(0, 8).map((b) => (
-                          <span key={b.block_id} className="rounded bg-background px-1.5 py-0.5">{b.block_name}</span>
-                        ))}
+                  {expanded === e.id && (() => {
+                    const avgFlood = e.blocks.reduce((s, b) => s + b.flood_risk, 0) / e.blocks.length;
+                    const avgDrought = e.blocks.reduce((s, b) => s + b.drought_risk, 0) / e.blocks.length;
+                    const avgHeat = e.blocks.reduce((s, b) => s + b.heat_retention_score, 0) / e.blocks.length;
+                    const avgSoil = e.blocks.reduce((s, b) => s + b.soil_moisture_index, 0) / e.blocks.length;
+                    const avgRain = e.blocks.reduce((s, b) => s + b.rainfall_mm, 0) / e.blocks.length;
+                    const worst = [...e.blocks].sort((a, b) => (b.flood_risk + b.drought_risk) - (a.flood_risk + a.drought_risk))[0];
+                    const isHeat = e.type.includes("Heatwave");
+                    return (
+                      <div className="border-t border-border px-3 py-2 text-[11px] space-y-2">
+                        <div className="grid grid-cols-4 gap-2 rounded bg-background/60 p-2 font-mono text-[10px]">
+                          <div><div className="text-muted-foreground text-[9px] uppercase tracking-widest">Avg flood</div><div style={{ color: "var(--risk-flood)" }}>{(avgFlood * 100).toFixed(0)}%</div></div>
+                          <div><div className="text-muted-foreground text-[9px] uppercase tracking-widest">Avg {isHeat ? "heat" : "drought"}</div><div style={{ color: "var(--risk-heat)" }}>{((isHeat ? avgHeat : avgDrought) * 100).toFixed(0)}%</div></div>
+                          <div><div className="text-muted-foreground text-[9px] uppercase tracking-widest">Rainfall</div><div>{avgRain.toFixed(1)} mm</div></div>
+                          <div><div className="text-muted-foreground text-[9px] uppercase tracking-widest">Soil</div><div>{(avgSoil * 100).toFixed(0)}%</div></div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-muted-foreground">Worst-hit block</div>
+                          <div className="mt-0.5">{worst.block_name} — flood {(worst.flood_risk * 100).toFixed(0)}% · {isHeat ? "heat" : "drought"} {((isHeat ? worst.heat_retention_score : worst.drought_risk) * 100).toFixed(0)}% · {worst.population.toLocaleString()} pop</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-muted-foreground">Affected blocks ({e.blocks.length})</div>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {e.blocks.slice(0, 12).map((b) => (
+                              <span key={b.block_id} className="rounded bg-background px-1.5 py-0.5">{b.block_name}</span>
+                            ))}
+                            {e.blocks.length > 12 && <span className="text-muted-foreground">+{e.blocks.length - 12} more</span>}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-muted-foreground">Cascade analysis</div>
+                          <div className="mt-0.5 text-muted-foreground">
+                            {isHeat
+                              ? `Concurrent flood (${(avgFlood * 100).toFixed(0)}%) + heat retention (${(avgHeat * 100).toFixed(0)}%). Elevated night LST prevents evaporative cooling of saturated topsoil, extending post-rain flood window by ~40%. Health risk (heat-stroke + waterborne) doubles for ${e.populationAffected.toLocaleString()} residents.`
+                              : `Concurrent flood (${(avgFlood * 100).toFixed(0)}%) + drought (${(avgDrought * 100).toFixed(0)}%). Baked topsoil (${(avgSoil * 100).toFixed(0)}% moisture) rejects infiltration — routed Kosi/Bagmati signal will run off surface, magnifying downstream stage by an additional ${((1 - avgSoil) * 30).toFixed(0)}% over standard curves.`}
+                          </div>
+                        </div>
+                        <div className="rounded bg-[color:var(--risk-compound)]/10 p-2 text-[color:var(--risk-compound)] space-y-1">
+                          <div className="font-semibold uppercase tracking-widest text-[10px]">Recommended actions</div>
+                          <ol className="list-decimal pl-4 space-y-0.5">
+                            <li>Pre-position NDRF Stage-{avgFlood >= 0.7 ? "3" : "2"} teams in {e.area} within {avgFlood >= 0.7 ? "3" : "6"} hours.</li>
+                            <li>Issue joint {isHeat ? "flood + heatwave" : "flood + drought"} advisory to {e.blocks.length} block panchayats; translate to Hindi/Maithili.</li>
+                            <li>{isHeat ? `Open cooling shelters at PHCs + Anganwadis in ${e.area}; stage ORS for ~${(e.populationAffected / 1000).toFixed(0)}k residents.` : `Coordinate agri-extension: verify tubewell head, advise short-duration paddy varieties in ${e.area}.`}</li>
+                            <li>Escalate to SDMA operations if severity climbs above ×{(e.severity + 0.5).toFixed(1)} in next 6-hour cycle.</li>
+                          </ol>
+                        </div>
                       </div>
-                      <div className="mt-2 rounded bg-[color:var(--risk-compound)]/10 p-2 text-[color:var(--risk-compound)]">
-                        Recommend: pre-position NDRF; issue heatwave + flood joint advisory.
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </li>
               ))}
             </ul>
