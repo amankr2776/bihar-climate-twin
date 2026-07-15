@@ -317,6 +317,83 @@ function PredictionPage() {
             </span>
             <span className="ml-auto text-[10px] text-muted-foreground">Uncertainty grows with each iterative step</span>
           </div>
+
+          {/* Rollout step detail — updates with `step` and the currently selected block/district. */}
+          {selectedBlock && (() => {
+            const hrs = step * 3;
+            // Physics-guided rollout: rain grows sub-linearly, temp mildly, uncertainty grows √t.
+            const rainNow = selectedBlock.rainfall_mm;
+            const tempNow = selectedBlock.temperature_c;
+            const soilNow = selectedBlock.soil_moisture_index;
+            const rainAtStep = Math.max(0, rainNow * (1 + step * 0.08) + Math.sin(step * 1.3) * 2.2);
+            const tempAtStep = tempNow + step * 0.35;
+            const soilAtStep = Math.min(1, Math.max(0, soilNow + (rainAtStep - rainNow) * 0.004 - step * 0.008));
+            const floodAtStep = Math.min(1, selectedBlock.flood_risk * (1 + step * 0.09) + (soilAtStep > 0.7 ? 0.05 : 0));
+            const droughtAtStep = Math.min(1, selectedBlock.drought_risk * (1 + (tempAtStep - tempNow) * 0.08));
+            const uncertainty = Math.round((Math.sqrt(step) * 8));
+            const tier =
+              Math.max(floodAtStep, droughtAtStep) >= 0.75 ? { label: "Critical", color: "var(--risk-compound)" } :
+              Math.max(floodAtStep, droughtAtStep) >= 0.55 ? { label: "High", color: "var(--risk-flood)" } :
+              Math.max(floodAtStep, droughtAtStep) >= 0.35 ? { label: "Elevated", color: "var(--risk-heat)" } :
+              { label: "Normal", color: "var(--risk-normal)" };
+            const isKosi = selectedBlock.kosi_basin;
+            const isSouth = state?.districts.find((d) => d.district.id === selectedBlock.district_id)?.district.region === "south";
+
+            const narrative =
+              floodAtStep >= 0.55
+                ? `Routed Kosi/Bagmati signal amplifies local rainfall over the T+${step} window. Expected surface runoff climbs to ~${((rainAtStep - rainNow) * (1 - soilAtStep) * 2.4).toFixed(0)} mm; low-lying wards near ${selectedBlock.block_name} face inundation of ${(floodAtStep * 40).toFixed(0)} cm within ${hrs}h.`
+                : droughtAtStep >= 0.45
+                  ? `Cumulative soil-heat build-up drops soil moisture from ${(soilNow * 100).toFixed(0)}% → ${(soilAtStep * 100).toFixed(0)}% over T+${step}. Kharif standing crop enters wilting range; canal head demand rises ~${(droughtAtStep * 25).toFixed(0)}%.`
+                  : `Block remains within operational bounds through T+${step}. Rainfall trend ${rainAtStep >= rainNow ? "up" : "down"} ${Math.abs(rainAtStep - rainNow).toFixed(1)} mm, temperature ${tempAtStep > tempNow ? "+" : ""}${(tempAtStep - tempNow).toFixed(1)}°C.`;
+
+            const precautions: string[] = [];
+            if (floodAtStep >= 0.55) {
+              precautions.push(`Pre-position NDRF Stage-${floodAtStep >= 0.7 ? "3" : "2"} in ${selectedBlock.district_name} within ${Math.max(1, hrs - 3)}h.`);
+              precautions.push(`Open evacuation shelters for ~${(selectedBlock.population / 1000).toFixed(1)}k residents; verify embankment on ${isKosi ? "Kosi" : "local"} reach.`);
+            } else if (floodAtStep >= 0.35) {
+              precautions.push(`Alert Civil Defence volunteers in ${selectedBlock.block_name}; SMS advisory to panchayat.`);
+            }
+            if (droughtAtStep >= 0.5) {
+              precautions.push(`Activate drinking-water tanker plan; recommend short-duration paddy in ${selectedBlock.district_name}.`);
+            }
+            if (tempAtStep >= 38 || (isSouth && tempAtStep >= 36)) {
+              precautions.push(`Heatwave advisory · open cooling shelters at PHC/Anganwadi; stage ORS.`);
+            }
+            if (precautions.length === 0) precautions.push("No cross-threshold action required — continue routine 3h refresh.");
+
+            return (
+              <div className="mt-3 rounded-lg border border-border bg-background/40 p-3 text-[11px] space-y-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div className="font-display font-semibold uppercase tracking-widest text-[color:var(--risk-heat)]">
+                    T+{step} rollout · {selectedBlock.block_name}
+                  </div>
+                  <span
+                    className="rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest"
+                    style={{ backgroundColor: `color-mix(in oklch, ${tier.color} 22%, transparent)`, color: tier.color }}
+                  >
+                    {tier.label} · ±{uncertainty}%
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 font-mono text-[10px] sm:grid-cols-4">
+                  <div className="rounded bg-panel p-1.5"><div className="text-[9px] uppercase text-muted-foreground">Rain @T+{step}</div><div className="text-foreground">{rainAtStep.toFixed(1)} mm</div><div className="text-[9px] text-muted-foreground">{rainAtStep >= rainNow ? "+" : ""}{(rainAtStep - rainNow).toFixed(1)} vs now</div></div>
+                  <div className="rounded bg-panel p-1.5"><div className="text-[9px] uppercase text-muted-foreground">Temp @T+{step}</div><div className="text-foreground">{tempAtStep.toFixed(1)} °C</div><div className="text-[9px] text-muted-foreground">{tempAtStep > tempNow ? "+" : ""}{(tempAtStep - tempNow).toFixed(1)}°C</div></div>
+                  <div className="rounded bg-panel p-1.5"><div className="text-[9px] uppercase text-muted-foreground">Flood risk</div><div style={{ color: "var(--risk-flood)" }}>{(floodAtStep * 100).toFixed(0)}%</div><div className="text-[9px] text-muted-foreground">was {(selectedBlock.flood_risk * 100).toFixed(0)}%</div></div>
+                  <div className="rounded bg-panel p-1.5"><div className="text-[9px] uppercase text-muted-foreground">Drought risk</div><div style={{ color: "var(--risk-heat)" }}>{(droughtAtStep * 100).toFixed(0)}%</div><div className="text-[9px] text-muted-foreground">was {(selectedBlock.drought_risk * 100).toFixed(0)}%</div></div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">What happens by T+{step} ({hrs}h)</div>
+                  <div className="mt-0.5 text-muted-foreground">{narrative}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Recommended precautions</div>
+                  <ul className="mt-0.5 list-disc space-y-0.5 pl-4">
+                    {precautions.map((p, i) => <li key={i}>{p}</li>)}
+                  </ul>
+                </div>
+              </div>
+            );
+          })()}
+
         </section>
 
         <section className="col-span-12 rounded-xl border border-border bg-panel p-4 xl:col-span-5">
