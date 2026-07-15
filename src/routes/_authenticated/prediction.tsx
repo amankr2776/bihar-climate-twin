@@ -412,15 +412,18 @@ function PredictionPage() {
           </div>
           {selectedBlock && (
             <>
-              <div className="mb-2 text-xs font-semibold">{selectedBlock.block_name}</div>
+              <div className="mb-2 flex items-baseline justify-between">
+                <div className="text-xs font-semibold">{selectedBlock.block_name}</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Preds @ T+{step} · {step * 3}h</div>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { key: "rainfall_mm", label: "Rainfall (mm)", pred: selectedBlock.rainfall_mm * 1.08 },
-                  { key: "temperature_c", label: "Temp (°C)", pred: selectedBlock.temperature_c + 0.4 },
-                  { key: "soil_moisture_index", label: "Soil", pred: selectedBlock.soil_moisture_index * 0.98 },
-                  { key: "heat_retention_score", label: "Heat", pred: selectedBlock.heat_retention_score * 1.02 },
-                  { key: "flood_risk", label: "Flood risk", pred: Math.min(1, selectedBlock.flood_risk * 1.1) },
-                  { key: "drought_risk", label: "Drought risk", pred: selectedBlock.drought_risk * 0.96 },
+                  { key: "rainfall_mm", label: "Rainfall (mm)", pred: Math.max(0, selectedBlock.rainfall_mm * (1 + step * 0.08) + Math.sin(step * 1.3) * 2.2) },
+                  { key: "temperature_c", label: "Temp (°C)", pred: selectedBlock.temperature_c + step * 0.35 },
+                  { key: "soil_moisture_index", label: "Soil", pred: Math.min(1, Math.max(0, selectedBlock.soil_moisture_index - step * 0.008 + (selectedBlock.rainfall_mm * 0.08 * step) * 0.004)) },
+                  { key: "heat_retention_score", label: "Heat", pred: Math.min(1, selectedBlock.heat_retention_score * (1 + step * 0.025)) },
+                  { key: "flood_risk", label: "Flood risk", pred: Math.min(1, selectedBlock.flood_risk * (1 + step * 0.09)) },
+                  { key: "drought_risk", label: "Drought risk", pred: Math.min(1, selectedBlock.drought_risk * (1 + step * 0.03)) },
                 ].map((f) => {
                   const cur = selectedBlock[f.key as keyof BlockState] as number;
                   const up = f.pred > cur;
