@@ -110,10 +110,20 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     const { blocks } = snapshot
       ? buildStateFromReadings(snapshot.readings, ts, bias)
       : generateBlockState(ts, bias);
-    const counts: Record<string, number> = {};
-    for (const b of blocks) counts[b.category] = (counts[b.category] ?? 0) + 1;
+    // Tier by peak risk so the cascade grid actually shows Elevated/High/Critical
+    // as the scenario ramps in (the raw category keys don't map to those tiers).
+    const counts: Record<string, number> = { normal: 0, elevated: 0, high: 0, critical: 0 };
+    for (const b of blocks) {
+      const peak = Math.max(b.flood_risk, b.drought_risk, b.heat_retention_score);
+      const tier =
+        b.compound_risk || peak >= 0.75 ? "critical" :
+        peak >= 0.55 ? "high" :
+        peak >= 0.35 ? "elevated" : "normal";
+      counts[tier] = (counts[tier] ?? 0) + 1;
+    }
     return { hours_ahead: h, category_counts: counts };
   });
+
 
   const last = cascade[cascade.length - 1].category_counts;
   const flood = (last.flood ?? 0) + (last.compound ?? 0);
