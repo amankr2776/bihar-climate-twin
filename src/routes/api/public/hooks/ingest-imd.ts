@@ -42,47 +42,27 @@ export const Route = createFileRoute("/api/public/hooks/ingest-imd")({
           return json({ error: "district_catalog_unavailable" }, 500);
         }
 
-        // 2. Open-Meteo supports batched coords in a single request.
-        const lat = districts.map((d) => d.lat).join(",");
-        const lng = districts.map((d) => d.lng).join(",");
-        // Open-Meteo archive API: start_date/end_date only (no past_days).
-        // ERA5-T reanalysis has ~5-day latency, so we target T-6d → T-2d
-        // window for reliable coverage of every district.
-        const url =
-          `https://archive-api.open-meteo.com/v1/archive` +
-          `?latitude=${lat}&longitude=${lng}` +
-          `&daily=precipitation_sum,temperature_2m_max,temperature_2m_min` +
-          `&timezone=Asia%2FKolkata` +
-          `&start_date=${daysAgo(PAST_DAYS + 5)}&end_date=${daysAgo(5)}`;
-
-        let payload: OpenMeteoResp[] | OpenMeteoResp;
+        // 2. Fetch Open-Meteo ERA5-T archive with retry+chunk. ERA5-T has
+        // ~5-day latency, so we target T-(PAST_DAYS+5) → T-5 for reliable
+        // coverage of every district.
+        let perDistrict;
         try {
-          const res = await fetch(url, {
-            headers: { accept: "application/json" },
-            signal: AbortSignal.timeout(25_000),
-          });
-          if (!res.ok) throw new Error(`upstream_${res.status}`);
-          payload = (await res.json()) as OpenMeteoResp[] | OpenMeteoResp;
+          perDistrict = await fetchDailyBatched(
+            "https://archive-api.open-meteo.com/v1/archive",
+            districts,
+            {
+              daily: "precipitation_sum,temperature_2m_max,temperature_2m_min",
+              timezone: "Asia/Kolkata",
+              start_date: daysAgo(PAST_DAYS + 5),
+              end_date: daysAgo(5),
+            },
+          );
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           await writeAudit(supabaseAdmin, "error", 0, 0, `openmeteo_fetch:${msg}`, startedAt);
           return json({ error: "upstream_fetch_failed", detail: msg }, 502);
         }
 
-        // Open-Meteo returns an array when multiple coords are supplied,
-        // a single object when only one. Normalize.
-        const perDistrict = Array.isArray(payload) ? payload : [payload];
-        if (perDistrict.length !== districts.length) {
-          await writeAudit(
-            supabaseAdmin,
-            "error",
-            0,
-            0,
-            `shape_mismatch: got ${perDistrict.length}, expected ${districts.length}`,
-            startedAt,
-          );
-          return json({ error: "shape_mismatch" }, 502);
-        }
 
         // 3. Flatten to (district, day) rows.
         const rows: Array<{
