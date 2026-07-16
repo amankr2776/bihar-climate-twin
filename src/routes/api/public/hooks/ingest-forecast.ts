@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { fetchDailyBatched } from "@/lib/varuna/openmeteo.server";
 
 /**
  * 0–7 day forecast ingest for the Varuna digital twin.
