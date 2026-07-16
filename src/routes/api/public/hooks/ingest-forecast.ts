@@ -8,14 +8,6 @@ import { createFileRoute } from "@tanstack/react-router";
  * Populates the "Forecast Horizon" panels on /prediction and the T+N maps.
  */
 
-type OpenMeteoDaily = {
-  time: string[];
-  precipitation_sum: (number | null)[];
-  temperature_2m_max: (number | null)[];
-  temperature_2m_min: (number | null)[];
-};
-type OpenMeteoResp = { daily?: OpenMeteoDaily };
-
 const FORECAST_DAYS = 7;
 const DATASET_VERSION = "openmeteo-gfs-v1";
 
