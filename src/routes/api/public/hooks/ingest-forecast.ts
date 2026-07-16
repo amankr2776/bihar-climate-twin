@@ -33,41 +33,23 @@ export const Route = createFileRoute("/api/public/hooks/ingest-forecast")({
           return json({ error: "district_catalog_unavailable" }, 500);
         }
 
-        const lat = districts.map((d) => d.lat).join(",");
-        const lng = districts.map((d) => d.lng).join(",");
-        const url =
-          `https://api.open-meteo.com/v1/forecast` +
-          `?latitude=${lat}&longitude=${lng}` +
-          `&daily=precipitation_sum,temperature_2m_max,temperature_2m_min` +
-          `&timezone=Asia%2FKolkata` +
-          `&forecast_days=${FORECAST_DAYS}`;
-
-        let payload: OpenMeteoResp[] | OpenMeteoResp;
+        let perDistrict;
         try {
-          const res = await fetch(url, {
-            headers: { accept: "application/json" },
-            signal: AbortSignal.timeout(25_000),
-          });
-          if (!res.ok) throw new Error(`upstream_${res.status}`);
-          payload = (await res.json()) as OpenMeteoResp[] | OpenMeteoResp;
+          perDistrict = await fetchDailyBatched(
+            "https://api.open-meteo.com/v1/forecast",
+            districts,
+            {
+              daily: "precipitation_sum,temperature_2m_max,temperature_2m_min",
+              timezone: "Asia/Kolkata",
+              forecast_days: String(FORECAST_DAYS),
+            },
+          );
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           await writeAudit(supabaseAdmin, "error", 0, 0, `openmeteo_fetch:${msg}`, startedAt);
           return json({ error: "upstream_fetch_failed", detail: msg }, 502);
         }
 
-        const perDistrict = Array.isArray(payload) ? payload : [payload];
-        if (perDistrict.length !== districts.length) {
-          await writeAudit(
-            supabaseAdmin,
-            "error",
-            0,
-            0,
-            `shape_mismatch: got ${perDistrict.length}, expected ${districts.length}`,
-            startedAt,
-          );
-          return json({ error: "shape_mismatch" }, 502);
-        }
 
         const runAt = new Date().toISOString();
         const rows: Array<{
