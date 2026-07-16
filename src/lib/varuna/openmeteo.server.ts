@@ -1,18 +1,14 @@
 /**
  * Shared Open-Meteo fetch helper for VARUNA ingestion hooks.
+ * Server-only (uses fetch/AbortSignal.timeout + long timeouts).
  *
- * Handles the two chronic reliability issues we saw in ingest_audit:
- *   1. Bursty 429s when 38 coords are stuffed into one URL — we now split
- *      the district list into smaller coordinate chunks and interleave a
- *      short delay between chunks so we stay under Open-Meteo's per-minute
- *      quota.
+ * Handles the two chronic reliability issues seen in ingest_audit:
+ *   1. Bursty 429s when 38 coords are stuffed into one URL — we split the
+ *      district list into smaller coordinate chunks with a short delay
+ *      between chunks to stay under Open-Meteo's per-minute quota.
  *   2. Transient upstream_429 / upstream_5xx with no retry — we now
- *      exponential-backoff (respecting Retry-After when the server sends
- *      it) up to `MAX_ATTEMPTS` before giving up on that chunk.
- *
- * The response is always an array of per-district daily blocks aligned
- * with the input district order, matching what the previous single-URL
- * flow returned.
+ *      exponential-backoff (honouring Retry-After when the server sends
+ *      it) up to MAX_ATTEMPTS before giving up on that chunk.
  */
 
 export type OpenMeteoDaily = {
@@ -26,7 +22,7 @@ export type OpenMeteoResp = { daily?: OpenMeteoDaily };
 
 type District = { id: string; lat: number; lng: number };
 
-const COORD_CHUNK = 12; // 3–4 chunks for 38 districts
+const COORD_CHUNK = 12; // 4 chunks for 38 districts
 const MAX_ATTEMPTS = 4;
 const CHUNK_DELAY_MS = 900;
 
@@ -69,7 +65,9 @@ async function fetchWithRetry(url: string): Promise<OpenMeteoResp[]> {
  * retrying transient failures. Returns one entry per district, in input order.
  */
 export async function fetchDailyBatched(
-  baseUrl: "https://api.open-meteo.com/v1/forecast" | "https://archive-api.open-meteo.com/v1/archive",
+  baseUrl:
+    | "https://api.open-meteo.com/v1/forecast"
+    | "https://archive-api.open-meteo.com/v1/archive",
   districts: District[],
   params: Record<string, string>,
 ): Promise<OpenMeteoResp[]> {
@@ -82,7 +80,9 @@ export async function fetchDailyBatched(
     const url = `${baseUrl}?${qs.toString()}`;
     const chunkResp = await fetchWithRetry(url);
     if (chunkResp.length !== slice.length) {
-      throw new Error(`shape_mismatch:chunk got ${chunkResp.length}, expected ${slice.length}`);
+      throw new Error(
+        `shape_mismatch:chunk got ${chunkResp.length}, expected ${slice.length}`,
+      );
     }
     out.push(...chunkResp);
     if (i + COORD_CHUNK < districts.length) await sleep(CHUNK_DELAY_MS);
