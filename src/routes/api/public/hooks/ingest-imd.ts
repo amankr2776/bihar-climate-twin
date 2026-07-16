@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { fetchDailyBatched } from "@/lib/varuna/openmeteo.server";
 
 /**
  * Operational NRT climate ingest for the Varuna digital twin.
@@ -10,21 +11,8 @@ import { createFileRoute } from "@tanstack/react-router";
  * provenance. When IMD Pune / MOSDAC gridded products are later published,
  * their higher-fidelity values overwrite this NRT layer via the same
  * (district_id, observed_on, source) unique key from the Python backfill.
- *
- * Provenance chain surfaced on /methodology:
- *   IMD Pune gridded 0.25° (historical, T-45d)  ← authoritative
- *   → Open-Meteo ERA5-T (NRT, T-1d)             ← this hook
- *   → GFS forecast (0–7d)                       ← prediction engine
  */
 
-type OpenMeteoDaily = {
-  time: string[];
-  precipitation_sum: (number | null)[];
-  temperature_2m_max: (number | null)[];
-  temperature_2m_min: (number | null)[];
-};
-
-type OpenMeteoResp = { daily?: OpenMeteoDaily };
 
 const PAST_DAYS = 10;
 const DATASET_VERSION = "openmeteo-era5t-NRT";
