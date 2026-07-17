@@ -3,13 +3,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, UserPlus, UserMinus, Sparkles } from "lucide-react";
+import { Loader2, ShieldCheck, UserPlus, UserMinus, Sparkles, Activity, RefreshCw } from "lucide-react";
 import {
   listUsersWithRoles,
   grantRole,
   revokeRole,
   getMyRoles,
   bootstrapFirstAdmin,
+  listIngestAudit,
 } from "@/lib/admin.functions";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { Button } from "@/components/ui/button";
