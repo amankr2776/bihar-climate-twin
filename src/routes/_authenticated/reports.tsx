@@ -313,12 +313,53 @@ function ReportsPage() {
                   );
                 })()}
 
-                <h3 className="mt-4 text-sm font-bold">AI Recommendations</h3>
-                <ol className="mt-1 list-decimal pl-5 text-xs">
-                  <li>Pre-position NDRF teams in Purnia and Kishanganj.</li>
-                  <li>Issue flood warnings for Kosi basin districts.</li>
-                  <li>Monitor soil moisture across southern districts.</li>
-                </ol>
+                {(() => {
+                  const ids = preview.districts?.length ? preview.districts : districts;
+                  const idSet = new Set(ids);
+                  const scoped = (liveState?.districts ?? []).filter((s) => idSet.has(s.district.id));
+                  const recs: string[] = [];
+                  const kosi = scoped
+                    .filter((s) => s.district.kosiBasin && s.flood_risk > 0.5)
+                    .sort((a, b) => b.flood_risk - a.flood_risk);
+                  if (kosi.length) {
+                    const top = kosi.slice(0, 3).map((s) => `${s.district.name} (${(s.flood_risk * 100).toFixed(0)}%)`).join(", ");
+                    const pop = kosi.slice(0, 3).reduce((a, b) => a + b.population_at_risk, 0);
+                    recs.push(`Pre-position NDRF Stage-2 boat teams for ${kosi.length} Kosi-basin districts — priority: ${top}. Population at risk ~${(pop / 1000).toFixed(0)}k; open EOC in ${kosi[0].district.name}.`);
+                  }
+                  const heat = scoped
+                    .filter((s) => s.district.region === "south" && s.drought_risk > 0.5)
+                    .sort((a, b) => b.drought_risk - a.drought_risk);
+                  if (heat.length) {
+                    recs.push(`Activate cooling shelters and public-health advisories across ${heat.length} south-Bihar districts — peak ${heat[0].district.name} at ${(heat[0].drought_risk * 100).toFixed(0)}% drought/heat stress.`);
+                  }
+                  const compound = scoped.filter((s) => s.compound_risk);
+                  if (compound.length) {
+                    recs.push(`Compound flood+drought signal in ${compound.length} district(s) (${compound.slice(0, 3).map((s) => s.district.name).join(", ")}) — trigger cross-agency joint task force and dual-hazard messaging.`);
+                  }
+                  const soilWatch = scoped
+                    .filter((s) => s.blocks.some((b) => b.soil_moisture < 0.2))
+                    .sort((a, b) => a.blocks[0].soil_moisture - b.blocks[0].soil_moisture);
+                  if (soilWatch.length) {
+                    recs.push(`Advise sowing delay + irrigation prioritisation in ${soilWatch.slice(0, 3).map((s) => s.district.name).join(", ")} — soil moisture below 20% threshold.`);
+                  }
+                  const floodOther = scoped
+                    .filter((s) => !s.district.kosiBasin && s.flood_risk > 0.55)
+                    .sort((a, b) => b.flood_risk - a.flood_risk);
+                  if (floodOther.length) {
+                    recs.push(`Second-tier flood watch outside Kosi: ${floodOther.slice(0, 3).map((s) => `${s.district.name} ${(s.flood_risk * 100).toFixed(0)}%`).join(", ")} — pre-stage sandbags and issue village-level advisories.`);
+                  }
+                  if (!recs.length) {
+                    recs.push(`No cross-threshold actions required across the ${scoped.length || ids.length} selected districts. Maintain routine monitoring cadence and re-run this report if the scenario or observations shift.`);
+                  }
+                  return (
+                    <>
+                      <h3 className="mt-4 text-sm font-bold">AI Recommendations</h3>
+                      <ol className="mt-1 list-decimal pl-5 text-xs">
+                        {recs.map((r, i) => <li key={i}>{r}</li>)}
+                      </ol>
+                    </>
+                  );
+                })()}
                 {notes && <><h3 className="mt-4 text-sm font-bold">Notes</h3><p className="text-xs">{notes}</p></>}
               </div>
             </div>
