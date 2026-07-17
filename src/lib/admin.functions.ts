@@ -126,3 +126,20 @@ export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { seeded: true };
   });
+
+/**
+ * Read recent ingest_audit rows for the admin observability panel.
+ * RLS restricts SELECT to admins, so we go through the user-scoped client.
+ */
+export const listIngestAudit = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    const { data, error } = await context.supabase
+      .from("ingest_audit")
+      .select("id, source, dataset_version, rows_received, rows_upserted, status, detail, started_at, finished_at")
+      .order("finished_at", { ascending: false })
+      .limit(60);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
