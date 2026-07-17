@@ -337,8 +337,8 @@ function ReportsPage() {
                     recs.push(`Compound flood+drought signal in ${compound.length} district(s) (${compound.slice(0, 3).map((s) => s.district.name).join(", ")}) — trigger cross-agency joint task force and dual-hazard messaging.`);
                   }
                   const soilWatch = scoped
-                    .filter((s) => s.blocks.some((b) => b.soil_moisture < 0.2))
-                    .sort((a, b) => a.blocks[0].soil_moisture - b.blocks[0].soil_moisture);
+                    .filter((s) => s.blocks.some((b) => b.soil_moisture_index < 0.2))
+                    .sort((a, b) => a.blocks[0].soil_moisture_index - b.blocks[0].soil_moisture_index);
                   if (soilWatch.length) {
                     recs.push(`Advise sowing delay + irrigation prioritisation in ${soilWatch.slice(0, 3).map((s) => s.district.name).join(", ")} — soil moisture below 20% threshold.`);
                   }
