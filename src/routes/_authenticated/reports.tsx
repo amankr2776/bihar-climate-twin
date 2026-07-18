@@ -134,8 +134,10 @@ function ReportsPage() {
 
 
 
+  if (!liveState) return <PageSkeleton label="Loading decision reports…" />;
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
+
       <PageHeader
         title={t("page.reports.title")}
         help={{
