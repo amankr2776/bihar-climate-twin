@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DISTRICTS } from "@/lib/varuna/districts";
 import { varunaStore, useVarunaStore, type SavedReport } from "@/lib/varuna/store";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/reports")({
@@ -133,8 +134,10 @@ function ReportsPage() {
 
 
 
+  if (!liveState) return <PageSkeleton label="Loading decision reports…" />;
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
+
       <PageHeader
         title={t("page.reports.title")}
         help={{

@@ -98,6 +98,8 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     snapshot = null;
   }
 
+  // Final biased state (t+12h) used for headline scores.
+  let finalBlocks: BlockState[] = [];
   const cascade = [0, 3, 6, 9, 12].map((h) => {
     const ts = new Date(now.getTime() + h * 3600_000).toISOString();
     // Ramp the anomaly in over time (0 at now, full at +12h).
@@ -110,6 +112,7 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     const { blocks } = snapshot
       ? buildStateFromReadings(snapshot.readings, ts, bias)
       : generateBlockState(ts, bias);
+    if (h === 12) finalBlocks = blocks;
     // Tier by peak risk so the cascade grid actually shows Elevated/High/Critical
     // as the scenario ramps in (the raw category keys don't map to those tiers).
     const counts: Record<string, number> = { normal: 0, elevated: 0, high: 0, critical: 0 };
@@ -124,21 +127,32 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
     return { hours_ahead: h, category_counts: counts };
   });
 
-
-  const last = cascade[cascade.length - 1].category_counts;
-  const flood = (last.flood ?? 0) + (last.compound ?? 0);
-  const heat = (last.heat ?? 0) + (last.compound ?? 0);
-  const compound = last.compound ?? 0;
-  const districtsAffected = Math.round((flood + heat) / 14);
+  // Aggregate the final biased state directly — the cascade tier counts don't
+  // carry per-hazard signal, so headline scores derive from block risks.
+  const totalBlocks = Math.max(1, finalBlocks.length);
+  const meanFlood = finalBlocks.reduce((s, b) => s + b.flood_risk, 0) / totalBlocks;
+  const meanDrought = finalBlocks.reduce((s, b) => s + b.drought_risk, 0) / totalBlocks;
+  const meanHeat = finalBlocks.reduce((s, b) => s + b.heat_retention_score, 0) / totalBlocks;
+  const peakFlood = finalBlocks.reduce((m, b) => Math.max(m, b.flood_risk), 0);
+  const peakDrought = finalBlocks.reduce((m, b) => Math.max(m, b.drought_risk), 0);
+  const peakHeat = finalBlocks.reduce((m, b) => Math.max(m, b.heat_retention_score), 0);
+  const compoundCount = finalBlocks.filter((b) => b.compound_risk).length;
+  const affectedDistricts = new Set(
+    finalBlocks
+      .filter((b) => b.flood_risk >= 0.5 || b.drought_risk >= 0.5 || b.heat_retention_score >= 0.6 || b.compound_risk)
+      .map((b) => b.district_id),
+  );
 
   const label = (score: number) =>
     score >= 0.75 ? "Severe" : score >= 0.5 ? "Elevated" : score >= 0.25 ? "Watch" : "Normal";
 
-  const floodScore = Math.min(1, flood / 250);
-  const droughtScore = Math.min(1, heat / 250);
+  // Weighted blend of mean (breadth) and peak (worst-case) so a few critical
+  // blocks still lift the headline while broad coverage isn't drowned out.
+  const floodScore = Math.min(1, 0.55 * peakFlood + 0.45 * meanFlood * 1.8);
+  const droughtScore = Math.min(1, 0.55 * peakDrought + 0.45 * meanDrought * 1.8);
   const heatScore = Math.min(
     1,
-    (last.heat ?? 0) / 200 + Math.max(0, input.temperature_anomaly_c) / 10,
+    0.55 * peakHeat + 0.45 * meanHeat * 1.8 + Math.max(0, input.temperature_anomaly_c) / 12,
   );
   const coldScore = Math.max(0, -input.temperature_anomaly_c) / 8;
 
@@ -177,7 +191,7 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
         input.soil_condition === "drought-baked" ? 0.55 : 0;
       const rainAmp = Math.abs(input.rainfall_anomaly_pct) / 100;
       const tempAmp = Math.abs(input.temperature_anomaly_c) / 10;
-      const compoundBoost = compound / 25;
+      const compoundBoost = compoundCount / 25;
       let m = 1 + maxRisk * 1.4 + soilBoost + rainAmp * 0.5 + tempAmp * 0.4 + compoundBoost;
       // Compound amplification: severe + saturated + heavy rain magnifies further.
       if (floodScore >= 0.75 && input.soil_condition === "saturated") m += 0.35;
@@ -186,7 +200,7 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
       else if (maxRisk >= 0.5) m = Math.max(m, 1.45);
       return +Math.min(3.5, m).toFixed(2);
     })(),
-    districts_affected: Math.min(38, districtsAffected),
+    districts_affected: Math.min(38, affectedDistricts.size),
     cascade,
   };
 }

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Cpu, Activity, Target, TrendingDown, ArrowUp, ArrowDown, Database, CloudRain } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { useImdNormals } from "@/lib/varuna/imd-normals";
 import { useForecast, forecastForDistrict } from "@/lib/varuna/forecast";
 
@@ -158,6 +159,7 @@ function PredictionPage() {
   const blocks = state?.blocks ?? [];
   const filteredBlocks = blocks.filter((b) => b.block_name.toLowerCase().includes(blockSearch.toLowerCase())).slice(0, 8);
 
+  if (!state) return <PageSkeleton label="Loading prediction engine…" />;
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader

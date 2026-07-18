@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Flame, Users } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 
 import { historicalCompoundEvents } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
@@ -100,6 +101,7 @@ function CompoundPage() {
   const paged = sortedHistory.slice(page * 10, page * 10 + 10);
   const totalPages = Math.max(1, Math.ceil(sortedHistory.length / 10));
 
+  if (!state) return <PageSkeleton label="Loading compound risk state…" />;
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader

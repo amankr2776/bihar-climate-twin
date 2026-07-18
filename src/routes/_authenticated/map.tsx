@@ -6,6 +6,7 @@ import type { PathOptions } from "leaflet";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass, Lock } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
 import { block30DayHistory } from "@/lib/varuna/extra-api";
@@ -232,8 +233,10 @@ function MapPage() {
     toast.success("GeoJSON downloaded");
   };
 
+  if (!state) return <PageSkeleton label="Loading Bihar map…" />;
   return (
     <div className="flex h-[calc(100vh-88px)] w-full">
+
       {!collapsed && (
         <div className="flex w-[280px] shrink-0 flex-col overflow-y-auto border-r border-border bg-panel">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
