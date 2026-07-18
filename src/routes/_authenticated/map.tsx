@@ -233,8 +233,10 @@ function MapPage() {
     toast.success("GeoJSON downloaded");
   };
 
+  if (!state) return <PageSkeleton label="Loading Bihar map…" />;
   return (
     <div className="flex h-[calc(100vh-88px)] w-full">
+
       {!collapsed && (
         <div className="flex w-[280px] shrink-0 flex-col overflow-y-auto border-r border-border bg-panel">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
