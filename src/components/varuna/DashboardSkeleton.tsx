@@ -37,8 +37,6 @@ export function PageSkeleton({ label = "Loading data…" }: { label?: string } =
   );
 }
 
-import { Skeleton as _Skeleton } from "@/components/ui/skeleton";
-void _Skeleton;
 
 
 export function DashboardSkeleton() {
