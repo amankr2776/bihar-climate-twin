@@ -6,6 +6,7 @@ import type { PathOptions } from "leaflet";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Search, Download, FileDown, FileText, X, Compass, Lock } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
 import { block30DayHistory } from "@/lib/varuna/extra-api";
