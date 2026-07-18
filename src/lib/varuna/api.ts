@@ -191,7 +191,7 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
         input.soil_condition === "drought-baked" ? 0.55 : 0;
       const rainAmp = Math.abs(input.rainfall_anomaly_pct) / 100;
       const tempAmp = Math.abs(input.temperature_anomaly_c) / 10;
-      const compoundBoost = compound / 25;
+      const compoundBoost = compoundCount / 25;
       let m = 1 + maxRisk * 1.4 + soilBoost + rainAmp * 0.5 + tempAmp * 0.4 + compoundBoost;
       // Compound amplification: severe + saturated + heavy rain magnifies further.
       if (floodScore >= 0.75 && input.soil_condition === "saturated") m += 0.35;
@@ -200,7 +200,7 @@ export async function runSimulation(input: SimulationInput): Promise<SimulationR
       else if (maxRisk >= 0.5) m = Math.max(m, 1.45);
       return +Math.min(3.5, m).toFixed(2);
     })(),
-    districts_affected: Math.min(38, districtsAffected),
+    districts_affected: Math.min(38, affectedDistricts.size),
     cascade,
   };
 }
