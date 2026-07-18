@@ -1,5 +1,46 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+/**
+ * Shared full-page skeleton used across compound / prediction / map / reports
+ * / alerts so every route displays the same "waiting for climate state"
+ * treatment while `useCurrentState()` resolves.
+ */
+export function PageSkeleton({ label = "Loading data…" }: { label?: string } = {}) {
+  return (
+    <div aria-busy="true" aria-label={label} className="mx-auto max-w-7xl space-y-4 p-4 lg:p-6">
+      <div className="space-y-2">
+        <Skeleton className="h-6 w-56" />
+        <Skeleton className="h-3 w-80" />
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-xl border border-border bg-panel p-3">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="mt-3 h-6 w-16" />
+            <Skeleton className="mt-3 h-3 w-full" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border border-border bg-panel p-4 lg:col-span-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="mt-3 h-[320px] w-full" />
+        </div>
+        <div className="space-y-3 rounded-xl border border-border bg-panel p-4">
+          <Skeleton className="h-4 w-32" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-3 w-full" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+import { Skeleton as _Skeleton } from "@/components/ui/skeleton";
+void _Skeleton;
+
+
 export function DashboardSkeleton() {
   return (
     <div aria-busy="true" aria-label="Loading dashboard" className="space-y-4">
