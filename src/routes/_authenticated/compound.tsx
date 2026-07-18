@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AlertTriangle, Flame, Users } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
+import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 
 import { historicalCompoundEvents } from "@/lib/varuna/extra-api";
 import { PageHeader } from "@/components/varuna/HelpModal";
