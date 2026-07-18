@@ -159,6 +159,7 @@ function PredictionPage() {
   const blocks = state?.blocks ?? [];
   const filteredBlocks = blocks.filter((b) => b.block_name.toLowerCase().includes(blockSearch.toLowerCase())).slice(0, 8);
 
+  if (!state) return <PageSkeleton label="Loading prediction engine…" />;
   return (
     <div className="mx-auto max-w-[1600px] p-4 lg:p-6">
       <PageHeader
