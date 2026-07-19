@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { type AlertItem } from "@/lib/varuna/api";
 import { useAlerts } from "@/lib/varuna/useCurrentState";
 
-import { alertHistory } from "@/lib/varuna/extra-api";
+import { useAlertHistory } from "@/lib/varuna/real-metrics";
 import { downloadCapXml, downloadCapBundle } from "@/lib/varuna/cap-export";
 import { varunaStore, useVarunaStore } from "@/lib/varuna/store";
 import { DISTRICTS } from "@/lib/varuna/districts";
@@ -96,7 +96,7 @@ function AlertsPage() {
   const critical = active.filter((a) => a.severity === "critical").length;
   const high = active.filter((a) => a.severity === "high").length;
 
-  const history = useMemo(() => alertHistory(), []);
+  const { data: history = [] } = useAlertHistory();
   const filteredHistory = history.filter((h) => !dateFrom || h.triggeredAt >= dateFrom);
   const historyPaged = filteredHistory.slice(page * 15, page * 15 + 15);
 
