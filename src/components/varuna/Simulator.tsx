@@ -7,6 +7,33 @@ const SOIL_OPTIONS: Array<{ v: SimulationInput["soil_condition"]; label: string;
   { v: "saturated", label: "Saturated", hint: "Already at field capacity" },
 ];
 
+const PRESETS: Array<{
+  key: string;
+  label: string;
+  hint: string;
+  input: SimulationInput;
+}> = [
+  {
+    key: "kosi-2008",
+    label: "Kosi 2008",
+    hint: "Aug 2008 embankment breach — extreme rainfall on saturated soils",
+    input: { rainfall_anomaly_pct: 45, temperature_anomaly_c: 1, soil_condition: "saturated" },
+  },
+  {
+    key: "gaya-2019",
+    label: "S. Bihar heat 2019",
+    hint: "Jun 2019 Gaya/Aurangabad heatwave — deficit rain, baked soils",
+    input: { rainfall_anomaly_pct: -35, temperature_anomaly_c: 4, soil_condition: "drought-baked" },
+  },
+  {
+    key: "monsoon-2020",
+    label: "Monsoon 2020",
+    hint: "Sept 2020 Bagmati/Kamla surge — surplus rain, saturated basin",
+    input: { rainfall_anomaly_pct: 30, temperature_anomaly_c: 0.5, soil_condition: "saturated" },
+  },
+];
+
+
 export function Simulator({ busy = false }: { busy?: boolean } = {}) {
   const baseId = useId();
   const rainId = `${baseId}-rain`;
@@ -52,6 +79,26 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
             Inject an anomaly and roll the PI-GNN forward 15 hours. Output is illustrative for the scenario shown.
           </p>
         </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground self-center">Historical presets</span>
+        {PRESETS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            title={p.hint}
+            disabled={disabled}
+            onClick={() => {
+              setRain(p.input.rainfall_anomaly_pct);
+              setTemp(p.input.temperature_anomaly_c);
+              setSoil(p.input.soil_condition);
+            }}
+            className="rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] hover:bg-background/70 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
