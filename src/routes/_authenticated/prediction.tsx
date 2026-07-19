@@ -6,7 +6,7 @@ import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { useImdNormals } from "@/lib/varuna/imd-normals";
 import { useForecast, forecastForDistrict } from "@/lib/varuna/forecast";
 
-import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
+import { useValidationSeries, usePredObsScatter, useBlockHistory } from "@/lib/varuna/real-metrics";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
@@ -107,19 +107,20 @@ function PredictionPage() {
 
 
 
-  const validation = useMemo(() => validationSeries(), []);
-  const scatter = useMemo(() => predObsScatter(), []);
+  const { data: validation = [] } = useValidationSeries();
+  const { data: scatter = [] } = usePredObsScatter();
   const currentCsi = validation[validation.length - 1]?.csi ?? 0.82;
   const currentRmse = validation[validation.length - 1]?.rmse ?? 3.6;
   const persistenceRmse = validation[validation.length - 1]?.persistenceRmse ?? 4.9;
-  const improvement = Math.round(((persistenceRmse - currentRmse) / persistenceRmse) * 100);
+  const improvement = persistenceRmse > 0 ? Math.round(((persistenceRmse - currentRmse) / persistenceRmse) * 100) : 0;
 
-  // R²
+  // R² over real (pred, obs) pairs.
   const r2 = useMemo(() => {
+    if (scatter.length < 2) return 0;
     const meanObs = scatter.reduce((s, p) => s + p.obs, 0) / scatter.length;
     const ssRes = scatter.reduce((s, p) => s + (p.obs - p.pred) ** 2, 0);
     const ssTot = scatter.reduce((s, p) => s + (p.obs - meanObs) ** 2, 0);
-    return 1 - ssRes / ssTot;
+    return ssTot > 0 ? 1 - ssRes / ssTot : 0;
   }, [scatter]);
 
   const districtForecast = useMemo(

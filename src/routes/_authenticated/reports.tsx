@@ -73,9 +73,14 @@ function ReportsPage() {
   const generate = async () => {
     setGenerating(true);
     await new Promise((r) => setTimeout(r, 2000));
+    // Deterministic size ~ number of districts × content density per report type.
+    const density = type.toLowerCase().includes("compound") || type.toLowerCase().includes("ai") ? 18
+      : type.toLowerCase().includes("ndrf") || type.toLowerCase().includes("infrastructure") ? 14
+      : 10;
+    const sizeKb = 120 + Math.max(1, districts.length) * density;
     const rep: SavedReport = {
       id: `rep-${Date.now()}`, type, generatedAt: new Date().toISOString().slice(0, 10),
-      period: `${from} → ${to}`, author: authorFor(type), sizeKb: 200 + Math.floor(Math.random() * 400),
+      period: `${from} → ${to}`, author: authorFor(type), sizeKb,
       districts,
     };
     varunaStore.set((s) => ({ savedReports: [rep, ...s.savedReports] }));

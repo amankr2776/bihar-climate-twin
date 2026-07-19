@@ -4,7 +4,7 @@ import { AlertTriangle, Flame, Users } from "lucide-react";
 import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 
-import { historicalCompoundEvents } from "@/lib/varuna/extra-api";
+import { useHistoricalCompoundEvents } from "@/lib/varuna/real-metrics";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
@@ -92,7 +92,7 @@ function CompoundPage() {
   const displayedBlockCount = compoundBlocks.length + scen.blocksBoost;
   const maxSeverity = (activeEvents.length ? Math.max(...activeEvents.map((e) => e.severity)) : 0) + scen.severityBoost;
 
-  const history = historicalCompoundEvents();
+  const { data: history = [] } = useHistoricalCompoundEvents();
   const filteredHistory = history.filter((h) => h.region.toLowerCase().includes(search.toLowerCase()));
   const sortedHistory = [...filteredHistory].sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey];

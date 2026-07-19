@@ -9,7 +9,7 @@ import { useCurrentState } from "@/lib/varuna/useCurrentState";
 import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { BIHAR_BOUNDS } from "@/lib/varuna/districts";
 import { RISK_COLORS, type BlockState, type DistrictState } from "@/lib/varuna/state";
-import { block30DayHistory } from "@/lib/varuna/extra-api";
+import { useBlockHistory } from "@/lib/varuna/real-metrics";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -408,7 +408,7 @@ function MapPage() {
           <DialogHeader>
             <DialogTitle>30-day history · {selectedBlock?.block_name}</DialogTitle>
           </DialogHeader>
-          {selectedBlock && <FeatureHistory seed={selectedBlock.block_id.length} />}
+          {selectedBlock && <FeatureHistory districtId={selectedBlock.district_id} />}
         </DialogContent>
       </Dialog>
 
@@ -447,7 +447,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function BlockPopup({ block, onFullHistory }: { block: BlockState; onFullHistory: () => void }) {
-  const spark = useMemo(() => block30DayHistory(block.block_id.length).slice(-7), [block.block_id]);
+  const { data: history = [] } = useBlockHistory(block.district_id);
+  const spark = history.slice(-7);
   const sev = block.compound_risk ? "CRITICAL" : block.flood_risk >= 0.6 ? "HIGH" : "MEDIUM";
   return (
     <div className="w-64 space-y-1 text-xs text-slate-800">
@@ -481,8 +482,8 @@ function BlockPopup({ block, onFullHistory }: { block: BlockState; onFullHistory
   );
 }
 
-function FeatureHistory({ seed }: { seed: number }) {
-  const data = block30DayHistory(seed);
+function FeatureHistory({ districtId }: { districtId: string }) {
+  const { data: data = [] } = useBlockHistory(districtId);
   const fields: { key: keyof typeof data[0]; label: string; color: string }[] = [
     { key: "rainfall", label: "Rainfall (mm)", color: "var(--risk-flood)" },
     { key: "temp", label: "Temperature (°C)", color: "var(--risk-heat)" },
