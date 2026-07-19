@@ -6,7 +6,7 @@ import { PageSkeleton } from "@/components/varuna/DashboardSkeleton";
 import { useImdNormals } from "@/lib/varuna/imd-normals";
 import { useForecast, forecastForDistrict } from "@/lib/varuna/forecast";
 
-import { validationSeries, predObsScatter, block30DayHistory } from "@/lib/varuna/extra-api";
+import { useValidationSeries, usePredObsScatter, useBlockHistory } from "@/lib/varuna/real-metrics";
 import { PageHeader } from "@/components/varuna/HelpModal";
 import { ProvenanceStrip } from "@/components/varuna/ProvenanceStrip";
 import { Input } from "@/components/ui/input";
