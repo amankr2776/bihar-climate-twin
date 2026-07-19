@@ -81,6 +81,26 @@ export function Simulator({ busy = false }: { busy?: boolean } = {}) {
         </div>
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground self-center">Historical presets</span>
+        {PRESETS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            title={p.hint}
+            disabled={disabled}
+            onClick={() => {
+              setRain(p.input.rainfall_anomaly_pct);
+              setTemp(p.input.temperature_anomaly_c);
+              setSoil(p.input.soil_condition);
+            }}
+            className="rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] hover:bg-background/70 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
         <label htmlFor={rainId} className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
