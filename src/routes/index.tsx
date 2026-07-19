@@ -34,7 +34,6 @@ export const Route = createFileRoute("/")({
     links: [
       { rel: "canonical", href: `${SITE_URL}/` },
       { rel: "preload", as: "image", href: heroPoster, fetchPriority: "high" } as any,
-      { rel: "preload", as: "video", href: heroVideo720.url, type: "video/mp4" } as any,
     ],
   }),
   component: Landing,
